@@ -13,7 +13,6 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tippyjs/react": "^4.2.6",
     "axios": "^1.10.0",
-    "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
     "dom-to-image-more": "^3.6.0",
     "file-saver": "^2.0.5",
