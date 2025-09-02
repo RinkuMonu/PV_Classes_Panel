@@ -38,6 +38,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Notes", Icon: ShoppingCart, path: "/notes" },
     { name: "Pyq", Icon: ShoppingCart, path: "/pyq" },
     { name: "Faq", Icon: ShoppingCart, path: "/faq" },
+    { name: "CurrentAffairs", Icon: ShoppingCart, path: "/affairs" },
     // { name: "Our Staff", Icon: UserCog },
     { name: "Settings", Icon: Settings, path: "/setting" },
     // { name: "Online Store", Icon: Store },
