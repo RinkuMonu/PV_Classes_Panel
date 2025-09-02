@@ -22,6 +22,7 @@ import AttributesValues from './components/Pages/Attribute/AttributesValues';
 import Notifications from './components/Pages/Notification/Notifications';
 import ViewCategory from './components/Pages/category/ViewCategory';
 import CustomerOrderList from './components/Pages/customers/CustomerOrderList';
+import AllUser from './components/Pages/Alluser/AllUser';
 
 
 const Layout = () => {
@@ -62,6 +63,7 @@ function App() {
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard user={user}/>} />
         <Route path="/customer" element={<Customer />} />
+        <Route path="/alluser" element={<AllUser />} />
         <Route path="/customer/:id" element={<CustomerOrderList />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/catalog/products" element={<Product />} />

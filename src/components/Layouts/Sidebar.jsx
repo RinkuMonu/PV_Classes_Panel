@@ -42,6 +42,7 @@ const Sidebar = ({ isCollapsed }) => {
 
   const catalogSubItems = [
     { name: "Products", path: "/catalog/products" },
+    { name: "AllUser", path: "/catalog/products" },
     { name: "Categories", path: "/catalog/categories" },
     // { name: "Attributes", path: "/catalog/attributes" },
     { name: "Coupons", path: "/catalog/coupons" },
