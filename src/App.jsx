@@ -28,6 +28,11 @@ import Pyq from './components/Pages/PYQ/pyq';
 import FAQ from './components/Pages/FAQ/faq';
 import CurrentAffairsAdmin from './components/Pages/CurrentAffairs/currentaffairs';
 
+import CourceCategory from './components/Pages/courses/CourceCategory';
+import ExamType from './components/Pages/courses/ExamType';
+import Exam from './components/Pages/courses/Exam';
+import Course from './components/Pages/courses/Course';
+
 
 const Layout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -66,6 +71,12 @@ function App() {
       <Route path="/signup" element={<PublicRoute><CreateAccount /></PublicRoute>} />
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard user={user}/>} />
+
+        <Route path="/courses/categories" element={<CourceCategory />} />
+        <Route path="/courses/exam-types" element={<ExamType />} />
+        <Route path="/courses/exams" element={<Exam />} />
+        <Route path="/courses/courses" element={<Course />} />
+
         <Route path="/customer" element={<Customer />} />
         <Route path="/alluser" element={<AllUser />} />
         <Route path="/customer/:id" element={<CustomerOrderList />} />
