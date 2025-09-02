@@ -215,7 +215,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "FAQ", Icon: Calendar, path: "/faq" },
     { name: "Current Affairs", Icon: Calendar, path: "/affairs" },
     { name: "Users", Icon: Users, path: "/users" },
-    { name: "Doubts", Icon: HelpCircle, path: "/doubts" },
+    { name: "DoubtsTable", Icon: HelpCircle, path: "/doubt" },
     { name: "Notification", Icon: Bell, path: "/notification" },
     { name: "Orders", Icon: CreditCard, path: "/orders" },
   ];
