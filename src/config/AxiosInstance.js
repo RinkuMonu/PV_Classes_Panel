@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://192.168.1.36/api",
+  baseURL: "https://api.pvclasses.in/api",
+    //  baseURL: "http://localhost:5006/api",
   headers: {
     "Content-Type": "application/json",
   },
