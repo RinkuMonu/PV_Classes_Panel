@@ -26,6 +26,7 @@ import AllUser from './components/Pages/Alluser/AllUser';
 import Notes from './components/Pages/Notes/Notes';
 import Pyq from './components/Pages/PYQ/pyq';
 import FAQ from './components/Pages/FAQ/faq';
+import CurrentAffairsAdmin from './components/Pages/CurrentAffairs/currentaffairs';
 
 
 const Layout = () => {
@@ -83,6 +84,7 @@ function App() {
         <Route path="/notes" element={<Notes/>} />
         <Route path="/pyq" element={<Pyq/>} />
         <Route path="/faq" element={<FAQ/>} />
+        <Route path="/affairs" element={<CurrentAffairsAdmin/>} />
         
       </Route>
     </Routes>
