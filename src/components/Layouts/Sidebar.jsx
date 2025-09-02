@@ -253,9 +253,8 @@ const Sidebar = ({ isCollapsed }) => {
                 >
                   <div className="flex items-center space-x-3">
                     <Icon size={18} className="flex-shrink-0" />
-                    <span className={`transition-opacity duration-300 ${
-                      isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
-                    }`}>
+                    <span className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
+                      }`}>
                       {name}
                     </span>
                   </div>
@@ -277,11 +276,10 @@ const Sidebar = ({ isCollapsed }) => {
                       <Link
                         to={path}
                         key={name}
-                        className={`block py-1 transition-colors duration-200 ${
-                          isActive(path)
+                        className={`block py-1 transition-colors duration-200 ${isActive(path)
                             ? 'text-green-600 font-medium'
                             : 'text-gray-600 hover:text-green-600'
-                        }`}
+                          }`}
                       >
                         – {name}
                       </Link>
@@ -292,16 +290,14 @@ const Sidebar = ({ isCollapsed }) => {
             ) : path ? (
               <Link
                 to={path}
-                className={`flex items-center p-2 rounded-md transition-colors duration-200 ${
-                  isActive(path)
+                className={`flex items-center p-2 rounded-md transition-colors duration-200 ${isActive(path)
                     ? 'bg-green-50 text-green-600'
                     : 'text-gray-700 hover:bg-gray-100 hover:text-green-600'
-                }`}
+                  }`}
               >
                 <Icon size={18} className="flex-shrink-0" />
-                <span className={`ml-3 transition-opacity duration-300 ${
-                  isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
-                }`}>
+                <span className={`ml-3 transition-opacity duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
+                  }`}>
                   {name}
                 </span>
               </Link>
@@ -309,9 +305,8 @@ const Sidebar = ({ isCollapsed }) => {
               <div className="flex items-center p-2 rounded-md hover:bg-gray-100 
                 text-gray-700 hover:text-green-600 cursor-pointer transition-colors duration-200">
                 <Icon size={18} className="flex-shrink-0" />
-                <span className={`ml-3 transition-opacity duration-300 ${
-                  isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
-                }`}>
+                <span className={`ml-3 transition-opacity duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
+                  }`}>
                   {name}
                 </span>
               </div>
