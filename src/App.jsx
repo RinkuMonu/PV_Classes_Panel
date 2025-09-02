@@ -23,6 +23,9 @@ import Notifications from './components/Pages/Notification/Notifications';
 import ViewCategory from './components/Pages/category/ViewCategory';
 import CustomerOrderList from './components/Pages/customers/CustomerOrderList';
 import AllUser from './components/Pages/Alluser/AllUser';
+import Notes from './components/Pages/Notes/Notes';
+import Pyq from './components/Pages/PYQ/pyq';
+import FAQ from './components/Pages/FAQ/faq';
 
 
 const Layout = () => {
@@ -77,6 +80,9 @@ function App() {
         <Route path="/setting" element={<SettingsPage />} />
         <Route path="/edit-profile" element={<ProfileForm />} />
         <Route path="/notification" element={<Notifications />} />
+        <Route path="/notes" element={<Notes/>} />
+        <Route path="/pyq" element={<Pyq/>} />
+        <Route path="/faq" element={<FAQ/>} />
         
       </Route>
     </Routes>
