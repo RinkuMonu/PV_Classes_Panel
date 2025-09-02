@@ -32,6 +32,7 @@ import CourceCategory from './components/Pages/courses/CourceCategory';
 import ExamType from './components/Pages/courses/ExamType';
 import Exam from './components/Pages/courses/Exam';
 import Course from './components/Pages/courses/Course';
+import DoubtsTable from './components/Pages/Doubts/Doubt';
 
 
 const Layout = () => {
@@ -96,6 +97,7 @@ function App() {
         <Route path="/pyq" element={<Pyq/>} />
         <Route path="/faq" element={<FAQ/>} />
         <Route path="/affairs" element={<CurrentAffairsAdmin/>} />
+        <Route path="/doubt" element={<DoubtsTable/>} />
         
       </Route>
     </Routes>
