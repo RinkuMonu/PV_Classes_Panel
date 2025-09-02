@@ -1,496 +1,941 @@
-// src/pages/AllUser.jsx
-import { useState, useEffect, useMemo } from "react";
-import {
-  Download,
-  Upload,
-  Trash2,
-  Plus,
-  Search,
-  Eye,
-  Pencil,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import Tippy from "@tippyjs/react";
-import "tippy.js/dist/tippy.css";
-import Swal from "sweetalert2";
-import axiosInstance from "../../../config/AxiosInstance"; // adjust path if needed
 
-const roleBadgeClass = (role) => {
-  const r = String(role || "").toLowerCase();
-  if (r === "admin") return "bg-purple-100 text-purple-800";
-  if (r === "superadmin") return "bg-indigo-100 text-indigo-800";
-  return "bg-gray-100 text-gray-800";
-};
-const statusBadgeClass = (status) => {
-  const s = String(status || "").toLowerCase();
-  if (s === "active") return "bg-green-100 text-green-800";
-  if (s === "blocked") return "bg-red-100 text-red-800";
-  return "bg-yellow-100 text-yellow-800"; // pending / others
-};
+// import React, { useState, useEffect } from 'react';
+// import { toast } from 'react-toastify';
+// import axios from 'axios';
 
-const formatDateTime = (iso) => {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return iso;
-  }
-};
+// const AllUser = () => {
+//   const [users, setUsers] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [showModal, setShowModal] = useState(false);
+//   const [editingUser, setEditingUser] = useState(null);
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     email: '',
+//     phone: '',
+//     address: '',
+//     city: '',
+//     state: '',
+//     pincode: '',
+//     district: '',
+//     role: 'user',
+//     experience: '',
+//     specialization: '',
+//     status: 'active'
+//   });
+//   const [profileImage, setProfileImage] = useState(null);
 
-export default function AllUser() {
+//   useEffect(() => {
+//     fetchUsers();
+//   }, []);
+
+//   const fetchUsers = async () => {
+//     try {
+//       setLoading(true);
+//       const token = localStorage.getItem('token');
+//       const response = await axios.get('https://api.pvclasses.in/api/users/getAllUser', {
+//         headers: {
+//           Authorization: `Bearer ${token}`
+//         }
+//       });
+//       setUsers(response.data.data || response.data);
+//     } catch (error) {
+//       toast.error('Error fetching users');
+//       console.error('Error fetching users:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleEdit = (user) => {
+//     setEditingUser(user);
+//     setFormData({
+//       name: user.name || '',
+//       email: user.email || '',
+//       phone: user.phone || '',
+//       address: user.address || '',
+//       city: user.city || '',
+//       state: user.state || '',
+//       pincode: user.pincode || '',
+//       district: user.district || '',
+//       role: user.role || 'user',
+//       experience: user.experience || '',
+//       specialization: user.specialization || '',
+//       status: user.status || 'active'
+//     });
+//     setShowModal(true);
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const token = localStorage.getItem('token');
+//       const formDataToSend = new FormData();
+
+//       // Append all form fields
+//       Object.keys(formData).forEach(key => {
+//         if (formData[key]) {
+//           formDataToSend.append(key, formData[key]);
+//         }
+//       });
+
+//       // Append profile image if selected
+//       if (profileImage) {
+//         formDataToSend.append('profile_image', profileImage);
+//       }
+
+//       if (editingUser) {
+//         await axios.put(`https://api.pvclasses.in/api/users/updateUser`, formDataToSend, {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             'Content-Type': 'multipart/form-data'
+//           }
+//         });
+//         toast.success('User updated successfully');
+//       }
+
+//       setShowModal(false);
+//       resetForm();
+//       fetchUsers();
+//     } catch (error) {
+//       toast.error(error.response?.data?.message || 'Error saving user');
+//       console.error('Error saving user:', error);
+//     }
+//   };
+
+//   const handleStatusChange = async (userId, currentStatus) => {
+//     try {
+//       const token = localStorage.getItem('token');
+//       await axios.put(`https://api.pvclasses.in/api/users/updateStatus`, {
+//         userId,
+//         status: currentStatus === 'active' ? 'inactive' : 'active'
+//       }, {
+//         headers: {
+//           Authorization: `Bearer ${token}`
+//         }
+//       });
+//       toast.success('User status updated successfully');
+//       fetchUsers();
+//     } catch (error) {
+//       toast.error('Error updating user status');
+//       console.error('Error updating status:', error);
+//     }
+//   };
+
+//   const resetForm = () => {
+//     setFormData({
+//       name: '',
+//       email: '',
+//       phone: '',
+//       address: '',
+//       city: '',
+//       state: '',
+//       pincode: '',
+//       district: '',
+//       role: 'user',
+//       experience: '',
+//       specialization: '',
+//       status: 'active'
+//     });
+//     setProfileImage(null);
+//     setEditingUser(null);
+//   };
+
+//   const handleInputChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: value
+//     }));
+//   };
+
+//   return (
+//     <div className="p-6">
+//       <div className="flex justify-between items-center mb-6">
+//         <h1 className="text-2xl font-bold">Users Management</h1>
+//       </div>
+
+//       {loading ? (
+//         <div className="flex justify-center items-center h-64">
+//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+//         </div>
+//       ) : (
+//         <div className="bg-white shadow-md rounded-md overflow-hidden">
+//           <table className="min-w-full divide-y divide-gray-200">
+//             <thead className="bg-gray-50">
+//               <tr>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Name
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Phone
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Email
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Role
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Status
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Actions
+//                 </th>
+//               </tr>
+//             </thead>
+//             <tbody className="bg-white divide-y divide-gray-200">
+//               {users.map((user) => (
+//                 <tr key={user._id}>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     <div className="flex items-center">
+//                       {user.profile_image_url ? (
+//                         <img
+//                           src={user.profile_image_url}
+//                           alt={user.name}
+//                           className="h-10 w-10 rounded-full object-cover mr-3"
+//                         />
+//                       ) : (
+//                         <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+//                           <span className="text-gray-600 font-medium">
+//                             {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+//                           </span>
+//                         </div>
+//                       )}
+//                       <div>
+//                         <div className="text-sm font-medium text-gray-900">{user.name || 'No Name'}</div>
+//                         {user.specialization && (
+//                           <div className="text-sm text-gray-500">{user.specialization}</div>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+//                     {user.phone}
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+//                     {user.email || 'N/A'}
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     <span className={`px-2 py-1 text-xs rounded-full ${
+//                       user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+//                       user.role === 'teacher' ? 'bg-blue-100 text-blue-800' :
+//                       'bg-gray-100 text-gray-800'
+//                     }`}>
+//                       {user.role}
+//                     </span>
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     <span className={`px-2 py-1 text-xs rounded-full ${
+//                       user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+//                     }`}>
+//                       {user.status}
+//                     </span>
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+//                     <button
+//                       onClick={() => handleEdit(user)}
+//                       className="text-blue-600 hover:text-blue-900 mr-3"
+//                     >
+//                       Edit
+//                     </button>
+//                     <button
+//                       onClick={() => handleStatusChange(user._id, user.status)}
+//                       className={`${
+//                         user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+//                       }`}
+//                     >
+//                       {user.status === 'active' ? 'Deactivate' : 'Activate'}
+//                     </button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+//       )}
+
+//       {showModal && (
+//         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center overflow-y-auto">
+//           <div className="bg-white p-6 rounded-md w-full max-w-2xl my-8 max-h-screen overflow-y-auto">
+//             <h2 className="text-xl font-bold mb-4">
+//               {editingUser ? 'Edit User' : 'Add User'}
+//             </h2>
+//             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div className="col-span-2">
+//                 <label className="block text-gray-700 mb-2">Name</label>
+//                 <input
+//                   type="text"
+//                   name="name"
+//                   value={formData.name}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">Phone</label>
+//                 <input
+//                   type="text"
+//                   name="phone"
+//                   value={formData.phone}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                   required
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">Email</label>
+//                 <input
+//                   type="email"
+//                   name="email"
+//                   value={formData.email}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">Role</label>
+//                 <select
+//                   name="role"
+//                   value={formData.role}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 >
+//                   <option value="user">User</option>
+//                   <option value="teacher">Teacher</option>
+//                   <option value="admin">Admin</option>
+//                 </select>
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">Status</label>
+//                 <select
+//                   name="status"
+//                   value={formData.status}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 >
+//                   <option value="active">Active</option>
+//                   <option value="inactive">Inactive</option>
+//                 </select>
+//               </div>
+//               {formData.role === 'teacher' && (
+//                 <>
+//                   <div>
+//                     <label className="block text-gray-700 mb-2">Experience</label>
+//                     <input
+//                       type="text"
+//                       name="experience"
+//                       value={formData.experience}
+//                       onChange={handleInputChange}
+//                       className="w-full p-2 border border-gray-300 rounded-md"
+//                       placeholder="e.g., 5 years"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-gray-700 mb-2">Specialization</label>
+//                     <input
+//                       type="text"
+//                       name="specialization"
+//                       value={formData.specialization}
+//                       onChange={handleInputChange}
+//                       className="w-full p-2 border border-gray-300 rounded-md"
+//                       placeholder="e.g., Mathematics"
+//                     />
+//                   </div>
+//                 </>
+//               )}
+//               <div>
+//                 <label className="block text-gray-700 mb-2">Address</label>
+//                 <input
+//                   type="text"
+//                   name="address"
+//                   value={formData.address}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">City</label>
+//                 <input
+//                   type="text"
+//                   name="city"
+//                   value={formData.city}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">State</label>
+//                 <input
+//                   type="text"
+//                   name="state"
+//                   value={formData.state}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">Pincode</label>
+//                 <input
+//                   type="text"
+//                   name="pincode"
+//                   value={formData.pincode}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-gray-700 mb-2">District</label>
+//                 <input
+//                   type="text"
+//                   name="district"
+//                   value={formData.district}
+//                   onChange={handleInputChange}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                 />
+//               </div>
+//               <div className="col-span-2">
+//                 <label className="block text-gray-700 mb-2">Profile Image</label>
+//                 <input
+//                   type="file"
+//                   onChange={(e) => setProfileImage(e.target.files[0])}
+//                   className="w-full p-2 border border-gray-300 rounded-md"
+//                   accept="image/*"
+//                 />
+//               </div>
+//               <div className="col-span-2 flex justify-end">
+//                 <button
+//                   type="button"
+//                   onClick={() => {
+//                     setShowModal(false);
+//                     resetForm();
+//                   }}
+//                   className="mr-2 px-4 py-2 border border-gray-300 rounded-md"
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button
+//                   type="submit"
+//                   className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+//                 >
+//                   {editingUser ? 'Update' : 'Create'}
+//                 </button>
+//               </div>
+//             </form>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default AllUser;
+
+
+
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
+const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+    district: '',
+    role: 'user',
+    experience: '',
+    specialization: '',
+    status: 'active'
+  });
+  const [profileImage, setProfileImage] = useState(null);
+  const [errors, setErrors] = useState({});
 
-  // filters
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-
-  // selection
-  const [selectedUsers, setSelectedUsers] = useState([]);
-
-  // pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
-    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      // API per your curl: GET /api/users/getAllUser
-      const res = await axiosInstance.get("/users/getAllUser", { headers });
-      // response shape:
-      // { message: "Users fetched successfully", data: [ ...users ] }
-      const data = Array.isArray(res?.data?.data) ? res.data.data : [];
-      setUsers(data);
-    } catch (err) {
-      console.error("Failed to fetch users:", err?.response?.data || err.message);
-      setUsers([]);
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('https://api.pvclasses.in/api/users/getAllUser', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setUsers(response.data.data || response.data);
+    } catch (error) {
+      toast.error('Error fetching users');
+      console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must be 10 digits';
+    }
+    
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email address is invalid';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  // derive role/status options from data
-  const roleOptions = useMemo(() => {
-    const set = new Set(users.map((u) => (u.role || "").toLowerCase()).filter(Boolean));
-    return ["all", ...Array.from(set)];
-  }, [users]);
-
-  const statusOptions = useMemo(() => {
-    const set = new Set(users.map((u) => (u.status || "").toLowerCase()).filter(Boolean));
-    return ["all", ...Array.from(set)];
-  }, [users]);
-
-  // filter + search
-  const filtered = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    return users.filter((u) => {
-      const bySearch =
-        !term ||
-        (u.name && u.name.toLowerCase().includes(term)) ||
-        (u.phone && String(u.phone).toLowerCase().includes(term)) ||
-        (u.email && u.email.toLowerCase().includes(term)) ||
-        (u._id && String(u._id).toLowerCase().includes(term));
-      const byRole = roleFilter === "all" || String(u.role || "").toLowerCase() === roleFilter;
-      const byStatus =
-        statusFilter === "all" || String(u.status || "").toLowerCase() === statusFilter;
-      return bySearch && byRole && byStatus;
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      address: user.address || '',
+      city: user.city || '',
+      state: user.state || '',
+      pincode: user.pincode || '',
+      district: user.district || '',
+      role: user.role || 'user',
+      experience: user.experience || '',
+      specialization: user.specialization || '',
+      status: user.status || 'active'
     });
-  }, [users, searchTerm, roleFilter, statusFilter]);
+    setErrors({});
+    setShowModal(true);
+  };
 
-  // pagination (client-side)
-  const totalUsers = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalUsers / itemsPerPage));
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const currentItems = filtered.slice(startIdx, startIdx + itemsPerPage);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
 
-  useEffect(() => {
-    // reset to page 1 if filters/search change
-    setCurrentPage(1);
-  }, [searchTerm, roleFilter, statusFilter]);
+    try {
+      const token = localStorage.getItem('token');
+      const formDataToSend = new FormData();
 
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedUsers(currentItems.map((u) => u._id || u.id));
-    } else {
-      setSelectedUsers([]);
+      // Append all form fields
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      // Append profile image if selected
+      if (profileImage) {
+        formDataToSend.append('profile_image', profileImage);
+      }
+
+      if (editingUser) {
+        await axios.put(`https://api.pvclasses.in/api/users/updateUser`, formDataToSend, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        toast.success('User updated successfully');
+      }
+
+      setShowModal(false);
+      resetForm();
+      fetchUsers();
+    } catch (error) {
+      if (error.response?.status === 400) {
+        if (error.response?.data?.message?.includes('duplicate')) {
+          if (error.response?.data?.message?.includes('phone')) {
+            setErrors({ phone: 'This phone number is already registered' });
+            toast.error('Phone number already exists');
+          } else if (error.response?.data?.message?.includes('email')) {
+            setErrors({ email: 'This email is already registered' });
+            toast.error('Email already exists');
+          }
+        }
+      } else {
+        toast.error(error.response?.data?.message || 'Error saving user');
+      }
+      console.error('Error saving user:', error);
     }
   };
 
-  const handleSelectUser = (id) => {
-    setSelectedUsers((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+  const handleStatusChange = async (userId, currentStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`https://api.pvclasses.in/api/users/updateStatus`, {
+        userId,
+        status: currentStatus === 'active' ? 'inactive' : 'active'
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      toast.success('User status updated successfully');
+      fetchUsers();
+    } catch (error) {
+      toast.error('Error updating user status');
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      state: '',
+      pincode: '',
+      district: '',
+      role: 'user',
+      experience: '',
+      specialization: '',
+      status: 'active'
+    });
+    setProfileImage(null);
+    setEditingUser(null);
+    setErrors({});
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  // Check if email already exists in other users
+  const isEmailUnique = (email) => {
+    if (!email) return true;
+    return !users.some(user => 
+      user.email === email && user._id !== editingUser?._id
     );
   };
 
-  const deleteSingle = async (id) => {
-    const confirm = await Swal.fire({
-      title: "Delete this user?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete",
-    });
-    if (!confirm.isConfirmed) return;
-
-    try {
-      // Adjust endpoint if your backend is different:
-      await axiosInstance.delete(`/users/${id}`);
-      Swal.fire("Deleted!", "User removed.", "success");
-      setUsers((prev) => prev.filter((u) => (u._id || u.id) !== id));
-      setSelectedUsers((prev) => prev.filter((x) => x !== id));
-    } catch (e) {
-      Swal.fire("Error!", "Failed to delete user.", "error");
-      console.error("Delete user error:", e);
-    }
+  // Check if phone already exists in other users
+  const isPhoneUnique = (phone) => {
+    if (!phone) return true;
+    return !users.some(user => 
+      user.phone === phone && user._id !== editingUser?._id
+    );
   };
-
-  const bulkDelete = async () => {
-    if (!selectedUsers.length) return;
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Selected users will be deleted!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete",
-    });
-    if (!confirm.isConfirmed) return;
-
-    try {
-      await Promise.all(
-        selectedUsers.map((id) =>
-          axiosInstance.delete(`/users/${id}`).catch(() => null)
-        )
-      );
-      Swal.fire("Deleted!", "Selected users removed.", "success");
-      // refresh local state
-      setUsers((prev) => prev.filter((u) => !selectedUsers.includes(u._id || u.id)));
-      setSelectedUsers([]);
-    } catch (e) {
-      Swal.fire("Error!", "Failed to delete some users.", "error");
-    }
-  };
-
-  const exportCSV = () => {
-    const rows = [
-      ["Name", "Phone", "Email", "Role", "Status", "Created At", "User ID"],
-      ...filtered.map((u) => [
-        u.name || "",
-        u.phone || "",
-        u.email || "",
-        u.role || "",
-        u.status || "",
-        u.createdAt ? new Date(u.createdAt).toLocaleString() : "",
-        u._id || u.id || "",
-      ]),
-    ];
-    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `users_${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      let start = Math.max(1, currentPage - 2);
-      let end = Math.min(totalPages, currentPage + 2);
-      if (currentPage <= 3) end = maxVisible;
-      else if (currentPage >= totalPages - 2) start = totalPages - maxVisible + 1;
-      for (let i = start; i <= end; i++) pages.push(i);
-    }
-    return pages;
-  };
-
-  const resetFilters = () => {
-    setSearchTerm("");
-    setRoleFilter("all");
-    setStatusFilter("all");
-    setCurrentPage(1);
-  };
-
-  const indexOfFirstItem = totalUsers === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-  const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalUsers);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-4">All Users</h1>
-
-          <div className="flex justify-between items-center mb-6 p-4 bg-white rounded">
-            <div className="flex gap-3">
-              <button
-                onClick={exportCSV}
-                className="flex items-center gap-2 bg-transparent border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100"
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </button>
-              <button className="flex items-center gap-2 bg-transparent border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100">
-                <Upload className="w-4 h-4" />
-                Import
-              </button>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                className="bg-red-600 hover:bg-red-700 text-white flex items-center px-4 py-1"
-                onClick={bulkDelete}
-                disabled={selectedUsers.length === 0}
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-              <button
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm"
-                onClick={() => {/* open create user modal if you add one */}}
-              >
-                <Plus className="w-4 h-4" />
-                Add User
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex gap-4 mb-6 p-4 bg-white rounded">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search by name, phone, email, or ID"
-              className="pl-10 pr-3 py-2 border border-gray-300 rounded w-full bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <select
-            className="w-[180px] px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-          >
-            {roleOptions.map((r) => (
-              <option key={r} value={r}>{r === "all" ? "All Roles" : r}</option>
-            ))}
-          </select>
-
-          <select
-            className="w-[180px] px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            {statusOptions.map((s) => (
-              <option key={s} value={s}>{s === "all" ? "All Statuses" : s}</option>
-            ))}
-          </select>
-
-          <button onClick={resetFilters}>Reset</button>
-        </div>
-
-        {/* Table */}
-        <div className="w-full overflow-hidden border border-gray-200 rounded-lg mb-8">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
-                <tr>
-                  <th className="w-[40px] px-6 py-3">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      checked={selectedUsers.length === currentItems.length && currentItems.length > 0}
-                      onChange={handleSelectAll}
-                    />
-                  </th>
-                  <th className="px-6 py-3">User</th>
-                  <th className="px-6 py-3">Phone</th>
-                  <th className="px-6 py-3">Email</th>
-                  <th className="px-6 py-3">Role</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Created</th>
-                  <th className="px-6 py-3">View</th>
-                  <th className="px-6 py-3">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="9" className="px-6 py-8 text-center text-sm text-gray-500">
-                      Loading users…
-                    </td>
-                  </tr>
-                ) : currentItems.length ? (
-                  currentItems.map((u) => {
-                    const id = u._id || u.id;
-                    return (
-                      <tr key={id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            checked={selectedUsers.includes(id)}
-                            onChange={() => handleSelectUser(id)}
-                          />
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={
-                                u.profile_image_url ||
-                                "https://ui-avatars.com/api/?name=" +
-                                  encodeURIComponent(u.name || u.phone || "User")
-                              }
-                              alt={u.name || u.phone || "User"}
-                              className="h-8 w-8 rounded-full object-cover"
-                            />
-                            <div className="flex flex-col">
-                              <span>{u.name || "—"}</span>
-                              <span className="text-xs text-gray-500">{id}</span>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {u.phone || "—"}
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {u.email || "—"}
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleBadgeClass(u.role)}`}>
-                            {u.role || "—"}
-                          </span>
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(u.status)}`}>
-                            {u.status || "—"}
-                          </span>
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatDateTime(u.createdAt)}
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <Tippy content="View">
-                            <Link
-                              to={`/users/${id}`}
-                              className="h-8 w-8 p-0 hover:bg-gray-100 rounded inline-flex items-center justify-center"
-                            >
-                              <Eye className="w-4 h-4 text-gray-400" />
-                            </Link>
-                          </Tippy>
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex items-center gap-2">
-                            <Tippy content="Edit">
-                              <button
-                                onClick={() => {/* open edit modal with 'u' */}}
-                                className="h-8 w-8 p-0 hover:bg-gray-100 rounded inline-flex items-center justify-center"
-                              >
-                                <Pencil className="w-4 h-4 text-gray-400" />
-                              </button>
-                            </Tippy>
-
-                            <Tippy content="Delete">
-                              <button
-                                className="h-8 w-8 p-0 hover:bg-gray-100 rounded inline-flex items-center justify-center"
-                                onClick={() => deleteSingle(id)}
-                              >
-                                <Trash2 className="w-4 h-4 text-gray-400" />
-                              </button>
-                            </Tippy>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan="9" className="px-6 py-8 text-center text-sm text-gray-500">
-                      No users found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
-            <div className="text-sm text-gray-500">
-              Showing{" "}
-              <span className="font-medium">{totalUsers ? indexOfFirstItem : 0}</span> to{" "}
-              <span className="font-medium">{indexOfLastItem}</span> of{" "}
-              <span className="font-medium">{totalUsers}</span> results
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-              >
-                <span className="sr-only">Previous</span>
-                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-              </button>
-
-              {getPageNumbers().map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                    currentPage === page
-                      ? "z-10 bg-emerald-50 border-emerald-500 text-emerald-600"
-                      : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-              >
-                <span className="sr-only">Next</span>
-                <ChevronRight className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* (Optional) Add/Edit modals go here if you implement them */}
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Users Management</h1>
       </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <div className="bg-white shadow-md rounded-md overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Phone
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users.map((user) => (
+                <tr key={user._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      {user.profile_image_url ? (
+                        <img
+                          src={user.profile_image_url}
+                          alt={user.name}
+                          className="h-10 w-10 rounded-full object-cover mr-3"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                          <span className="text-gray-600 font-medium">
+                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                          </span>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{user.name || 'No Name'}</div>
+                        {user.specialization && (
+                          <div className="text-sm text-gray-500">{user.specialization}</div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {user.phone}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {user.email || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                      user.role === 'teacher' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(user)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(user._id, user.status)}
+                      className={`${
+                        user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                      }`}
+                    >
+                      {user.status === 'active' ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center overflow-y-auto">
+          <div className="bg-white p-6 rounded-md w-full max-w-2xl my-8 max-h-screen overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">
+              {editingUser ? 'Edit User' : 'Add User'}
+            </h2>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-gray-700 mb-2">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">Phone *</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.phone ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required
+                  disabled={!!editingUser} // Disable phone editing for existing users
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
+                {formData.email && !errors.email && !isEmailUnique(formData.email) && (
+                  <p className="text-yellow-600 text-xs mt-1">
+                    Warning: This email is already used by another user
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">Role</label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="user">User</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              {formData.role === 'teacher' && (
+                <>
+                  <div>
+                    <label className="block text-gray-700 mb-2">Experience</label>
+                    <input
+                      type="text"
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., 5 years"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 mb-2">Specialization</label>
+                    <input
+                      type="text"
+                      name="specialization"
+                      value={formData.specialization}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., Mathematics"
+                    />
+                  </div>
+                </>
+              )}
+              <div>
+                <label className="block text-gray-700 mb-2">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">City</label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">State</label>
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">Pincode</label>
+                <input
+                  type="text"
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">District</label>
+                <input
+                  type="text"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-gray-700 mb-2">Profile Image</label>
+                <input
+                  type="file"
+                  onChange={(e) => setProfileImage(e.target.files[0])}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  accept="image/*"
+                />
+              </div>
+              <div className="col-span-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    resetForm();
+                  }}
+                  className="mr-2 px-4 py-2 border border-gray-300 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                >
+                  {editingUser ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Users;
