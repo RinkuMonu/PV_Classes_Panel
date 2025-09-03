@@ -102,13 +102,13 @@ export default function Dashboard({ user }) {
   const [data, setData] = useState({});
   const [recentData, setRecentData] = useState();
   const url = import.meta.env.VITE_API_SERVER_URL;
-
+  
   useEffect(() => {
     if (user) {
       toast.success(`Welcome ${user}!`);
     }
   }, [user]);
-
+  
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -123,8 +123,6 @@ export default function Dashboard({ user }) {
     fetchDashboardData();
   }, [url]);
 
-  const totalDelivery = (data.deliveredOrders?.[0]?.totalDeliverAmount) || 0;
-  const totalPendingData = data.pendingOrders?.[0] || {};
 
   // Update card amounts based on API response
   const updatedCardsData = cardsData.map(card => ({
@@ -159,72 +157,6 @@ export default function Dashboard({ user }) {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6 w-full">
-            {/* Total Orders */}
-            <div className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-start gap-5 ">
-              <div className="h-14 w-14 flex-shrink-0 flex items-center justify-center rounded-lg bg-orange-50 text-orange-500">
-                <ShoppingCart className="h-6 w-6" />
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium text-gray-500">
-                  Total Orders
-                </div>
-                <div className="text-2xl font-bold text-gray-800">{Number(data.totalOrders || 0).toLocaleString("en-IN")}</div>
-                <div className="text-xs text-gray-400 mt-1">All time</div>
-              </div>
-            </div>
-
-            {/* Orders Pending */}
-            <div className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-start gap-5">
-              <div className="h-14 w-14 flex-shrink-0 flex items-center justify-center rounded-lg bg-blue-50 text-blue-500">
-                <RefreshCw className="h-6 w-6" />
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium text-gray-500">
-                  Orders Pending
-                </div>
-                <div className="text-xs font-semibold text-red-500">
-                  ₹{Number(totalPendingData.totalPendingAmount || 0).toLocaleString("en-IN")}
-                </div>
-                <div className="text-2xl font-bold text-gray-800">{totalPendingData?.totalPendingOrders || 0}</div>
-                <div className="text-xs text-gray-400 mt-1">
-                  Awaiting confirmation
-                </div>
-              </div>
-            </div>
-
-            {/* Orders Processing */}
-            <div className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-start gap-5">
-              <div className="h-14 w-14 flex-shrink-0 flex items-center justify-center rounded-lg bg-teal-50 text-teal-500">
-                <Car className="h-6 w-6" />
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium text-gray-500">
-                  Orders Processing
-                </div>
-                <div className="text-2xl font-bold text-gray-800">{data.processingOrderCount || 0}</div>
-                <div className="text-xs text-gray-400 mt-1">In transit</div>
-              </div>
-            </div>
-
-            {/* Orders Delivered */}
-            <div className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-start gap-5 ">
-              <div className="h-14 w-14 flex-shrink-0 flex items-center justify-center rounded-lg bg-green-50 text-green-500">
-                <TrendingUp className="h-6 w-6" />
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium text-gray-500">
-                  Orders Delivered
-                </div>
-                <div className="text-2xl font-bold text-gray-800">
-                  ₹{Number(totalDelivery).toLocaleString("en-IN")}
-                </div>
-                <div className="text-xs text-gray-400 mt-1">This month</div>
-              </div>
-            </div>
           </div>
 
           {/* Charts */}
@@ -306,4 +238,4 @@ export default function Dashboard({ user }) {
       </div>
     </>
   );
-} 
+}
