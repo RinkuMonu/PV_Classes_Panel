@@ -1,50 +1,45 @@
-import axios from 'axios';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import Swal from 'sweetalert2';
-import axiosInstance from '../../../config/AxiosInstance';
-// import axiosInstance from '../../../config/AxiosInstance';
-// import axios from 'axios';
-// import axiosInstance from '';
-
+import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import axiosInstance from "../../../config/AxiosInstance";
 
 const ProfileForm = ({
   initialData = {
-    name: '',
-    email: '',
-    phone: '',
-    role: ''
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
   },
   roleOptions = [
-    // { value: '', label: 'Staff role', hidden: true },
-    { value: 'Super Admin', label: 'Super Admin' },
-    { value: 'Admin', label: 'Admin' },
-    // { value: 'Cashier', label: 'Cashier' },
-    // { value: 'CEO', label: 'CEO' },
-    // { value: 'Manager', label: 'Manager' },
-    // { value: 'Accountant', label: 'Accountant' },
-    // { value: 'Driver', label: 'Driver' },
-    // { value: 'Security Guard', label: 'Security Guard' },
-    // { value: 'Deliver Person', label: 'Delivery Person' }
+    { value: "Super Admin", label: "Super Admin" },
+    { value: "Admin", label: "Admin" },
   ],
-  // onSubmit = (data) => console.log(data),
-  submitButtonText = 'Update Profile'
+  submitButtonText = "Update Profile",
 }) => {
   const [formData, setFormData] = useState(initialData);
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(null); // for showing image
+  const [selectedFile, setSelectedFile] = useState(null); // new uploaded file
+  const token = localStorage.getItem("token");
 
-  // const userId = localStorage.getItem('userId');
-  const token = localStorage.getItem('token');
-
-
+  // 🔹 Fetch Profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axiosInstance.get(`/users/profile`);
-        const { name, email, phone, role } = response.data.user;
-        setFormData({ name, email, phone, role });
+        const response = await axiosInstance.get(`/users/getUser`);
+        const user = response.data.data;
+
+        setFormData({
+          name: user?.name || "",
+          email: user?.email || "",
+          phone: user?.phone || "",
+          role: user?.role || "",
+        });
+
+        // ✅ show backend image
+        if (user?.profile_image_url) {
+          setProfileImage(user.profile_image_url);
+        }
       } catch (err) {
-        console.error('Failed to fetch profile:', err);
+        console.error("Failed to fetch profile:", err);
       }
     };
 
@@ -53,47 +48,54 @@ const ProfileForm = ({
     }
   }, [token]);
 
+  // 🔹 Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-  const handleImageUpload = async () => {
-    if (!selectedFile) return;
+  // 🔹 Handle file change
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfileImage(URL.createObjectURL(file)); // preview immediately
+      setSelectedFile(file);
+    }
+  };
+
+  // 🔹 Submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     try {
-      const formData = new FormData();
-      formData.append("profileImage", selectedFile);
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("role", formData.role);
 
-      const response = await axiosInstance.put(`/users/upload-profile`, formData, {
+      if (selectedFile) {
+        formDataToSend.append("profile_image", selectedFile);
+      }
+
+      const response = await axiosInstance.put(`/users/updateUser`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      console.log("Image uploaded:", response.data);
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Profile image updated!',
-      });
-    } catch (error) {
-      console.error("Image upload failed:", error.response?.data || error.message);
-      alert("Failed to upload profile image.");
-    }
-  };
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await axiosInstance.put(`/users/update-profile`, formData);
-      console.log("Profile updated:", response.data);
-
-      if (selectedFile) {
-        await handleImageUpload();
+      // ✅ after update, refresh backend image
+      if (response.data?.data?.profile_image_url) {
+        setProfileImage(response.data.data.profile_image_url);
       }
+
       Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Profile updated successfully!',
+        icon: "success",
+        title: "Success",
+        text: "Profile updated successfully!",
       });
     } catch (error) {
       console.error("Error updating profile:", error.response?.data || error.message);
@@ -101,52 +103,11 @@ const ProfileForm = ({
     }
   };
 
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-
-
-  const [selectedFile, setSelectedFile] = useState(null); // 👈 new state
-
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setProfileImage(URL.createObjectURL(file));
-      setSelectedFile(file); // 👈 store actual file
-    }
-  };
-
   const formFields = [
-    {
-      label: 'Name',
-      name: 'name',
-      type: 'text',
-      placeholder: 'Your Name'
-    },
-    {
-      label: 'Email',
-      name: 'email',
-      type: 'email',
-      placeholder: 'Email'
-    },
-    {
-      label: 'Contact Number',
-      name: 'phone',
-      type: 'tel',
-      placeholder: 'Contact Number'
-    },
-    {
-      label: 'Your Role',
-      name: 'role',
-      type: 'select',
-      options: roleOptions
-    }
+    { label: "Name", name: "name", type: "text", placeholder: "Your Name" },
+    { label: "Email", name: "email", type: "email", placeholder: "Email" },
+    { label: "Contact Number", name: "phone", type: "tel", placeholder: "Contact Number" },
+    // { label: "Your Role", name: "role", type: "select", options: roleOptions },
   ];
 
   return (
@@ -171,31 +132,59 @@ const ProfileForm = ({
                           onChange={handleImageChange}
                         />
                         <span className="mx-auto flex justify-center">
-                          <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="text-3xl text-emerald-500" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                          <svg
+                            stroke="currentColor"
+                            fill="none"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-3xl text-emerald-500"
+                            height="1em"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
                             <polyline points="16 16 12 12 8 16"></polyline>
                             <line x1="12" y1="12" x2="12" y2="21"></line>
                             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
                             <polyline points="16 16 12 12 8 16"></polyline>
                           </svg>
                         </span>
-                        <p className="text-sm mt-2">Drag your images here or click to browse</p>
-                        <em className="text-xs text-gray-400">(Only *.jpeg, *.webp and *.png images will be accepted)</em>
+                        <p className="text-sm mt-2">
+                          Drag your images here or click to browse
+                        </p>
+                        <em className="text-xs text-gray-400">
+                          (Only *.jpeg, *.webp and *.png images will be accepted)
+                        </em>
                       </label>
-                      <div className="text-emerald-500"></div>
+                      {/* ✅ Show current or uploaded profile image */}
                       {profileImage && (
                         <aside className="flex flex-row flex-wrap mt-4">
                           <div className="relative">
                             <img
-                              className="inline-flex border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2"
+                              className="inline-flex border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 object-cover"
                               src={profileImage}
                               alt="profile preview"
                             />
                             <button
                               type="button"
                               className="absolute top-0 right-0 text-red-500 focus:outline-none"
-                              onClick={() => setProfileImage(null)}
+                              onClick={() => {
+                                setProfileImage(null);
+                                setSelectedFile(null);
+                              }}
                             >
-                              <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                              <svg
+                                stroke="currentColor"
+                                fill="none"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                height="1em"
+                                width="1em"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="15" y1="9" x2="9" y2="15"></line>
                                 <line x1="9" y1="9" x2="15" y2="15"></line>
@@ -210,12 +199,15 @@ const ProfileForm = ({
 
                 {/* Dynamic Form Fields */}
                 {formFields.map((field) => (
-                  <div key={field.name} className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                  <div
+                    key={field.name}
+                    className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6"
+                  >
                     <label className="block text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                       {field.label}
                     </label>
                     <div className="col-span-8 sm:col-span-4">
-                      {field.type === 'select' ? (
+                      {field.type === "select" ? (
                         <select
                           className="block w-full h-12 border bg-gray-100 px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none dark:focus:border-gray-500 dark:bg-gray-700 leading-5"
                           name={field.name}
