@@ -726,12 +726,12 @@ const Users = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
+                    {/* <button
                       onClick={() => handleEdit(user)}
                       className="text-blue-600 hover:text-blue-900 mr-3"
                     >
                       Edit
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => handleStatusChange(user._id, user.status)}
                       className={`${

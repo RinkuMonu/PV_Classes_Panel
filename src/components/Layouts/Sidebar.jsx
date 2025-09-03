@@ -218,6 +218,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Doubts", Icon: HelpCircle, path: "/doubt" },
     { name: "Notification", Icon: Bell, path: "/notification" },
     { name: "Orders", Icon: CreditCard, path: "/orders" },
+    { name: "banner", Icon: CreditCard, path: "/banner" },
   ];
 
   const coursesSubItems = [
