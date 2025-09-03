@@ -19,13 +19,14 @@ import ProfileForm from './components/Pages/Profile/ProfileForm';
 import ForgotPassword from './components/Pages/ForgotPassword';
 import CreateAccount from './components/Pages/CreateAccount';
 import AttributesValues from './components/Pages/Attribute/AttributesValues';
-import Notifications from './components/Pages/Notification/Notifications';
+// import Notifications from './components/Pages/Notification/Notifications';
 import ViewCategory from './components/Pages/category/ViewCategory';
 import CustomerOrderList from './components/Pages/customers/CustomerOrderList';
 import AllUser from './components/Pages/Alluser/AllUser';
 import Notes from './components/Pages/Notes/Notes';
 import Pyq from './components/Pages/PYQ/pyq';
 import FAQ from './components/Pages/FAQ/faq';
+// import Notifications from './components/Pages/Notifications/notifications';
 import CurrentAffairsAdmin from './components/Pages/CurrentAffairs/currentaffairs';
 
 import CourceCategory from './components/Pages/courses/CourceCategory';
@@ -35,6 +36,7 @@ import Course from './components/Pages/courses/Course';
 import DoubtsTable from './components/Pages/Doubts/Doubt';
 import TestSeriesDashboard from './components/Pages/TestSeries/TestSeriesDashboard';
 import Banner from './components/Pages/Banner/Banner';
+import Notifications from './components/Pages/Notification/Notifications';
 
 
 const Layout = () => {
@@ -94,7 +96,7 @@ function App() {
         <Route path="/invoice/:orderId" element={<Invoice />} />
         <Route path="/setting" element={<SettingsPage />} />
         <Route path="/edit-profile" element={<ProfileForm />} />
-        <Route path="/notification" element={<Notifications />} />
+        <Route path="/notification" element={<Notifications/>} />
         <Route path="/notes" element={<Notes/>} />
         <Route path="/pyq" element={<Pyq/>} />
         <Route path="/faq" element={<FAQ/>} />
