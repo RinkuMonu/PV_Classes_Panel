@@ -34,6 +34,7 @@ import Exam from './components/Pages/courses/Exam';
 import Course from './components/Pages/courses/Course';
 import DoubtsTable from './components/Pages/Doubts/Doubt';
 import TestSeriesDashboard from './components/Pages/TestSeries/TestSeriesDashboard';
+import Banner from './components/Pages/Banner/Banner';
 
 
 const Layout = () => {
@@ -100,6 +101,7 @@ function App() {
         <Route path="/affairs" element={<CurrentAffairsAdmin/>} />
         <Route path="/doubt" element={<DoubtsTable/>} />
         <Route path="/test-series" element={<TestSeriesDashboard/>} />
+        <Route path="/banner" element={<Banner/>} />
         
       </Route>
     </Routes>
