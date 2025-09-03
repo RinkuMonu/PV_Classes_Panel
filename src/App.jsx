@@ -33,6 +33,7 @@ import ExamType from './components/Pages/courses/ExamType';
 import Exam from './components/Pages/courses/Exam';
 import Course from './components/Pages/courses/Course';
 import DoubtsTable from './components/Pages/Doubts/Doubt';
+import TestSeriesDashboard from './components/Pages/TestSeries/TestSeriesDashboard';
 
 
 const Layout = () => {
@@ -98,6 +99,7 @@ function App() {
         <Route path="/faq" element={<FAQ/>} />
         <Route path="/affairs" element={<CurrentAffairsAdmin/>} />
         <Route path="/doubt" element={<DoubtsTable/>} />
+        <Route path="/test-series" element={<TestSeriesDashboard/>} />
         
       </Route>
     </Routes>
