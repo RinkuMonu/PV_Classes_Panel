@@ -584,6 +584,7 @@ const Course = () => {
     try {
       setLoading(true);
       const response = await axios.get('https://api.pvclasses.in/api/courses');
+      // console.log("courses data : ",response.data);
       setCourses(response.data);
     } catch (error) {
       toast.error('Error fetching courses');
@@ -613,6 +614,7 @@ const Course = () => {
   const fetchCombos = async () => {
     try {
       const response = await axios.get('https://api.pvclasses.in/api/combo');
+      console.log("combos data : ",response.data);
       setCombos(response.data.combos || response.data);
     } catch (error) {
       toast.error('Error fetching combos');
@@ -621,8 +623,9 @@ const Course = () => {
 
   const fetchAuthors = async () => {
     try {
-      const response = await axios.get('https://api.pvclasses.in/api/users?role=author');
-      setAuthors(response.data);
+      const response = await axios.get('https://api.pvclasses.in/api/users/getAllUser');
+      // console.log("users data : ",response.data);
+      setAuthors(response.data.data);
     } catch (error) {
       toast.error('Error fetching authors');
     }
