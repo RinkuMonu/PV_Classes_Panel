@@ -38,6 +38,10 @@ import TestSeriesDashboard from './components/Pages/TestSeries/TestSeriesDashboa
 import Banner from './components/Pages/Banner/Banner';
 import Notifications from './components/Pages/Notification/Notifications';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const Layout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -68,6 +72,9 @@ function App() {
   const [user, setUser] = useState(null)
 
   return (
+    <>
+          <ToastContainer position="top-right" autoClose={3000} />
+
     <Routes>
       
       <Route path="/" element={<PublicRoute><Login setUser={setUser}/></PublicRoute>} />
@@ -107,6 +114,9 @@ function App() {
         
       </Route>
     </Routes>
+
+        </>
+
   );
 }
 
