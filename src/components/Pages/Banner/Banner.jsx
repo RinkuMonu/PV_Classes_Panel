@@ -14,6 +14,7 @@ const BannerManager = () => {
         position: "homepage-top",
         images: null,
     });
+    const [imagePreview, setImagePreview] = useState(null);
 
     const formRef = useRef(null);
 
@@ -56,6 +57,14 @@ const BannerManager = () => {
                     images: null,
                 });
 
+                // Set image preview for existing banner
+                if (banner.full_image) {
+                    // Use the full image URL from the server response
+                    setImagePreview(banner.full_image);
+                } else {
+                    setImagePreview(null);
+                }
+
                 // ✅ Scroll to the form when editing
                 setTimeout(() => {
                     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -71,7 +80,24 @@ const BannerManager = () => {
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === "images") {
-            setFormData((prev) => ({ ...prev, images: files[0] }));
+            const file = files[0];
+            setFormData((prev) => ({ ...prev, images: file }));
+            
+            // Create image preview
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // If no file selected, keep the existing preview
+                if (selectedBanner && selectedBanner.full_image) {
+                    setImagePreview(selectedBanner.full_image);
+                } else {
+                    setImagePreview(null);
+                }
+            }
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
@@ -101,6 +127,7 @@ const BannerManager = () => {
                 position: "homepage-top",
                 images: null,
             });
+            setImagePreview(null);
         } catch (error) {
             console.error("Error creating banner:", error);
             toast.error("Failed to create banner");
@@ -120,7 +147,14 @@ const BannerManager = () => {
             data.append("description", formData.description);
             data.append("deviceType", formData.deviceType);
             data.append("position", formData.position);
-            if (formData.images) data.append("images", formData.images);
+            
+            // Only append image if a new one was selected
+            if (formData.images) {
+                data.append("images", formData.images);
+            } else {
+                // Tell the server to preserve the existing image
+                data.append("preserveImage", "true");
+            }
 
             await axiosInstance.put(`/banners/${selectedBanner._id}`, data, {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -136,6 +170,7 @@ const BannerManager = () => {
                 position: "homepage-top",
                 images: null,
             });
+            setImagePreview(null);
         } catch (error) {
             console.error("Error updating banner:", error);
             toast.error("Failed to update banner");
@@ -165,6 +200,7 @@ const BannerManager = () => {
             position: "homepage-top",
             images: null,
         });
+        setImagePreview(null);
     };
 
     useEffect(() => {
@@ -292,7 +328,28 @@ const BannerManager = () => {
                                         className="hidden"
                                     />
                                 </label>
+                                
+                                {imagePreview && (
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-32 h-24 bg-gray-100 border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center">
+                                            <img 
+                                                src={imagePreview} 
+                                                alt="Preview" 
+                                                className="w-full h-full object-contain"
+                                            />
+                                        </div>
+                                        <span className="text-xs mt-1 text-gray-600">
+                                            {formData.images ? "New Image Preview" : "Current Image"}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                                {selectedBanner 
+                                    ? "Select a new image to replace the current one. Leave empty to keep the existing image." 
+                                    : "Upload an image for your banner"
+                                }
+                            </p>
                         </div>
                     </div>
 
@@ -359,7 +416,7 @@ const BannerManager = () => {
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                                             {banner.full_image ? (
                                                 <img
-                                                    src={`https://api.pvclasses.in/uploads/banner/${banner.full_image.split("/").pop()}`}
+                                                    src={banner.full_image}
                                                     alt={banner.bannerName}
                                                     className="h-12 w-auto rounded-lg object-cover shadow-sm"
                                                 />
