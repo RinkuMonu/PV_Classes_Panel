@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
-import { FaEdit, FaEye, FaTrash, FaPlus, FaTimes, FaImage, FaTag, FaFolder } from "react-icons/fa";
+import { FaEdit, FaEye, FaTrash, FaPlus, FaTimes, FaImage, FaTag, FaFolder, FaCalendar, FaUser,  FaInfoCircle, FaAlignLeft, FaFileAlt  } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -31,6 +31,10 @@ const CurrentAffairsAdmin = () => {
   // Track edit mode
   const [editingId, setEditingId] = useState(null);
   const [showCurrentAffairForm, setShowCurrentAffairForm] = useState(false);
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAffair, setSelectedAffair] = useState(null);
 
   // ✅ Fetch Categories
   const fetchCategories = async () => {
@@ -162,16 +166,17 @@ const CurrentAffairsAdmin = () => {
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
-  // ✅ Handle View
+
+  // ✅ Handle View - Open Modal
   const handleView = (affair) => {
-    alert(`
-      Title: ${affair.title}
-      Slug: ${affair.slug}
-      Category: ${affair.category?.name || "N/A"}
-      Status: ${affair.status}
-      Tags: ${affair.tags?.join(", ")}
-      Content: ${affair.content}
-    `);
+    setSelectedAffair(affair);
+    setShowModal(true);
+  };
+
+  // Close Modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedAffair(null);
   };
 
   // Handle image upload for preview
@@ -564,6 +569,122 @@ const CurrentAffairsAdmin = () => {
           )}
         </div>
       </div>
+
+      {/* View Modal */}
+      {showModal && selectedAffair && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white">
+              <h2 className="text-2xl font-bold text-green-800">Current Affair Details</h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes size={24} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {selectedAffair.imageUrl && (
+                <div className="mb-6">
+                  <img
+                    src={selectedAffair.imageUrl}
+                    alt={selectedAffair.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
+                    <FaInfoCircle className="mr-2" /> Basic Information
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Title</p>
+                      <p className="font-medium">{selectedAffair.title}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Slug</p>
+                      <p className="font-medium">{selectedAffair.slug}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Status</p>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedAffair.status === 'published'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {selectedAffair.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
+                    <FaFolder className="mr-2" /> Category & Tags
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Category</p>
+                      <p className="font-medium">{selectedAffair.category?.name || "N/A"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Tags</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {selectedAffair.tags && selectedAffair.tags.length > 0 ? (
+                          selectedAffair.tags.map((tag, index) => (
+                            <span key={index} className="inline-flex items-center text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+                              <FaTag className="mr-1 text-xs" /> {tag}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No tags</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-green-800 mb-2 flex items-center">
+                  <FaAlignLeft className="mr-2" /> Excerpt
+                </h3>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">
+                  {selectedAffair.excerpt || "No excerpt provided"}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-green-800 mb-2 flex items-center">
+                  <FaFileAlt className="mr-2" /> Content
+                </h3>
+                <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">
+                  {selectedAffair.content}
+                </div>
+              </div>
+
+              {selectedAffair.createdAt && (
+                <div className="mt-6 text-sm text-gray-500 flex items-center">
+                  <FaCalendar className="mr-2" />
+                  Created: {new Date(selectedAffair.createdAt).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end p-6 border-t border-gray-200 sticky bottom-0 bg-white">
+              <button
+                onClick={closeModal}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
