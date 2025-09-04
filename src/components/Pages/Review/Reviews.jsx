@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from '../../../config/AxiosInstance'; 
+import axiosInstance from '../../../config/AxiosInstance';
 
 function Review() {
   const [reviews, setReviews] = useState([]);
@@ -20,16 +20,19 @@ function Review() {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/reviews');
-      
+      const response = await axiosInstance.get('/reviews/all'); // ✅ updated endpoint
+
+      // Use the `reviews` array from response
+      let allReviews = response.data.reviews || [];
+
       // Filter reviews based on selection
-      let filteredReviews = response.data;
+      let filteredReviews = allReviews;
       if (filter === 'pending') {
-        filteredReviews = response.data.filter(review => !review.approved);
+        filteredReviews = allReviews.filter(review => !review.approved);
       } else if (filter === 'approved') {
-        filteredReviews = response.data.filter(review => review.approved);
+        filteredReviews = allReviews.filter(review => review.approved);
       }
-      
+
       setReviews(filteredReviews);
     } catch (error) {
       setError('Failed to fetch reviews');
@@ -136,7 +139,7 @@ function Review() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Course Reviews Summary</h2>
           {stats.courseStats.length > 0 ? (
             stats.courseStats.map((stat) => (
@@ -155,9 +158,9 @@ function Review() {
           ) : (
             <p className="text-gray-500">No course reviews yet</p>
           )}
-        </div>
+        </div> */}
 
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Coaching Reviews Summary</h2>
           {stats.coachingStats.length > 0 ? (
             stats.coachingStats.map((stat) => (
@@ -176,7 +179,7 @@ function Review() {
           ) : (
             <p className="text-gray-500">No coaching reviews yet</p>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Filter Controls */}
@@ -286,7 +289,7 @@ function Review() {
                             Approve
                           </button>
                         )}
-                        {review.comment && (
+                        {/* {review.comment && (
                           <button
                             onClick={() => handleViewClick(review)}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm flex items-center"
@@ -297,7 +300,7 @@ function Review() {
                             </svg>
                             View
                           </button>
-                        )}
+                        )} */}
                       </div>
                     </td>
                   </tr>

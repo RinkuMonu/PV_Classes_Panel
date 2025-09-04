@@ -36,10 +36,10 @@ function Compo() {
     try {
       const response = await axiosInstance.get("/combo");
       setCombos(response.data.combos || []);
-      toast.success("Combos loaded successfully!");
+      // toast.success("Combos loaded successfully!");
     } catch (error) {
       console.error("Error fetching combos:", error);
-      toast.error("Failed to load combos");
+      // toast.error("Failed to load combos");
     }
   };
 
@@ -69,10 +69,10 @@ function Compo() {
       }
       
       setTestSeries(testSeriesData);
-      toast.success("Test Series loaded successfully!");
+      // toast.success("Test Series loaded successfully!");
     } catch (error) {
       console.error("Error fetching test series:", error);
-      toast.error("Failed to load test series");
+      // toast.error("Failed to load test series");
     }
   };
 
@@ -80,10 +80,10 @@ function Compo() {
     try {
       const response = await axiosInstance.get("/notes");
       setNotes(response.data);
-      toast.success("Notes loaded successfully!");
+      // toast.success("Notes loaded successfully!");
     } catch (error) {
       console.error("Error fetching notes:", error);
-      toast.error("Failed to load notes");
+      // toast.error("Failed to load notes");
     }
   };
 
@@ -96,10 +96,10 @@ function Compo() {
       let pyqsData = Array.isArray(response.data) ? response.data : [];
       
       setPyqs(pyqsData);
-      toast.success("PYQs loaded successfully!");
+      // toast.success("PYQs loaded successfully!");
     } catch (error) {
       console.error("Error fetching PYQs:", error);
-      toast.error("Failed to load PYQs");
+      // toast.error("Failed to load PYQs");
     }
   };
 
@@ -156,7 +156,7 @@ function Compo() {
       testSeries: combo.testSeries?.map((ts) => ts._id) || [],
       pyqs: combo.pyqs?.map((pyq) => pyq._id) || [],
     });
-    toast.success("Combo loaded for editing!");
+    // toast.success("Combo loaded for editing!");
   };
 
   const handleDelete = async (id) => {
