@@ -226,6 +226,8 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Categories", path: "/courses/categories" },
     { name: "Exam Types", path: "/courses/exam-types" },
     { name: "Exams", path: "/courses/exams" },
+    { name: "Exams", path: "/courses/compo" },
+    { name: "Exams", path: "/courses/faculty" },
   ];
 
   const catalogSubItems = [

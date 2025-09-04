@@ -73,7 +73,8 @@ const Exam = () => {
       formDataToSend.append('examType', formData.examType);
 
       if (logo) {
-        formDataToSend.append('logo', logo);
+        // formDataToSend.append('logo', logo);
+        formDataToSend.append('image', logo);
       }
 
       if (editingId) {
