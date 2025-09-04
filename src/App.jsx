@@ -39,8 +39,8 @@ import DoubtsTable from './components/Pages/Doubts/Doubt';
 import TestSeriesDashboard from './components/Pages/TestSeries/TestSeriesDashboard';
 import Banner from './components/Pages/Banner/Banner';
 import Notifications from './components/Pages/Notification/Notifications';
-import contact from './components/Pages/Contactsus/contact';
 import Review from './components/Pages/Review/Reviews';
+import Contact from './components/Pages/Contactus/Contact';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -117,8 +117,8 @@ function App() {
         <Route path="/doubt" element={<DoubtsTable/>} />
         <Route path="/test-series" element={<TestSeriesDashboard/>} />
         <Route path="/banner" element={<Banner/>} />
-        <Route path="/contact" element={<contact/>} />
         <Route path="/review" element={<Review/>} />
+        <Route path="/contact" element={<Contact/>} />
         
       </Route>
     </Routes>
