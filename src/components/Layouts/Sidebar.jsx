@@ -84,7 +84,7 @@
 //                     />
 //                   )}
 //                 </div>
-                
+
 //                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
 //                   isCatalogOpen && !isCollapsed ? 'max-h-96' : 'max-h-0'
 //                 }`}>
@@ -221,6 +221,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "banner", Icon: CreditCard, path: "/banner" },
     { name: "contact", Icon: CreditCard, path: "/contact" },
     { name: "review", Icon: CreditCard, path: "/review" },
+    { name: "coupon", Icon: CreditCard, path: "/coupon" },
   ];
 
   const coursesSubItems = [
@@ -228,7 +229,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Categories", path: "/courses/categories" },
     { name: "Exam Types", path: "/courses/exam-types" },
     { name: "Exams", path: "/courses/exams" },
-    { name: "compo", path: "/courses/compo" },
+    { name: "Compo", path: "/courses/compo" },
     { name: "faculty", path: "/courses/faculty" },
   ];
 
@@ -250,11 +251,10 @@ const Sidebar = ({ isCollapsed }) => {
             {name === "Courses" ? (
               <>
                 <div
-                  className={`flex items-center justify-between p-2 rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${
-                    isCoursesActive() 
-                      ? 'bg-green-50 text-green-600' 
+                  className={`flex items-center justify-between p-2 rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${isCoursesActive()
+                      ? 'bg-green-50 text-green-600'
                       : 'text-gray-700 hover:text-green-600'
-                  }`}
+                    }`}
                   onClick={toggleCourses}
                 >
                   <div className="flex items-center space-x-3">
@@ -267,24 +267,22 @@ const Sidebar = ({ isCollapsed }) => {
                   {!isCollapsed && (
                     <ChevronDown
                       size={16}
-                      className={`transition-transform duration-200 ${
-                        isCoursesOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${isCoursesOpen ? "rotate-180" : ""
+                        }`}
                     />
                   )}
                 </div>
-                
-                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isCoursesOpen && !isCollapsed ? 'max-h-96' : 'max-h-0'
-                }`}>
+
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCoursesOpen && !isCollapsed ? 'max-h-96' : 'max-h-0'
+                  }`}>
                   <div className="ml-6 mt-1 space-y-1 text-sm">
                     {coursesSubItems.map(({ name, path }) => (
                       <Link
                         to={path}
                         key={name}
                         className={`block py-1 transition-colors duration-200 ${isActive(path)
-                            ? 'text-green-600 font-medium'
-                            : 'text-gray-600 hover:text-green-600'
+                          ? 'text-green-600 font-medium'
+                          : 'text-gray-600 hover:text-green-600'
                           }`}
                       >
                         – {name}
@@ -297,8 +295,8 @@ const Sidebar = ({ isCollapsed }) => {
               <Link
                 to={path}
                 className={`flex items-center p-2 rounded-md transition-colors duration-200 ${isActive(path)
-                    ? 'bg-green-50 text-green-600'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-green-600'
+                  ? 'bg-green-50 text-green-600'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-green-600'
                   }`}
               >
                 <Icon size={18} className="flex-shrink-0" />
