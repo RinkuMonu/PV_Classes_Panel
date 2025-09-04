@@ -219,6 +219,8 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Notification", Icon: Bell, path: "/notification" },
     { name: "Orders", Icon: CreditCard, path: "/orders" },
     { name: "banner", Icon: CreditCard, path: "/banner" },
+    { name: "contact", Icon: CreditCard, path: "/contact" },
+    { name: "review", Icon: CreditCard, path: "/review" },
   ];
 
   const coursesSubItems = [
@@ -226,8 +228,8 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Categories", path: "/courses/categories" },
     { name: "Exam Types", path: "/courses/exam-types" },
     { name: "Exams", path: "/courses/exams" },
-    { name: "Exams", path: "/courses/compo" },
-    { name: "Exams", path: "/courses/faculty" },
+    { name: "compo", path: "/courses/compo" },
+    { name: "faculty", path: "/courses/faculty" },
   ];
 
   const catalogSubItems = [
