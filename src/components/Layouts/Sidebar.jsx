@@ -221,7 +221,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "banner", Icon: CreditCard, path: "/banner" },
     { name: "contact", Icon: CreditCard, path: "/contact" },
     { name: "review", Icon: CreditCard, path: "/review" },
-    { name: "coupon", Icon: CreditCard, path: "/coupon" },
+    { name: "coupon", Icon: CreditCard, path: "/couponmanager" },
   ];
 
   const coursesSubItems = [

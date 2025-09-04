@@ -41,6 +41,7 @@ import Banner from './components/Pages/Banner/Banner';
 import Notifications from './components/Pages/Notification/Notifications';
 import Review from './components/Pages/Review/Reviews';
 import Contact from './components/Pages/Contactus/Contact';
+import CouponManager from './components/Pages/Couponcode/Coupon';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -119,6 +120,7 @@ function App() {
         <Route path="/banner" element={<Banner/>} />
         <Route path="/review" element={<Review/>} />
         <Route path="/contact" element={<Contact/>} />
+        <Route path="/couponmanager" element={<CouponManager/>} />
         
       </Route>
     </Routes>
