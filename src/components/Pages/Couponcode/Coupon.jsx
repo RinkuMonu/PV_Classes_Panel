@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import { toast } from "react-toastify";
 
@@ -16,6 +16,9 @@ const CouponManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [viewingCoupon, setViewingCoupon] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const formRef = useRef(null);
+  const [highlight, setHighlight] = useState(false);
 
   // ✅ Fetch coupons
   const fetchCoupons = async () => {
@@ -68,7 +71,7 @@ const CouponManager = () => {
   // ✅ Delete coupon
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this coupon?")) return;
-    
+
     try {
       await axiosInstance.delete(`/coupon/${id}`);
       toast.success("Coupon deleted successfully");
@@ -91,6 +94,13 @@ const CouponManager = () => {
       isActive: coupon.isActive ?? true,
     });
     setEditingId(coupon._id);
+
+    // ✅ Scroll to form
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // ✅ Highlight for 2 sec
+    setHighlight(true);
+    setTimeout(() => setHighlight(false), 2000);
   };
 
   // ✅ View coupon details
@@ -113,13 +123,16 @@ const CouponManager = () => {
 
       {/* Coupon Form */}
       <form
+        ref={formRef}
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200"
+        className={`bg-white p-6 rounded-lg shadow-md mb-8 border transition-all duration-500 ${
+          highlight ? "border-blue-500 ring-2 ring-blue-300" : "border-gray-200"
+        }`}
       >
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
           {editingId ? "Edit Coupon" : "Create New Coupon"}
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
@@ -133,7 +146,7 @@ const CouponManager = () => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
             <select
@@ -146,7 +159,7 @@ const CouponManager = () => {
               <option value="percent">Percentage</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Discount Value {form.discountType === "percent" ? "(%)" : "(₹)"}
@@ -163,7 +176,7 @@ const CouponManager = () => {
               step={form.discountType === "percent" ? "1" : "0.01"}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Order Amount (₹)</label>
             <input
@@ -177,7 +190,7 @@ const CouponManager = () => {
               step="0.01"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
             <input
@@ -188,7 +201,7 @@ const CouponManager = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
             <input
@@ -199,7 +212,7 @@ const CouponManager = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
@@ -215,14 +228,14 @@ const CouponManager = () => {
             </select>
           </div>
         </div>
-        
+
         <button
           type="submit"
           className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-md hover:from-blue-700 hover:to-blue-900 transition-all duration-200"
         >
           {editingId ? "Update Coupon" : "Create Coupon"}
         </button>
-        
+
         {editingId && (
           <button
             type="button"
@@ -250,7 +263,7 @@ const CouponManager = () => {
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
           All Coupons ({coupons.length})
         </h3>
-        
+
         {coupons.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -287,14 +300,13 @@ const CouponManager = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">
-                        {coupon.startDate ? new Date(coupon.startDate).toLocaleDateString() : 'No start date'} → 
+                        {coupon.startDate ? new Date(coupon.startDate).toLocaleDateString() : 'No start date'} →
                         {coupon.endDate ? new Date(coupon.endDate).toLocaleDateString() : 'No end date'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        coupon.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${coupon.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {coupon.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
@@ -343,43 +355,43 @@ const CouponManager = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="font-medium">Code:</span>
                 <span className="font-bold text-blue-600">{viewingCoupon.code}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="font-medium">Discount Type:</span>
                 <span className="capitalize">{viewingCoupon.discountType}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="font-medium">Discount Value:</span>
                 <span className="font-bold">
-                  {viewingCoupon.discountType === 'percent' 
-                    ? `${viewingCoupon.discountValue}%` 
+                  {viewingCoupon.discountType === 'percent'
+                    ? `${viewingCoupon.discountValue}%`
                     : `₹${viewingCoupon.discountValue}`
                   }
                 </span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="font-medium">Minimum Order:</span>
                 <span>₹{viewingCoupon.minOrderAmount || 0}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="font-medium">Start Date:</span>
                 <span>{viewingCoupon.startDate ? new Date(viewingCoupon.startDate).toLocaleDateString() : 'Not set'}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="font-medium">End Date:</span>
                 <span>{viewingCoupon.endDate ? new Date(viewingCoupon.endDate).toLocaleDateString() : 'Not set'}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="font-medium">Status:</span>
                 <span className={viewingCoupon.isActive ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
@@ -387,7 +399,7 @@ const CouponManager = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="mt-6 flex justify-end">
               <button
                 onClick={closeViewModal}
