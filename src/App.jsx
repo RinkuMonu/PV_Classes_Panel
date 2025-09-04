@@ -33,10 +33,13 @@ import CourceCategory from './components/Pages/courses/CourceCategory';
 import ExamType from './components/Pages/courses/ExamType';
 import Exam from './components/Pages/courses/Exam';
 import Course from './components/Pages/courses/Course';
+import Compo from './components/Pages/courses/Compo';
+import Faculty from './components/Pages/courses/Faculty';
 import DoubtsTable from './components/Pages/Doubts/Doubt';
 import TestSeriesDashboard from './components/Pages/TestSeries/TestSeriesDashboard';
 import Banner from './components/Pages/Banner/Banner';
 import Notifications from './components/Pages/Notification/Notifications';
+i
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -88,6 +91,8 @@ function App() {
         <Route path="/courses/exam-types" element={<ExamType />} />
         <Route path="/courses/exams" element={<Exam />} />
         <Route path="/courses/courses" element={<Course />} />
+        <Route path="/courses/compo" element={<Compo />} />
+        <Route path="/courses/faculty" element={<Faculty />} />
 
         <Route path="/customer" element={<Customer />} />
         <Route path="/alluser" element={<AllUser />} />
