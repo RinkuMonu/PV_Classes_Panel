@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies & Build
         run: |
           npm install --legacy-peer-deps
-          npm run build:ci
+          npm run build
 
       - name: Zip build files
         run: |
