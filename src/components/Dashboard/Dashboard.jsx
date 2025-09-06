@@ -68,7 +68,7 @@ export default function Dashboard({ user }) {
 
   useEffect(() => {
     if (user) {
-      toast.success(`Welcome ${user}!`);
+      toast.success(` Welcome back `);
     }
   }, [user]);
 
