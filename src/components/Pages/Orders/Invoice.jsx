@@ -112,7 +112,7 @@
 
 //       <button
 //         onClick={() => window.print()}
-//         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+//         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
 //       >
 //         Print Invoice
 //       </button>
@@ -280,7 +280,7 @@ const downloadInvoice = () => {
             <th className="text-left p-2 border border-gray-300">Item</th>
             <th className="text-right p-2 border border-gray-300">Quantity</th>
             <th className="text-right p-2 border border-gray-300">Price</th>
-            <th className="text-right p-2 border border-gray-300">Total</th>
+            {/* <th className="text-right p-2 border border-gray-300">Total</th> */}
           </tr>
         </thead>
         <tbody>
@@ -289,14 +289,12 @@ const downloadInvoice = () => {
               <td className="p-2 border border-gray-300">{item.type}</td>
               <td className="p-2 border border-gray-300">{item.name}</td>
               <td className="p-2 border border-gray-300 text-right">{item.quantity}</td>
-              <td className="p-2 border border-gray-300 text-right">₹{parseFloat(item.price).toLocaleString("en-IN")}</td>
-              <td className="p-2 border border-gray-300 text-right">₹{parseFloat(item.price * item.quantity).toLocaleString("en-IN")}</td>
+              <td className="p-2 border border-gray-300 text-right">₹{parseFloat(order.totalAmount).toLocaleString("en-IN")}</td>
+              {/* <td className="p-2 border border-gray-300 text-right">₹{parseFloat(item.price).toLocaleString("en-IN")}</td> */}
+              {/* <td className="p-2 border border-gray-300 text-right">₹{parseFloat(item.price * item.quantity).toLocaleString("en-IN")}</td> */}
             </tr>
           ))}
-          <tr className="font-bold">
-            <td colSpan="4" className="p-2 border border-gray-300 text-right">Grand Total:</td>
-            <td className="p-2 border border-gray-300 text-right">₹{parseFloat(order.totalAmount).toLocaleString("en-IN")}</td>
-          </tr>
+        
         </tbody>
       </table>
     );
@@ -307,7 +305,7 @@ const downloadInvoice = () => {
     switch(status) {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
+      case 'processing': return 'bg-green-100 text-green-800';
       case 'cancel': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -316,7 +314,7 @@ const downloadInvoice = () => {
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-800">Invoice</h1>
+        <h1 className="text-3xl font-bold text-green-800">Invoice</h1>
         <div className="flex space-x-2">
           {/* <button
             onClick={downloadInvoice}
@@ -327,7 +325,7 @@ const downloadInvoice = () => {
           </button> */}
           <button
             onClick={handlePrint}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
             <Printer className="h-5 w-5 mr-2" />
             Print
@@ -339,7 +337,7 @@ const downloadInvoice = () => {
         {/* Header */}
         <div className="flex justify-between items-start mb-8 border-b pb-4">
           <div>
-            <h2 className="text-2xl font-bold text-blue-800">PV Classes</h2>
+            <h2 className="text-2xl font-bold text-green-800">PV Classes</h2>
             <p className="text-gray-600">Education for Success</p>
             <p className="text-gray-600">Pvclasses01@gmail.com</p>
             <p className="text-gray-600">0141-4511098</p>
