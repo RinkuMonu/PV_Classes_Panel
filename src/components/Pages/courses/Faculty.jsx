@@ -97,7 +97,7 @@ function FacultyManagement() {
                 placeholder="Enter faculty name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                 required
               />
             </div>
@@ -110,7 +110,7 @@ function FacultyManagement() {
                 placeholder="e.g., 5 years"
                 value={formData.experience}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
               />
             </div>
             
@@ -122,14 +122,14 @@ function FacultyManagement() {
                 placeholder="Area of expertise"
                 value={formData.specialization}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
               <div className="flex items-center">
-                <label className="flex flex-col items-center px-4 py-3 bg-white text-blue-600 rounded-lg border border-gray-300 cursor-pointer hover:bg-blue-50 transition">
+                <label className="flex flex-col items-center px-4 py-3 bg-white text-green-600 rounded-lg border border-gray-300 cursor-pointer hover:bg-green-50 transition">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"></path>
                   </svg>
@@ -148,7 +148,7 @@ function FacultyManagement() {
           
           <button
             type="submit"
-            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+            className="mt-6 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
           >
             Add Faculty
           </button>
@@ -163,7 +163,7 @@ function FacultyManagement() {
         
         {loading ? (
           <div className="p-8 flex justify-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-500"></div>
           </div>
         ) : (
           <div className="overflow-x-auto">
