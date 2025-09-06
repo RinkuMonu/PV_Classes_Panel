@@ -117,7 +117,7 @@ const CouponManager = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      <h2 className="text-3xl font-bold mb-6 text-gray-800 bg-gradient-to-r from-green-600 to-purple-600 bg-clip-text text-transparent">
         Coupon Manager
       </h2>
 
@@ -126,7 +126,7 @@ const CouponManager = () => {
         ref={formRef}
         onSubmit={handleSubmit}
         className={`bg-white p-6 rounded-lg shadow-md mb-8 border transition-all duration-500 ${
-          highlight ? "border-blue-500 ring-2 ring-blue-300" : "border-gray-200"
+          highlight ? "border-green-500 ring-2 ring-green-300" : "border-gray-200"
         }`}
       >
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
@@ -142,7 +142,7 @@ const CouponManager = () => {
               placeholder="e.g. SUMMER25"
               value={form.code}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
               required
             />
           </div>
@@ -153,7 +153,7 @@ const CouponManager = () => {
               name="discountType"
               value={form.discountType}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="fixed">Fixed Amount</option>
               <option value="percent">Percentage</option>
@@ -170,7 +170,7 @@ const CouponManager = () => {
               placeholder={form.discountType === "percent" ? "10" : "100"}
               value={form.discountValue}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
               required
               min="0"
               step={form.discountType === "percent" ? "1" : "0.01"}
@@ -185,7 +185,7 @@ const CouponManager = () => {
               placeholder="500"
               value={form.minOrderAmount}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
               min="0"
               step="0.01"
             />
@@ -198,7 +198,7 @@ const CouponManager = () => {
               name="startDate"
               value={form.startDate}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
 
@@ -209,7 +209,7 @@ const CouponManager = () => {
               name="endDate"
               value={form.endDate}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
 
@@ -221,7 +221,7 @@ const CouponManager = () => {
               onChange={(e) =>
                 setForm({ ...form, isActive: e.target.value === "true" })
               }
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
@@ -231,7 +231,7 @@ const CouponManager = () => {
 
         <button
           type="submit"
-          className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-md hover:from-blue-700 hover:to-blue-900 transition-all duration-200"
+          className="bg-gradient-to-r from-green-600 to-green-800 text-white px-6 py-3 rounded-md hover:from-green-700 hover:to-green-900 transition-all duration-200"
         >
           {editingId ? "Update Coupon" : "Create Coupon"}
         </button>
@@ -314,7 +314,7 @@ const CouponManager = () => {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleView(coupon)}
-                          className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md transition-colors duration-200"
+                          className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md transition-colors duration-200"
                         >
                           View
                         </button>
@@ -359,7 +359,7 @@ const CouponManager = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="font-medium">Code:</span>
-                <span className="font-bold text-blue-600">{viewingCoupon.code}</span>
+                <span className="font-bold text-green-600">{viewingCoupon.code}</span>
               </div>
 
               <div className="flex justify-between">
@@ -403,7 +403,7 @@ const CouponManager = () => {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={closeViewModal}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200"
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200"
               >
                 Close
               </button>
