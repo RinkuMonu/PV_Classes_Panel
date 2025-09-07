@@ -113,7 +113,7 @@
 //     e.preventDefault();
 //     try {
 //       const formDataToSend = new FormData();
-      
+
 //       // Append all form fields
 //       Object.keys(formData).forEach(key => {
 //         if (key === 'topics' || key === 'features') {
@@ -130,7 +130,7 @@
 //           formDataToSend.append(key, formData[key]);
 //         }
 //       });
-      
+
 //       // Append images
 //       images.forEach(image => {
 //         formDataToSend.append('images', image);
@@ -248,7 +248,7 @@
 
 //   const PriceDisplay = ({ price, discountPrice, isFree }) => {
 //     if (isFree) return <span className="text-green-600 font-bold">Free</span>;
-    
+
 //     return (
 //       <div className="flex items-center">
 //         {discountPrice > 0 && discountPrice < price ? (
@@ -303,28 +303,28 @@
 //                     </div>
 //                   )}
 //                 </div>
-                
+
 //                 <div className="p-5">
 //                   <div className="flex justify-between items-start mb-3">
 //                     <h3 className="font-bold text-lg text-gray-800 truncate">{course.title}</h3>
 //                     <StatusBadge status={course.status} />
 //                   </div>
-                  
+
 //                   <div className="flex items-center text-sm text-gray-600 mb-2">
 //                     <FaBook className="mr-2 text-green-500" />
 //                     <span>{course.exam?.name}</span>
 //                   </div>
-                  
+
 //                   <div className="flex items-center text-sm text-gray-600 mb-2">
 //                     <FaUserTie className="mr-2 text-green-500" />
 //                     <span>{course.type}</span>
 //                   </div>
-                  
+
 //                   <div className="flex items-center text-sm text-gray-600 mb-4">
 //                     <FaMoneyBillWave className="mr-2 text-green-500" />
 //                     <PriceDisplay price={course.price} discountPrice={course.discountPrice} isFree={course.isFree} />
 //                   </div>
-                  
+
 //                   <div className="flex justify-between items-center pt-3 border-t border-gray-100">
 //                     <button
 //                       onClick={() => handleEdit(course)}
@@ -379,7 +379,7 @@
 //                   <FaTimes size={24} />
 //                 </button>
 //               </div>
-              
+
 //               <div className="p-6">
 //                 {/* Tabs */}
 //                 <div className="flex border-b border-gray-200 mb-6">
@@ -402,7 +402,7 @@
 //                     <FaMoneyBillWave className="mr-2" /> Pricing
 //                   </button>
 //                 </div>
-                
+
 //                 <form onSubmit={handleSubmit}>
 //                   {/* Basic Info Tab */}
 //                   {activeTab === 'basic' && (
@@ -420,7 +420,7 @@
 //                           placeholder="Course Title"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Slug *
@@ -434,7 +434,7 @@
 //                           placeholder="course-slug"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Exam *
@@ -453,7 +453,7 @@
 //                           ))}
 //                         </select>
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Type *
@@ -468,7 +468,7 @@
 //                           <option value="Test Series">Test Series</option>
 //                         </select>
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Author *
@@ -487,7 +487,7 @@
 //                           ))}
 //                         </select>
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Language
@@ -502,7 +502,7 @@
 //                           <option value="bilingual">Bilingual</option>
 //                         </select>
 //                       </div>
-                      
+
 //                       <div className="md:col-span-2">
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Faculty (Hold Ctrl to select multiple)
@@ -520,7 +520,7 @@
 //                           ))}
 //                         </select>
 //                       </div>
-                      
+
 //                       <div className="md:col-span-2">
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Images
@@ -543,7 +543,7 @@
 //                       </div>
 //                     </div>
 //                   )}
-                  
+
 //                   {/* Details Tab */}
 //                   {activeTab === 'details' && (
 //                     <div className="grid grid-cols-1 gap-6">
@@ -559,7 +559,7 @@
 //                           placeholder="What is the main goal of this course?"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Topics (comma separated)
@@ -572,7 +572,7 @@
 //                           placeholder="Topic 1, Topic 2, Topic 3"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Features (comma separated)
@@ -585,7 +585,7 @@
 //                           placeholder="Feature 1, Feature 2, Feature 3"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Short Description
@@ -598,7 +598,7 @@
 //                           placeholder="Brief description of the course"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Long Description
@@ -613,7 +613,7 @@
 //                       </div>
 //                     </div>
 //                   )}
-                  
+
 //                   {/* Pricing Tab */}
 //                   {activeTab === 'pricing' && (
 //                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -629,7 +629,7 @@
 //                           min="0"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Discount Price (₹)
@@ -642,7 +642,7 @@
 //                           min="0"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Validity
@@ -655,7 +655,7 @@
 //                           placeholder="e.g., 365 days"
 //                         />
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Combo
@@ -673,7 +673,7 @@
 //                           ))}
 //                         </select>
 //                       </div>
-                      
+
 //                       <div className="flex items-center">
 //                         <input
 //                           type="checkbox"
@@ -685,7 +685,7 @@
 //                           Free Course
 //                         </label>
 //                       </div>
-                      
+
 //                       <div>
 //                         <label className="block text-gray-700 font-medium mb-2">
 //                           Status
@@ -701,7 +701,7 @@
 //                       </div>
 //                     </div>
 //                   )}
-                  
+
 //                   <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
 //                     <button
 //                       type="button"
@@ -736,8 +736,8 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaImage, FaTag, FaBook, FaUserTie, FaLanguage, FaMoneyBillWave, FaCalendarAlt, FaCheckCircle, FaList, FaStar, FaFileAlt, FaGlobe, FaQuestionCircle } from 'react-icons/fa';
-import axiosInstance from '../../../config/AxiosInstance'; 
+import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaImage, FaTag, FaBook, FaUserTie, FaLanguage, FaMoneyBillWave, FaCalendarAlt, FaCheckCircle, FaList, FaStar, FaFileAlt, FaGlobe, FaQuestionCircle, FaVideo } from 'react-icons/fa';
+import axiosInstance from '../../../config/AxiosInstance';
 
 const Course = () => {
   const [courses, setCourses] = useState([]);
@@ -765,12 +765,35 @@ const Course = () => {
     status: 'active',
     faculty: [],
     comboId: '',
-    faqs: [{ question: '', answer: '' }] // Added FAQs field
+    faqs: [{ question: '', answer: '' }], // Added FAQs field
+    videos: [] // Added videos field
+
   });
+  // const [images, setImages] = useState([]);
+  // const [editingId, setEditingId] = useState(null);
+  // const [showModal, setShowModal] = useState(false);
+  // const [activeTab, setActiveTab] = useState('basic');
+
   const [images, setImages] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
+  const [currentCourseId, setCurrentCourseId] = useState(null);
+  const [videoForm, setVideoForm] = useState({
+    title: '',
+    url: '',
+    shortDescription: '',
+    longDescription: '',
+    duration: '',
+    order: '',
+    isFree: false,
+    sourceType: 'youtube'
+  });
+  const [editingVideoId, setEditingVideoId] = useState(null);
+
+
 
   useEffect(() => {
     fetchCourses();
@@ -834,7 +857,7 @@ const Course = () => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      
+
       // Append all form fields
       Object.keys(formData).forEach(key => {
         if (key === 'topics' || key === 'features') {
@@ -854,7 +877,7 @@ const Course = () => {
           formDataToSend.append(key, formData[key]);
         }
       });
-      
+
       // Append images
       images.forEach(image => {
         formDataToSend.append('images', image);
@@ -941,9 +964,9 @@ const Course = () => {
   };
 
   const addFaq = () => {
-    setFormData({ 
-      ...formData, 
-      faqs: [...formData.faqs, { question: '', answer: '' }] 
+    setFormData({
+      ...formData,
+      faqs: [...formData.faqs, { question: '', answer: '' }]
     });
   };
 
@@ -990,7 +1013,7 @@ const Course = () => {
 
   const PriceDisplay = ({ price, discountPrice, isFree }) => {
     if (isFree) return <span className="text-green-600 font-bold">Free</span>;
-    
+
     return (
       <div className="flex items-center">
         {discountPrice > 0 && discountPrice < price ? (
@@ -1003,6 +1026,111 @@ const Course = () => {
         )}
       </div>
     );
+  };
+
+
+  const handleVideoSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+
+      Object.keys(videoForm).forEach(key => {
+        if (key !== 'url' || videoForm.sourceType === 'youtube') {
+          formDataToSend.append(key, videoForm[key]);
+        }
+      });
+
+      if (videoForm.sourceType === 'cloudinary' && videoFile) {
+        formDataToSend.append('url', videoFile);
+      }
+
+      if (editingVideoId) {
+        await axiosInstance.put(
+          `/courses/${currentCourseId}/update-videos/${editingVideoId}`,
+          formDataToSend,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+        toast.success('Video updated successfully');
+      } else {
+        await axiosInstance.post(
+          `/courses/${currentCourseId}/upload-video`,
+          formDataToSend,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+        toast.success('Video uploaded successfully');
+      }
+
+      setShowVideoModal(false);
+      resetVideoForm();
+      fetchCourses();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error saving video');
+      console.error('Error details:', error.response?.data);
+    }
+  };
+
+  const handleEditVideo = (courseId, video) => {
+    setVideoForm({
+      title: video.title,
+      url: video.url,
+      shortDescription: video.shortDescription || '',
+      longDescription: video.longDescription || '',
+      duration: video.duration || '',
+      order: video.order || '',
+      isFree: video.isFree || false,
+      sourceType: video.sourceType || 'youtube'
+    });
+    setEditingVideoId(video._id);
+    setCurrentCourseId(courseId);
+    setShowVideoModal(true);
+  };
+
+  const handleDeleteVideo = async (courseId, videoId) => {
+    if (window.confirm('Are you sure you want to delete this video?')) {
+      try {
+        const course = await axiosInstance.get(`/courses/${courseId}`);
+        const updatedVideos = course.data.videos.filter(v => v._id !== videoId);
+
+        await axiosInstance.put(`/courses/${courseId}`, {
+          videos: updatedVideos
+        });
+
+        toast.success('Video deleted successfully');
+        fetchCourses();
+      } catch (error) {
+        toast.error('Error deleting video');
+      }
+    }
+  };
+
+  const resetVideoForm = () => {
+    setVideoForm({
+      title: '',
+      url: '',
+      shortDescription: '',
+      longDescription: '',
+      duration: '',
+      order: '',
+      isFree: false,
+      sourceType: 'youtube'
+    });
+    setVideoFile(null);
+    setEditingVideoId(null);
+    setCurrentCourseId(null);
+  };
+
+  // Add this function to your existing code
+  const openVideoModal = (courseId) => {
+    setCurrentCourseId(courseId);
+    setShowVideoModal(true);
   };
 
   return (
@@ -1033,9 +1161,9 @@ const Course = () => {
               <div key={course._id} className="bg-white rounded-xl shadow-md overflow-hidden border border-green-100 hover:shadow-lg transition-shadow">
                 <div className="h-40 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
                   {course.full_image && course.full_image.length > 0 ? (
-                    <img 
-                      src={course.full_image[0]} 
-                      alt={course.title} 
+                    <img
+                      src={course.full_image[0]}
+                      alt={course.title}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -1045,34 +1173,41 @@ const Course = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="font-bold text-lg text-gray-800 truncate">{course.title}</h3>
                     <StatusBadge status={course.status} />
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-gray-600 mb-2">
                     <FaBook className="mr-2 text-green-500" />
                     <span>{course.exam?.name}</span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-gray-600 mb-2">
                     <FaUserTie className="mr-2 text-green-500" />
                     <span>{course.type}</span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-gray-600 mb-4">
                     <FaMoneyBillWave className="mr-2 text-green-500" />
                     <PriceDisplay price={course.price} discountPrice={course.discountPrice} isFree={course.isFree} />
                   </div>
-                  
+
                   <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                     <button
                       onClick={() => handleEdit(course)}
                       className="flex items-center text-green-600 hover:text-green-800 font-medium"
                     >
                       <FaEdit className="mr-1" /> Edit
+                    </button>
+
+                    <button
+                      onClick={() => openVideoModal(course._id)}
+                      className="flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      <FaVideo className="mr-1" /> Videos
                     </button>
                     <button
                       onClick={() => handleDelete(course._id)}
@@ -1084,8 +1219,225 @@ const Course = () => {
                 </div>
               </div>
             ))}
+
+
+
+            {/* Video Management Modal */}
+            {showVideoModal && (
+              <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-50">
+                <div className="w-full max-w-2xl mx-4 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-xl p-6 flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-green-800">
+                      {editingVideoId ? 'Edit Video' : 'Add Video'}
+                    </h2>
+                    <button
+                      onClick={() => {
+                        setShowVideoModal(false);
+                        resetVideoForm();
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <FaTimes size={24} />
+                    </button>
+                  </div>
+
+                  <div className="p-6">
+                    <form onSubmit={handleVideoSubmit}>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">
+                            Title *
+                          </label>
+                          <input
+                            type="text"
+                            value={videoForm.title}
+                            onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                            required
+                            placeholder="Video Title"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">
+                            Source Type
+                          </label>
+                          <select
+                            value={videoForm.sourceType}
+                            onChange={(e) => setVideoForm({ ...videoForm, sourceType: e.target.value })}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                          >
+                            <option value="youtube">YouTube URL</option>
+                            <option value="cloudinary">Upload Video</option>
+                          </select>
+                        </div>
+
+                        {videoForm.sourceType === 'youtube' ? (
+                          <div>
+                            <label className="block text-gray-700 font-medium mb-2">
+                              YouTube URL *
+                            </label>
+                            <input
+                              type="url"
+                              value={videoForm.url}
+                              onChange={(e) => setVideoForm({ ...videoForm, url: e.target.value })}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                              required
+                              placeholder="https://www.youtube.com/watch?v=..."
+                            />
+                          </div>
+                        ) : (
+                          <div>
+                            <label className="block text-gray-700 font-medium mb-2">
+                              Video File *
+                            </label>
+                            <div className="flex items-center justify-center w-full">
+                              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors">
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                  <FaVideo className="w-10 h-10 text-blue-500 mb-2" />
+                                  <p className="text-sm text-blue-700">
+                                    {videoFile ? videoFile.name : 'Click to upload video'}
+                                  </p>
+                                </div>
+                                <input
+                                  type="file"
+                                  onChange={(e) => setVideoFile(e.target.files[0])}
+                                  className="hidden"
+                                  accept="video/*"
+                                  required={!editingVideoId}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">
+                            Order *
+                          </label>
+                          <input
+                            type="number"
+                            value={videoForm.order}
+                            onChange={(e) => setVideoForm({ ...videoForm, order: e.target.value })}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                            required
+                            min="1"
+                            placeholder="1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">
+                            Duration (seconds)
+                          </label>
+                          <input
+                            type="number"
+                            value={videoForm.duration}
+                            onChange={(e) => setVideoForm({ ...videoForm, duration: e.target.value })}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                            min="0"
+                            placeholder="Duration in seconds"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">
+                            Short Description
+                          </label>
+                          <textarea
+                            value={videoForm.shortDescription}
+                            onChange={(e) => setVideoForm({ ...videoForm, shortDescription: e.target.value })}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                            rows="2"
+                            placeholder="Brief description"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">
+                            Long Description
+                          </label>
+                          <textarea
+                            value={videoForm.longDescription}
+                            onChange={(e) => setVideoForm({ ...videoForm, longDescription: e.target.value })}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                            rows="3"
+                            placeholder="Detailed description"
+                          />
+                        </div>
+
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={videoForm.isFree}
+                            onChange={(e) => setVideoForm({ ...videoForm, isFree: e.target.checked })}
+                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                          />
+                          <label className="ml-2 block text-gray-700 font-medium">
+                            Free Video
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-4 mt-6 pt-4 border-t border-gray-200">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowVideoModal(false);
+                            resetVideoForm();
+                          }}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md transition-colors"
+                        >
+                          {editingVideoId ? 'Update Video' : 'Add Video'}
+                        </button>
+                      </div>
+                    </form>
+
+                    {/* Video List for the Course */}
+                    {currentCourseId && (
+                      <div className="mt-8">
+                        <h3 className="text-lg font-medium text-gray-700 mb-4">Course Videos</h3>
+                        <div className="space-y-3">
+                          {courses.find(c => c._id === currentCourseId)?.videos?.map((video) => (
+                            <div key={video._id} className="border border-gray-200 rounded-lg p-3 flex justify-between items-center">
+                              <div>
+                                <h4 className="font-medium">{video.title}</h4>
+                                <p className="text-sm text-gray-600">Order: {video.order} | Duration: {video.duration}s</p>
+                              </div>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleEditVideo(currentCourseId, video)}
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteVideo(currentCourseId, video._id)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         )}
+
+
 
         {courses.length === 0 && !loading && (
           <div className="text-center py-16 bg-white rounded-xl shadow-md">
@@ -1121,7 +1473,7 @@ const Course = () => {
                   <FaTimes size={24} />
                 </button>
               </div>
-              
+
               <div className="p-6">
                 {/* Tabs */}
                 <div className="flex border-b border-gray-200 mb-6">
@@ -1150,7 +1502,7 @@ const Course = () => {
                     <FaQuestionCircle className="mr-2" /> FAQs
                   </button>
                 </div>
-                
+
                 <form onSubmit={handleSubmit}>
                   {/* Basic Info Tab */}
                   {activeTab === 'basic' && (
@@ -1168,7 +1520,7 @@ const Course = () => {
                           placeholder="Course Title"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Slug *
@@ -1182,7 +1534,7 @@ const Course = () => {
                           placeholder="course-slug"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Exam *
@@ -1201,7 +1553,7 @@ const Course = () => {
                           ))}
                         </select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Type *
@@ -1216,7 +1568,7 @@ const Course = () => {
                           <option value="Test Series">Test Series</option>
                         </select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Author *
@@ -1235,7 +1587,7 @@ const Course = () => {
                           ))}
                         </select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Language
@@ -1250,7 +1602,7 @@ const Course = () => {
                           <option value="bilingual">Bilingual</option>
                         </select>
                       </div>
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-gray-700 font-medium mb-2">
                           Faculty (Hold Ctrl to select multiple)
@@ -1268,7 +1620,7 @@ const Course = () => {
                           ))}
                         </select>
                       </div>
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-gray-700 font-medium mb-2">
                           Images
@@ -1291,7 +1643,7 @@ const Course = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Details Tab */}
                   {activeTab === 'details' && (
                     <div className="grid grid-cols-1 gap-6">
@@ -1307,7 +1659,7 @@ const Course = () => {
                           placeholder="What is the main goal of this course?"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Topics (comma separated)
@@ -1320,7 +1672,7 @@ const Course = () => {
                           placeholder="Topic 1, Topic 2, Topic 3"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Features (comma separated)
@@ -1333,7 +1685,7 @@ const Course = () => {
                           placeholder="Feature 1, Feature 2, Feature 3"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Short Description
@@ -1346,7 +1698,7 @@ const Course = () => {
                           placeholder="Brief description of the course"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Long Description
@@ -1361,7 +1713,7 @@ const Course = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Pricing Tab */}
                   {activeTab === 'pricing' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1377,7 +1729,7 @@ const Course = () => {
                           min="0"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Discount Price (₹)
@@ -1390,7 +1742,7 @@ const Course = () => {
                           min="0"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Validity
@@ -1403,7 +1755,7 @@ const Course = () => {
                           placeholder="e.g., 365 days"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Combo
@@ -1421,7 +1773,7 @@ const Course = () => {
                           ))}
                         </select>
                       </div>
-                      
+
                       <div className="flex items-center">
                         <input
                           type="checkbox"
@@ -1433,7 +1785,7 @@ const Course = () => {
                           Free Course
                         </label>
                       </div>
-                      
+
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Status
@@ -1463,7 +1815,7 @@ const Course = () => {
                           <FaPlus className="mr-1" /> Add FAQ
                         </button>
                       </div>
-                      
+
                       {formData.faqs.map((faq, index) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                           <div className="flex justify-between items-center mb-3">
@@ -1478,7 +1830,7 @@ const Course = () => {
                               </button>
                             )}
                           </div>
-                          
+
                           <div className="mb-3">
                             <label className="block text-gray-700 font-medium mb-2">
                               Question
@@ -1491,7 +1843,7 @@ const Course = () => {
                               placeholder="Enter question"
                             />
                           </div>
-                          
+
                           <div>
                             <label className="block text-gray-700 font-medium mb-2">
                               Answer
@@ -1508,7 +1860,7 @@ const Course = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
                     <button
                       type="button"
