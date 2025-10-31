@@ -103,7 +103,7 @@ export default function Dashboard({ user }) {
       <div className="min-h-screen bg-gray-50 overflow-x-hidden">
         <div className="max-w-full">
           <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-            Dashboard Overview
+            Dashboard Overvieww
           </h1>
 
           {/* Stats Cards */}
