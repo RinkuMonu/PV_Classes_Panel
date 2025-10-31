@@ -515,9 +515,9 @@ const QuestionManager = ({ series, test, onBack }) => {
 
     if (isChecked) {
       if (newQuestion.type === 'mcq_single') {
-        updatedCorrectOptions = [key]; // Only one correct answer for single choice
+        updatedCorrectOptions = [key];
       } else {
-        updatedCorrectOptions.push(key); // Add to correct answers for multi-choice
+        updatedCorrectOptions.push(key);
       }
     } else {
       updatedCorrectOptions = updatedCorrectOptions.filter(k => k !== key);
