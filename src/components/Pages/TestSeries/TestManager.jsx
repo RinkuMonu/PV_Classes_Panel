@@ -1,241 +1,8 @@
-// // components/TestSeries/TestManager.jsx
-// import React, { useState } from 'react';
-// import QuestionManager from './QuestionManager';
-// import { addTestToSeries, addQuestionsToTest } from '../../../services/testSeriesApi';
-
-// const TestManager = ({ series, onBack }) => {
-//   const [activeTestId, setActiveTestId] = useState(null);
-//   const [tests, setTests] = useState(series.tests || []);
-//   const [showTestForm, setShowTestForm] = useState(false);
-//   const [newTest, setNewTest] = useState({
-//     title: '',
-//     subject: '',
-//     type: 'daily_quiz',
-//     perQuestionTimeSec: 30,
-//     durationSec: 0,
-//     is_active: true,
-//     scheduleDate: ''
-//   });
-
-//   const handleAddTest = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const response = await addTestToSeries(series._id, newTest);
-//       setTests([...tests, response.data.test]);
-//       setNewTest({
-//         title: '',
-//         subject: '',
-//         type: 'daily_quiz',
-//         perQuestionTimeSec: 30,
-//         durationSec: 0,
-//         is_active: true,
-//         scheduleDate: ''
-//       });
-//       setShowTestForm(false);
-//     } catch (err) {
-//       console.error('Failed to add test', err);
-//     }
-//   };
-
-//   const handleManageQuestions = (testId) => {
-//     setActiveTestId(testId);
-//   };
-
-//   const handleBackToTests = () => {
-//     setActiveTestId(null);
-//   };
-
-//   if (activeTestId) {
-//     const test = tests.find(t => t._id === activeTestId);
-//     return (
-//       <QuestionManager 
-//         series={series} 
-//         test={test} 
-//         onBack={handleBackToTests} 
-//       />
-//     );
-//   }
-
-//   return (
-//     <div>
-//       <div className="flex justify-between items-center mb-6">
-//         <h2 className="text-2xl font-bold">Manage Tests: {series.title}</h2>
-//         <div className="flex space-x-4">
-//           <button
-//             onClick={onBack}
-//             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-//           >
-//             Back to Series
-//           </button>
-//           <button
-//             onClick={() => setShowTestForm(true)}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-//           >
-//             Add New Test
-//           </button>
-//         </div>
-//       </div>
-
-//       {showTestForm && (
-//         <div className="bg-white p-6 rounded shadow-md mb-6">
-//           <h3 className="text-xl font-bold mb-4">Add New Test</h3>
-//           <form onSubmit={handleAddTest} className="space-y-4">
-//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-//                 <input
-//                   type="text"
-//                   value={newTest.title}
-//                   onChange={(e) => setNewTest({...newTest, title: e.target.value})}
-//                   className="w-full px-3 py-2 border rounded-md"
-//                   required
-//                 />
-//               </div>
-              
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-//                 <input
-//                   type="text"
-//                   value={newTest.subject}
-//                   onChange={(e) => setNewTest({...newTest, subject: e.target.value})}
-//                   className="w-full px-3 py-2 border rounded-md"
-//                   required
-//                 />
-//               </div>
-              
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-//                 <select
-//                   value={newTest.type}
-//                   onChange={(e) => setNewTest({...newTest, type: e.target.value})}
-//                   className="w-full px-3 py-2 border rounded-md"
-//                 >
-//                   <option value="daily_quiz">Daily Quiz</option>
-//                   <option value="full_test">Full Test</option>
-//                 </select>
-//               </div>
-              
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Time per Question (seconds)</label>
-//                 <input
-//                   type="number"
-//                   value={newTest.perQuestionTimeSec}
-//                   onChange={(e) => setNewTest({...newTest, perQuestionTimeSec: parseInt(e.target.value) || 30})}
-//                   className="w-full px-3 py-2 border rounded-md"
-//                 />
-//               </div>
-              
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Duration (seconds)</label>
-//                 <input
-//                   type="number"
-//                   value={newTest.durationSec}
-//                   onChange={(e) => setNewTest({...newTest, durationSec: parseInt(e.target.value) || 0})}
-//                   className="w-full px-3 py-2 border rounded-md"
-//                 />
-//               </div>
-              
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Schedule Date</label>
-//                 <input
-//                   type="datetime-local"
-//                   value={newTest.scheduleDate}
-//                   onChange={(e) => setNewTest({...newTest, scheduleDate: e.target.value})}
-//                   className="w-full px-3 py-2 border rounded-md"
-//                 />
-//               </div>
-//             </div>
-            
-//             <div className="flex items-center">
-//               <input
-//                 type="checkbox"
-//                 id="is_active"
-//                 checked={newTest.is_active}
-//                 onChange={(e) => setNewTest({...newTest, is_active: e.target.checked})}
-//                 className="h-4 w-4 text-blue-600 rounded"
-//               />
-//               <label htmlFor="is_active" className="ml-2 text-sm text-gray-700">
-//                 Active
-//               </label>
-//             </div>
-            
-//             <div className="flex justify-end space-x-4">
-//               <button
-//                 type="button"
-//                 onClick={() => setShowTestForm(false)}
-//                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 type="submit"
-//                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-//               >
-//                 Add Test
-//               </button>
-//             </div>
-//           </form>
-//         </div>
-//       )}
-
-//       <div className="bg-white shadow-md rounded">
-//         <table className="min-w-full">
-//           <thead>
-//             <tr className="bg-gray-100">
-//               <th className="py-3 px-4 text-left">Title</th>
-//               <th className="py-3 px-4 text-left">Subject</th>
-//               <th className="py-3 px-4 text-left">Type</th>
-//               <th className="py-3 px-4 text-left">Questions</th>
-//               <th className="py-3 px-4 text-left">Status</th>
-//               <th className="py-3 px-4 text-left">Actions</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {tests.length === 0 ? (
-//               <tr>
-//                 <td colSpan="6" className="py-4 px-4 text-center text-gray-500">
-//                   No tests found. Add your first test.
-//                 </td>
-//               </tr>
-//             ) : (
-//               tests.map((test) => (
-//                 <tr key={test._id} className="border-t hover:bg-gray-50">
-//                   <td className="py-3 px-4">{test.title}</td>
-//                   <td className="py-3 px-4">{test.subject}</td>
-//                   <td className="py-3 px-4 capitalize">{test.type.replace('_', ' ')}</td>
-//                   <td className="py-3 px-4">{test.questions?.length || 0}</td>
-//                   <td className="py-3 px-4">
-//                     <span className={`px-2 py-1 rounded-full text-xs ${test.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-//                       {test.is_active ? 'Active' : 'Inactive'}
-//                     </span>
-//                   </td>
-//                   <td className="py-3 px-4">
-//                     <button
-//                       onClick={() => handleManageQuestions(test._id)}
-//                       className="text-blue-600 hover:text-blue-800"
-//                     >
-//                       Manage Questions
-//                     </button>
-//                   </td>
-//                 </tr>
-//               ))
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TestManager;
-
-
-
 
 // components/TestSeries/TestManager.jsx
 import React, { useState } from 'react';
 import QuestionManager from './QuestionManager';
-import { addTestToSeries, addQuestionsToTest } from '../../../services/testSeriesApi';
+import { addTestToSeries, addQuestionsToTest , deleteTestFromSeries } from '../../../services/testSeriesApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -278,6 +45,9 @@ const TestManager = ({ series, onBack }) => {
         progress: undefined,
         theme: "light",
       });
+
+      window.location.reload();
+
     } catch (err) {
       console.error('Failed to add test', err);
       toast.error('Failed to add test. Please try again.', {
@@ -293,6 +63,21 @@ const TestManager = ({ series, onBack }) => {
     }
   };
 
+  const handleDeleteTest = async (testId) => {
+  if (!window.confirm("Are you sure you want to delete this test?")) return;
+  
+  try {
+    const response = await deleteTestFromSeries(series._id, testId);
+    toast.success("Test deleted successfully!");
+    // Remove from local state
+    setTests(tests.filter((t) => t._id !== testId));
+  } catch (err) {
+    console.error("Failed to delete test:", err);
+    toast.error("Failed to delete test. Please try again.");
+  }
+};
+
+
   const handleManageQuestions = (testId) => {
     setActiveTestId(testId);
   };
@@ -304,10 +89,10 @@ const TestManager = ({ series, onBack }) => {
   if (activeTestId) {
     const test = tests.find(t => t._id === activeTestId);
     return (
-      <QuestionManager 
-        series={series} 
-        test={test} 
-        onBack={handleBackToTests} 
+      <QuestionManager
+        series={series}
+        test={test}
+        onBack={handleBackToTests}
       />
     );
   }
@@ -315,7 +100,7 @@ const TestManager = ({ series, onBack }) => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <ToastContainer />
-      
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-3xl font-bold text-gray-800">Manage Tests</h2>
@@ -347,7 +132,7 @@ const TestManager = ({ series, onBack }) => {
         <div className="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-bold text-gray-800">Add New Test</h3>
-            <button 
+            <button
               onClick={() => setShowTestForm(false)}
               className="text-gray-500 hover:text-gray-700"
             >
@@ -363,73 +148,73 @@ const TestManager = ({ series, onBack }) => {
                 <input
                   type="text"
                   value={newTest.title}
-                  onChange={(e) => setNewTest({...newTest, title: e.target.value})}
+                  onChange={(e) => setNewTest({ ...newTest, title: e.target.value })}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
                 <input
                   type="text"
                   value={newTest.subject}
-                  onChange={(e) => setNewTest({...newTest, subject: e.target.value})}
+                  onChange={(e) => setNewTest({ ...newTest, subject: e.target.value })}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
                 <select
                   value={newTest.type}
-                  onChange={(e) => setNewTest({...newTest, type: e.target.value})}
+                  onChange={(e) => setNewTest({ ...newTest, type: e.target.value })}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 >
                   <option value="daily_quiz">Daily Quiz</option>
                   <option value="full_test">Full Test</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Time per Question (seconds)</label>
                 <input
                   type="number"
                   value={newTest.perQuestionTimeSec}
-                  onChange={(e) => setNewTest({...newTest, perQuestionTimeSec: parseInt(e.target.value) || 30})}
+                  onChange={(e) => setNewTest({ ...newTest, perQuestionTimeSec: parseInt(e.target.value) || 30 })}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Duration (seconds)</label>
                 <input
                   type="number"
                   value={newTest.durationSec}
-                  onChange={(e) => setNewTest({...newTest, durationSec: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setNewTest({ ...newTest, durationSec: parseInt(e.target.value) || 0 })}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Schedule Date</label>
                 <input
                   type="datetime-local"
                   value={newTest.scheduleDate}
-                  onChange={(e) => setNewTest({...newTest, scheduleDate: e.target.value})}
+                  onChange={(e) => setNewTest({ ...newTest, scheduleDate: e.target.value })}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center">
               <div className="flex items-center h-5">
                 <input
                   type="checkbox"
                   id="is_active"
                   checked={newTest.is_active}
-                  onChange={(e) => setNewTest({...newTest, is_active: e.target.checked})}
+                  onChange={(e) => setNewTest({ ...newTest, is_active: e.target.checked })}
                   className="h-4 w-4 text-green-600 rounded focus:ring-green-500 border-gray-300"
                 />
               </div>
@@ -437,7 +222,7 @@ const TestManager = ({ series, onBack }) => {
                 Active
               </label>
             </div>
-            
+
             <div className="flex justify-end space-x-4 pt-4">
               <button
                 type="button"
@@ -516,6 +301,21 @@ const TestManager = ({ series, onBack }) => {
                         <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
                       </svg>
                       Manage Questions
+                    </button>
+
+                
+
+                  </td>
+                  <td>
+                        {/* 🗑️ Delete Test Button */}
+                    <button
+                      onClick={() => handleDeleteTest(test._id)}
+                      className="text-red-600 hover:text-red-800 flex items-center transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2h12a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-4 6a1 1 0 011 1v7a2 2 0 002 2h4a2 2 0 002-2V9a1 1 0 112 0v7a4 4 0 01-4 4H8a4 4 0 01-4-4V9a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                      Delete
                     </button>
                   </td>
                 </tr>
