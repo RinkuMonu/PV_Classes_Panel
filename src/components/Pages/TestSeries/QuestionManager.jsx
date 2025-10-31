@@ -25,19 +25,19 @@
 //     try {
 //       // Prepare the question data
 //       const questionData = { ...newQuestion };
-
+      
 //       // For numeric questions, clear options
 //       if (questionData.type === 'numeric') {
 //         questionData.options = [];
 //       }
-
+      
 //       // Add the question to the list
 //       const updatedQuestions = [...questions, questionData];
 //       setQuestions(updatedQuestions);
-
+      
 //       // Update the backend
 //       await addQuestionsToTest(series._id, test._id, { questions: [questionData] });
-
+      
 //       // Reset form
 //       setNewQuestion({
 //         type: 'mcq_single',
@@ -74,7 +74,7 @@
 
 //   const handleCorrectOptionChange = (key, isChecked) => {
 //     let updatedCorrectOptions = [...newQuestion.correctOptions];
-
+    
 //     if (isChecked) {
 //       if (newQuestion.type === 'mcq_single') {
 //         updatedCorrectOptions = [key]; // Only one correct answer for single choice
@@ -84,7 +84,7 @@
 //     } else {
 //       updatedCorrectOptions = updatedCorrectOptions.filter(k => k !== key);
 //     }
-
+    
 //     setNewQuestion({ ...newQuestion, correctOptions: updatedCorrectOptions });
 //   };
 
@@ -95,7 +95,7 @@
 //         alert('Bulk data must be an array of questions');
 //         return;
 //       }
-
+      
 //       await addQuestionsToTest(series._id, test._id, { questions: questionsToAdd });
 //       setQuestions([...questions, ...questionsToAdd]);
 //       setBulkJson('');
@@ -150,7 +150,7 @@
 //                 <option value="numeric">Numeric</option>
 //               </select>
 //             </div>
-
+            
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-1">Question Statement</label>
 //               <textarea
@@ -161,7 +161,7 @@
 //                 required
 //               ></textarea>
 //             </div>
-
+            
 //             {(newQuestion.type === 'mcq_single' || newQuestion.type === 'mcq_multi') && (
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Options</label>
@@ -193,7 +193,7 @@
 //                 </button>
 //               </div>
 //             )}
-
+            
 //             {newQuestion.type === 'numeric' && (
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Correct Numeric Answer</label>
@@ -207,7 +207,7 @@
 //                 />
 //               </div>
 //             )}
-
+            
 //             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Marks</label>
@@ -219,7 +219,7 @@
 //                   required
 //                 />
 //               </div>
-
+              
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Negative Marks</label>
 //                 <input
@@ -229,7 +229,7 @@
 //                   className="w-full px-3 py-2 border rounded-md"
 //                 />
 //               </div>
-
+              
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
 //                 <input
@@ -239,7 +239,7 @@
 //                   className="w-full px-3 py-2 border rounded-md"
 //                 />
 //               </div>
-
+              
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Topic</label>
 //                 <input
@@ -250,7 +250,7 @@
 //                 />
 //               </div>
 //             </div>
-
+            
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-1">Explanation</label>
 //               <textarea
@@ -260,7 +260,7 @@
 //                 rows="2"
 //               ></textarea>
 //             </div>
-
+            
 //             <div className="flex items-center">
 //               <input
 //                 type="checkbox"
@@ -273,7 +273,7 @@
 //                 Active
 //               </label>
 //             </div>
-
+            
 //             <div className="flex justify-end space-x-4">
 //               <button
 //                 type="button"
@@ -358,7 +358,7 @@
 //                 <div className="flex justify-between items-start">
 //                   <div className="flex-1">
 //                     <p className="font-medium mb-2">{index + 1}. {question.statement}</p>
-
+                    
 //                     {(question.type === 'mcq_single' || question.type === 'mcq_multi') && (
 //                       <ul className="ml-6 mb-2">
 //                         {question.options.map((opt, optIndex) => (
@@ -372,13 +372,13 @@
 //                         ))}
 //                       </ul>
 //                     )}
-
+                    
 //                     {question.type === 'numeric' && (
 //                       <p className="mb-2">
 //                         <span className="font-medium">Correct Answer:</span> {question.correctNumeric}
 //                       </p>
 //                     )}
-
+                    
 //                     <div className="text-sm text-gray-600">
 //                       <span className="mr-3">Marks: {question.marks}</span>
 //                       {question.negativeMarks > 0 && (
@@ -388,14 +388,14 @@
 //                       {question.subject && <span className="mr-3">Subject: {question.subject}</span>}
 //                       {question.topic && <span>Topic: {question.topic}</span>}
 //                     </div>
-
+                    
 //                     {question.explanation && (
 //                       <div className="mt-2 text-sm">
 //                         <span className="font-medium">Explanation:</span> {question.explanation}
 //                       </div>
 //                     )}
 //                   </div>
-
+                  
 //                   <div>
 //                     <span className={`px-2 py-1 rounded-full text-xs ${question.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
 //                       {question.is_active ? 'Active' : 'Inactive'}
@@ -515,9 +515,9 @@ const QuestionManager = ({ series, test, onBack }) => {
 
     if (isChecked) {
       if (newQuestion.type === 'mcq_single') {
-        updatedCorrectOptions = [key]; // Only one correct answer for single choice
+        updatedCorrectOptions = [key];
       } else {
-        updatedCorrectOptions.push(key); // Add to correct answers for multi-choice
+        updatedCorrectOptions.push(key);
       }
     } else {
       updatedCorrectOptions = updatedCorrectOptions.filter(k => k !== key);
