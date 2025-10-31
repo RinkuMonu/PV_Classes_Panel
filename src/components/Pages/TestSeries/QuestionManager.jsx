@@ -443,19 +443,19 @@ const QuestionManager = ({ series, test, onBack }) => {
     try {
       // Prepare the question data
       const questionData = { ...newQuestion };
-      
+
       // For numeric questions, clear options
       if (questionData.type === 'numeric') {
         questionData.options = [];
       }
-      
+
       // Add the question to the list
       const updatedQuestions = [...questions, questionData];
       setQuestions(updatedQuestions);
-      
+
       // Update the backend
       await addQuestionsToTest(series._id, test._id, { questions: [questionData] });
-      
+
       // Success toast
       toast.success('Question added successfully!', {
         position: "top-right",
@@ -466,7 +466,7 @@ const QuestionManager = ({ series, test, onBack }) => {
         draggable: true,
         theme: "colored",
       });
-      
+
       // Reset form
       setNewQuestion({
         type: 'mcq_single',
@@ -512,17 +512,17 @@ const QuestionManager = ({ series, test, onBack }) => {
 
   const handleCorrectOptionChange = (key, isChecked) => {
     let updatedCorrectOptions = [...newQuestion.correctOptions];
-    
+
     if (isChecked) {
       if (newQuestion.type === 'mcq_single') {
-        updatedCorrectOptions = [key]; // Only one correct answer for single choice
+        updatedCorrectOptions = [key];
       } else {
-        updatedCorrectOptions.push(key); // Add to correct answers for multi-choice
+        updatedCorrectOptions.push(key);
       }
     } else {
       updatedCorrectOptions = updatedCorrectOptions.filter(k => k !== key);
     }
-    
+
     setNewQuestion({ ...newQuestion, correctOptions: updatedCorrectOptions });
   };
 
@@ -541,11 +541,11 @@ const QuestionManager = ({ series, test, onBack }) => {
         });
         return;
       }
-      
+
       await addQuestionsToTest(series._id, test._id, { questions: questionsToAdd });
       setQuestions([...questions, ...questionsToAdd]);
       setBulkJson('');
-      
+
       toast.success(`${questionsToAdd.length} questions added successfully!`, {
         position: "top-right",
         autoClose: 3000,
@@ -572,7 +572,7 @@ const QuestionManager = ({ series, test, onBack }) => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <ToastContainer />
-      
+
       <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-green-100">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -606,7 +606,7 @@ const QuestionManager = ({ series, test, onBack }) => {
             <h3 className="text-lg font-semibold text-green-800 mb-2">Total Questions</h3>
             <p className="text-3xl font-bold text-green-600">{questions.length}</p>
           </div>
-          
+
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
             <h3 className="text-lg font-semibold text-green-800 mb-2">Active Questions</h3>
             <p className="text-3xl font-bold text-green-600">
@@ -620,7 +620,7 @@ const QuestionManager = ({ series, test, onBack }) => {
         <div className="bg-white p-6 rounded-xl shadow-lg mb-6 border border-green-100">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-green-800">Add New Question</h3>
-            <button 
+            <button
               onClick={() => setShowQuestionForm(false)}
               className="text-gray-500 hover:text-gray-700"
             >
@@ -629,7 +629,7 @@ const QuestionManager = ({ series, test, onBack }) => {
               </svg>
             </button>
           </div>
-          
+
           <form onSubmit={handleAddQuestion} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -652,29 +652,29 @@ const QuestionManager = ({ series, test, onBack }) => {
                   <option value="numeric">Numeric</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-green-700 mb-2">Subject</label>
                 <input
                   type="text"
                   value={newQuestion.subject}
-                  onChange={(e) => setNewQuestion({...newQuestion, subject: e.target.value})}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, subject: e.target.value })}
                   className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-green-700 mb-2">Question Statement</label>
               <textarea
                 value={newQuestion.statement}
-                onChange={(e) => setNewQuestion({...newQuestion, statement: e.target.value})}
+                onChange={(e) => setNewQuestion({ ...newQuestion, statement: e.target.value })}
                 className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 rows="3"
                 required
               ></textarea>
             </div>
-            
+
             {(newQuestion.type === 'mcq_single' || newQuestion.type === 'mcq_multi') && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex justify-between items-center mb-4">
@@ -690,7 +690,7 @@ const QuestionManager = ({ series, test, onBack }) => {
                     Add Option
                   </button>
                 </div>
-                
+
                 {newQuestion.options.map((option, index) => (
                   <div key={index} className="flex items-center mb-3 p-2 bg-white rounded-md">
                     <span className="w-8 font-medium text-green-700">{option.key}.</span>
@@ -716,7 +716,7 @@ const QuestionManager = ({ series, test, onBack }) => {
                 ))}
               </div>
             )}
-            
+
             {newQuestion.type === 'numeric' && (
               <div>
                 <label className="block text-sm font-medium text-green-700 mb-2">Correct Numeric Answer</label>
@@ -724,52 +724,52 @@ const QuestionManager = ({ series, test, onBack }) => {
                   type="number"
                   step="any"
                   value={newQuestion.correctNumeric}
-                  onChange={(e) => setNewQuestion({...newQuestion, correctNumeric: e.target.value})}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, correctNumeric: e.target.value })}
                   className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
                 />
               </div>
             )}
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-green-700 mb-2">Marks</label>
                 <input
                   type="number"
                   value={newQuestion.marks}
-                  onChange={(e) => setNewQuestion({...newQuestion, marks: parseInt(e.target.value) || 1})}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, marks: parseInt(e.target.value) || 1 })}
                   className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-green-700 mb-2">Negative Marks</label>
                 <input
                   type="number"
                   value={newQuestion.negativeMarks}
-                  onChange={(e) => setNewQuestion({...newQuestion, negativeMarks: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, negativeMarks: parseInt(e.target.value) || 0 })}
                   className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-green-700 mb-2">Topic</label>
                 <input
                   type="text"
                   value={newQuestion.topic}
-                  onChange={(e) => setNewQuestion({...newQuestion, topic: e.target.value})}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, topic: e.target.value })}
                   className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
-              
+
               <div className="flex items-center justify-center mt-6">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     id="is_active"
                     checked={newQuestion.is_active}
-                    onChange={(e) => setNewQuestion({...newQuestion, is_active: e.target.checked})}
+                    onChange={(e) => setNewQuestion({ ...newQuestion, is_active: e.target.checked })}
                     className="h-5 w-5 text-green-600 rounded focus:ring-green-500"
                   />
                   <label htmlFor="is_active" className="ml-2 text-sm text-green-700 font-medium">
@@ -778,18 +778,18 @@ const QuestionManager = ({ series, test, onBack }) => {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-green-700 mb-2">Explanation</label>
               <textarea
                 value={newQuestion.explanation}
-                onChange={(e) => setNewQuestion({...newQuestion, explanation: e.target.value})}
+                onChange={(e) => setNewQuestion({ ...newQuestion, explanation: e.target.value })}
                 className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 rows="2"
                 placeholder="Add explanation for the correct answer"
               ></textarea>
             </div>
-            
+
             <div className="flex justify-end space-x-4 pt-4 border-t border-green-100">
               <button
                 type="button"
@@ -873,7 +873,7 @@ const QuestionManager = ({ series, test, onBack }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p>No questions added yet.</p>
-              <button 
+              <button
                 onClick={() => setShowQuestionForm(true)}
                 className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
               >
@@ -891,12 +891,12 @@ const QuestionManager = ({ series, test, onBack }) => {
                       </span>
                       <div className="flex-1">
                         <p className="font-medium text-green-900 mb-2">{question.statement}</p>
-                        
+
                         {(question.type === 'mcq_single' || question.type === 'mcq_multi') && (
                           <ul className="ml-2 mb-3">
                             {question.options.map((opt, optIndex) => (
-                              <li 
-                                key={optIndex} 
+                              <li
+                                key={optIndex}
                                 className={`flex items-center py-1 ${question.correctOptions.includes(opt.key) ? 'text-green-700 font-medium' : 'text-gray-600'}`}
                               >
                                 <span className="inline-block w-6 font-medium">{opt.key}.</span>
@@ -912,14 +912,14 @@ const QuestionManager = ({ series, test, onBack }) => {
                             ))}
                           </ul>
                         )}
-                        
+
                         {question.type === 'numeric' && (
                           <p className="mb-3">
-                            <span className="font-medium text-green-700">Correct Answer:</span> 
+                            <span className="font-medium text-green-700">Correct Answer:</span>
                             <span className="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded-md">{question.correctNumeric}</span>
                           </p>
                         )}
-                        
+
                         <div className="flex flex-wrap gap-3 text-sm">
                           <span className="bg-green-100 text-green-700 px-2 py-1 rounded-md">
                             Marks: {question.marks}
@@ -943,17 +943,17 @@ const QuestionManager = ({ series, test, onBack }) => {
                             </span>
                           )}
                         </div>
-                        
+
                         {question.explanation && (
                           <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                            <span className="font-medium text-blue-700">Explanation:</span> 
+                            <span className="font-medium text-blue-700">Explanation:</span>
                             <p className="text-blue-800 mt-1">{question.explanation}</p>
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="ml-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${question.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {question.is_active ? 'Active' : 'Inactive'}

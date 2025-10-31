@@ -68,16 +68,18 @@ export default function Dashboard({ user }) {
 
   useEffect(() => {
     if (user) {
-      toast.success(`Welcome ${user}!`);
+    toast.success(`Welcome back, ${user.name}!`);
     }
   }, [user]);
+
+  console.log("Dashboard user:", user);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const res = await axios.get(`${url}/api/count`);
         const apiCounts = res.data?.counts || {};
-        setCounts(apiCounts);
+        setCounts(apiCounts); 
 
         // ⚡ if backend later adds recentOrders inside count response
         setRecentData(res.data?.recentOrders || []);

@@ -232,7 +232,7 @@ function Compo() {
         }}
       />
       
-      <h1 className="text-3xl font-bold mb-8 text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      <h1 className="text-3xl font-bold mb-8 text-gray-800 bg-gradient-to-r from-green-600 to-purple-600 bg-clip-text text-transparent">
         Combo Management
       </h1>
 
@@ -415,7 +415,7 @@ function Compo() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-md hover:from-blue-700 hover:to-blue-900 disabled:opacity-50 transition-all duration-200 flex items-center"
+              className="bg-gradient-to-r from-green-600 to-green-800 text-white px-6 py-3 rounded-md hover:from-blue-700 hover:to-blue-900 disabled:opacity-50 transition-all duration-200 flex items-center"
             >
               {loading ? (
                 <>
