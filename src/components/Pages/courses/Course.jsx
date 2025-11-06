@@ -606,7 +606,7 @@ const Course = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-green-800">Course Management</h1>
+            <h1 className="text-3xl font-bold text-green-800">Course Managementt</h1>
             <p className="text-gray-600 mt-2">Create and manage courses for your platform</p>
           </div>
           <button

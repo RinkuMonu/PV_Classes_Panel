@@ -57,6 +57,11 @@ export const addTestToSeries = (seriesId, testData) => {
   return axios.post(`/test-series/${seriesId}/tests`, testData);
 };
 
+export const deleteTestFromSeries = (seriesId, testId) => {
+  return axios.delete(`/test-series/delete-test/${seriesId}/${testId}`);
+};
+
+
 export const addQuestionsToTest = (seriesId, testId, questionsData) => {
   return axios.post(`/test-series/${seriesId}/tests/${testId}/questions`, questionsData);
 };

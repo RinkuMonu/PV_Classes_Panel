@@ -1,4 +1,4 @@
-name: Deploy React App to CWP
+name: Deploy Vite React Frontend to AWS EC2
 
 on:
   push:
@@ -10,42 +10,73 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: 🛠 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Dependencies & Build
+      - name: 📦 Install deps & build (Vite)
         run: |
           npm install --legacy-peer-deps
           npm run build
 
-      - name: Zip build files
-        run: |
-          tar -czvf dist.tar.gz -C dist .
+          # Vite must output to dist/
+          if [ ! -d "dist" ]; then
+            echo "❌ dist/ folder not found after build. Stopping."
+            exit 1
+          fi
 
-      - name: Copy Zip to Server via SCP
+          # Pack dist into a tarball we can upload
+          tar -czvf frontend_build.tar.gz -C dist .
+
+      - name: 🔑 Write SSH key to file
+        run: |
+          echo "${{ secrets.REACT_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: 🚀 Upload bundle to EC2
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 22527
-          source: "dist.tar.gz"
-          target: "/home/adminpvc/"
+          host: ${{ secrets.REACT_SSH_HOST }}
+          username: ${{ secrets.REACT_SSH_USER }}
+          port: ${{ secrets.REACT_SSH_PORT }}
+          key: ${{ secrets.REACT_SSH_KEY }}
+          source: "frontend_build.tar.gz"
+          target: "${{ secrets.REACT_DEPLOY_DIR }}/"
 
-      - name: Unzip files on Server via SSH
+      - name: 🔐 SSH into EC2 and deploy to public_html
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 22527
+          host: ${{ secrets.REACT_SSH_HOST }}
+          username: ${{ secrets.REACT_SSH_USER }}
+          port: ${{ secrets.REACT_SSH_PORT }}
+          key: ${{ secrets.REACT_SSH_KEY }}
           script: |
-            rm -rf /home/adminpvc/public_html/*
-            mkdir -p /home/adminpvc/public_html
-            tar -xzvf /home/adminpvc/dist.tar.gz -C /home/adminpvc/public_html
-            rm /home/adminpvc/dist.tar.gz
+            set -e
+
+            DEPLOY_DIR="${{ secrets.REACT_DEPLOY_DIR }}"
+            LIVE_DIR="$DEPLOY_DIR/public_html"
+            RELEASE_TAR="$DEPLOY_DIR/frontend_build.tar.gz"
+            BACKUP_DIR="$DEPLOY_DIR/backup_frontend"
+            TS=$(date +%Y%m%d_%H%M%S)
+
+            echo "📂 Ensure public_html exists"
+            mkdir -p "$LIVE_DIR"
+
+            echo "💾 Creating backup $BACKUP_DIR/site_$TS"
+            mkdir -p "$BACKUP_DIR"
+            cp -r "$LIVE_DIR" "$BACKUP_DIR/site_$TS" || true
+
+            echo "🧹 Cleaning old static files from $LIVE_DIR"
+            rm -rf "$LIVE_DIR"/*
+
+            echo "📦 Extracting new dist -> $LIVE_DIR"
+            tar -xzvf "$RELEASE_TAR" -C "$LIVE_DIR"
+
+            echo "🗑 Removing uploaded tar from server"
+            rm -f "$RELEASE_TAR"
+
+            echo "✅ Frontend deployed at $LIVE_DIR"
