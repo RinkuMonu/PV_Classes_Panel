@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaRegFolderOpen } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
 
@@ -27,7 +27,7 @@ const CourceCategory = () => {
       // const response = await axios.get('https://api.pvclasses.in/api/categories');
          const response = await axiosInstance.get('/categories'); // ✅ using axiosInstance
       setCategories(response.data);
-    } catch (error) {
+    } catch {
       toast.error('Error fetching categories');
     } finally {
       setLoading(false);
@@ -39,9 +39,9 @@ const CourceCategory = () => {
       .toString()
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-')      // Replace spaces with -
-      .replace(/[^\w\-]+/g, '')  // Remove all non-word chars
-      .replace(/\-\-+/g, '-');   // Replace multiple - with single -
+   .replace(/\s+/g, '-')       // spaces → -
+.replace(/[^\w-]+/g, '')    // remove non-word chars
+.replace(/-+/g, '-');       // collapse multiple dashes
   };
 
   const handleSubmit = async (e) => {
@@ -91,7 +91,7 @@ const CourceCategory = () => {
 
         toast.success('Category deleted successfully');
         fetchCategories();
-      } catch (error) {
+      } catch {
         toast.error('Error deleting category');
       }
     }

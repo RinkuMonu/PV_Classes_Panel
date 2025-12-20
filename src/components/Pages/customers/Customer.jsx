@@ -63,31 +63,31 @@ export default function Customer() {
       range.push(i);
     }
     // Generate page numbers for pagination
-    const getPageNumbers = () => {
-      const pages = [];
-      const maxVisiblePages = 5;
+    // const getPageNumbers = () => {
+    //   const pages = [];
+    //   const maxVisiblePages = 5;
 
-      if (totalPages <= maxVisiblePages) {
-        for (let i = 1; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, currentPage + 2);
+    //   if (totalPages <= maxVisiblePages) {
+    //     for (let i = 1; i <= totalPages; i++) {
+    //       pages.push(i);
+    //     }
+    //   } else {
+    //     let startPage = Math.max(1, currentPage - 2);
+    //     let endPage = Math.min(totalPages, currentPage + 2);
 
-        if (currentPage <= 3) {
-          endPage = maxVisiblePages;
-        } else if (currentPage >= totalPages - 2) {
-          startPage = totalPages - maxVisiblePages + 1;
-        }
+    //     if (currentPage <= 3) {
+    //       endPage = maxVisiblePages;
+    //     } else if (currentPage >= totalPages - 2) {
+    //       startPage = totalPages - maxVisiblePages + 1;
+    //     }
 
-        for (let i = startPage; i <= endPage; i++) {
-          pages.push(i);
-        }
-      }
+    //     for (let i = startPage; i <= endPage; i++) {
+    //       pages.push(i);
+    //     }
+    //   }
 
-      return pages;
-    };
+    //   return pages;
+    // };
 
     return range;
   };
@@ -397,7 +397,10 @@ export default function Customer() {
                   setIsModalOpen(false);
                   setEditingCustomer(null);
                 }}
-                onAdd={(updatedCustomer) => {
+                // onAdd={(updatedCustomer) => {
+                //   setIsModalOpen(false);
+                // }}
+                 onAdd={() => {
                   setIsModalOpen(false);
                 }}
                 onUpdateSuccess={(message) => {

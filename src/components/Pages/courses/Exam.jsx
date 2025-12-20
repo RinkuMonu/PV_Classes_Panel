@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaGraduationCap } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
 
@@ -35,7 +35,7 @@ const Exam = () => {
             const response = await axiosInstance.get('/exams'); // ✅ using axiosInstance
 
       setExams(response.data);
-    } catch (error) {
+    } catch {
       toast.error('Error fetching exams');
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ const Exam = () => {
             const response = await axiosInstance.get('/exam-types'); // ✅ using axiosInstance
 
       setExamTypes(response.data);
-    } catch (error) {
+    } catch{
       toast.error('Error fetching exam types');
     }
   };
@@ -58,9 +58,9 @@ const Exam = () => {
       .toString()
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-')      // Replace spaces with -
-      .replace(/[^\w\-]+/g, '')  // Remove all non-word chars
-      .replace(/\-\-+/g, '-');   // Replace multiple - with single -
+   .replace(/\s+/g, '-')       // spaces → -
+.replace(/[^\w-]+/g, '')    // remove non-word chars
+.replace(/-+/g, '-');       // collapse multiple dashes
   };
 
   const handleSubmit = async (e) => {
@@ -103,7 +103,7 @@ const Exam = () => {
       setShowModal(false);
       resetForm();
       fetchExams();
-    } catch (error) {
+    } catch{
       toast.error('Error saving exam');
     }
   };
@@ -130,7 +130,7 @@ const Exam = () => {
 
         toast.success('Exam deleted successfully');
         fetchExams();
-      } catch (error) {
+      } catch  {
         toast.error('Error deleting exam');
       }
     }

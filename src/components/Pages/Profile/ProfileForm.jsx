@@ -9,10 +9,10 @@ const ProfileForm = ({
     phone: "",
     role: "",
   },
-  roleOptions = [
-    { value: "Super Admin", label: "Super Admin" },
-    { value: "Admin", label: "Admin" },
-  ],
+  // roleOptions = [
+  //   { value: "Super Admin", label: "Super Admin" },
+  //   { value: "Admin", label: "Admin" },
+  // ],
   submitButtonText = "Update Profile",
 }) => {
   const [formData, setFormData] = useState(initialData);

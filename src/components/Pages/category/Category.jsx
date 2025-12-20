@@ -142,7 +142,7 @@ export default function Category() {
   const [categories, setCategories] = useState(initialCategories);
 
   const [selectedCategories, setSelectedCategories] = useState(new Set());
-  const [showAll, setShowAll] = useState(true);
+  const [showAll, _setShowAll] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -152,8 +152,8 @@ export default function Category() {
   const navigate = useNavigate();
   const itemsPerPage = 10;
   const [categorie, setCategorie] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [_loading, setLoading] = useState(true);
+  const [page, _setPage] = useState(1);
   const [limit] = useState(10);
 
   // Filter categories based on search term

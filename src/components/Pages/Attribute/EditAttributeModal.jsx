@@ -11,7 +11,7 @@ const EditAttributeModal = ({ attribute, onClose, onUpdate }) => {
   });
 
   const [isVisible, setIsVisible] = useState(false);
-  const [newVariant, setNewVariant] = useState("");
+  // const [newVariant, setNewVariant] = useState("");
 
   useEffect(() => { 
     setIsVisible(true);
@@ -52,23 +52,23 @@ const EditAttributeModal = ({ attribute, onClose, onUpdate }) => {
     }));
   };
 
-  const handleAddVariant = (e) => {
-    if (e.key === 'Enter' && newVariant.trim()) {
-      e.preventDefault();
-      setFormData(prev => ({
-        ...prev,
-        variants: [...prev.variants, newVariant.trim()]
-      }));
-      setNewVariant("");
-    }
-  };
+  // const handleAddVariant = (e) => {
+  //   if (e.key === 'Enter' && newVariant.trim()) {
+  //     e.preventDefault();
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       variants: [...prev.variants, newVariant.trim()]
+  //     }));
+  //     setNewVariant("");
+  //   }
+  // };
 
-  const handleRemoveVariant = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      variants: prev.variants.filter((_, i) => i !== index)
-    }));
-  };
+  // const handleRemoveVariant = (index) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     variants: prev.variants.filter((_, i) => i !== index)
+  //   }));
+  // };
 
   const handleClose = () => {
     setIsVisible(false);

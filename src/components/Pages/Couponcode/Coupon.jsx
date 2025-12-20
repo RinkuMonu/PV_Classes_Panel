@@ -45,10 +45,10 @@ const CouponManager = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        const res = await axiosInstance.put(`/coupon/${editingId}`, form);
+        await axiosInstance.put(`/coupon/${editingId}`, form);
         toast.success("Coupon updated successfully");
       } else {
-        const res = await axiosInstance.post("/coupon", form);
+      await axiosInstance.post("/coupon", form);
         toast.success("Coupon created successfully");
       }
       setForm({

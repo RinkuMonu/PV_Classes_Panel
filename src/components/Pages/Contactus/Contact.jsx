@@ -237,7 +237,7 @@ function ContactList() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {currentContacts.length > 0 ? (
-                        currentContacts.map((contact, index) => (
+                        currentContacts.map((contact) => (
                           <tr key={contact._id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">

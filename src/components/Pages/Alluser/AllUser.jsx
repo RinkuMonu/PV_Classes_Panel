@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+// import axios from 'axios';
 import axiosInstance from '../../../config/AxiosInstance'; // <-- Import your axios instance
 
 
@@ -75,25 +75,25 @@ const Users = () => {
     setShowInfoModal(true);
   };
 
-  const handleEdit = (user) => {
-    setEditingUser(user);
-    setFormData({
-      name: user.name || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      address: user.address || '',
-      city: user.city || '',
-      state: user.state || '',
-      pincode: user.pincode || '',
-      district: user.district || '',
-      role: user.role || 'user',
-      experience: user.experience || '',
-      specialization: user.specialization || '',
-      status: user.status || 'active'
-    });
-    setErrors({});
-    setShowModal(true);
-  };
+  // const handleEdit = (user) => {
+  //   setEditingUser(user);
+  //   setFormData({
+  //     name: user.name || '',
+  //     email: user.email || '',
+  //     phone: user.phone || '',
+  //     address: user.address || '',
+  //     city: user.city || '',
+  //     state: user.state || '',
+  //     pincode: user.pincode || '',
+  //     district: user.district || '',
+  //     role: user.role || 'user',
+  //     experience: user.experience || '',
+  //     specialization: user.specialization || '',
+  //     status: user.status || 'active'
+  //   });
+  //   setErrors({});
+  //   setShowModal(true);
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -217,12 +217,12 @@ const Users = () => {
   };
 
   // Check if phone already exists in other users
-  const isPhoneUnique = (phone) => {
-    if (!phone) return true;
-    return !users.some(user => 
-      user.phone === phone && user._id !== editingUser?._id
-    );
-  };
+  // const isPhoneUnique = (phone) => {
+  //   if (!phone) return true;
+  //   return !users.some(user => 
+  //     user.phone === phone && user._id !== editingUser?._id
+  //   );
+  // };
 
   return (
     <div className="p-6">

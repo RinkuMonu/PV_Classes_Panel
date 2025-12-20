@@ -158,13 +158,13 @@ export default function UpdateProductForm({ product, isOpen, onClose, onSave }) 
             )
 
             // Optional: generate options for select dropdowns
-            const sizes = [
-              ...new Set(fetchedProduct.variants.map((v) => v.size).filter(Boolean)),
-            ];
-            const colors = [
-              ...new Set(fetchedProduct.variants.map((v) => v.color).filter(Boolean)),
-            ];
-            setVariantOptions({ size: sizes, color: colors });
+            // const sizes = [
+            //   ...new Set(fetchedProduct.variants.map((v) => v.size).filter(Boolean)),
+            // ];
+            // const colors = [
+            //   ...new Set(fetchedProduct.variants.map((v) => v.color).filter(Boolean)),
+            // ];
+            // setVariantOptions({ size: sizes, color: colors });
           }
 
           // ✅ Existing images

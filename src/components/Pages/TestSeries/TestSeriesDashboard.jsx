@@ -167,11 +167,11 @@ import React, { useState, useEffect } from 'react';
 import TestSeriesList from './TestSeriesList';
 import TestSeriesForm from './TestSeriesForm';
 import TestManager from './TestManager';
-import QuestionManager from './QuestionManager';
+// import QuestionManager from './QuestionManager';
 import { getTestSeries, createTestSeries, updateTestSeries, deleteTestSeries } from '../../../services/testSeriesApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axiosInstance from '../../../config/AxiosInstance'; // <-- Import your axios instance
+// import axiosInstance from '../../../config/AxiosInstance'; // <-- Import your axios instance
 
 
 const TestSeriesDashboard = () => {
@@ -179,7 +179,7 @@ const TestSeriesDashboard = () => {
   const [selectedSeries, setSelectedSeries] = useState(null);
   const [activeTab, setActiveTab] = useState('list');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [_error, setError] = useState('');
 
   useEffect(() => {
     fetchTestSeries();

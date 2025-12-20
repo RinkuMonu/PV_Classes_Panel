@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaGraduationCap } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
 
@@ -30,10 +29,10 @@ const ExamType = () => {
     try {
       setLoading(true);
       // const response = await axios.get('https://api.pvclasses.in/api/exam-types');
-            const response = await axiosInstance.get('/exam-types'); // ✅
+      const response = await axiosInstance.get('/exam-types'); // ✅
 
       setExamTypes(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching exam types');
     } finally {
       setLoading(false);
@@ -43,10 +42,10 @@ const ExamType = () => {
   const fetchCategories = async () => {
     try {
       // const response = await axios.get('https://api.pvclasses.in/api/categories');
-            const response = await axiosInstance.get('/categories'); // ✅
+      const response = await axiosInstance.get('/categories'); // ✅
 
       setCategories(response.data);
-    } catch (error) {
+    } catch {
       toast.error('Error fetching categories');
     }
   };
@@ -56,9 +55,9 @@ const ExamType = () => {
       .toString()
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-')      // Replace spaces with -
-      .replace(/[^\w\-]+/g, '')  // Remove all non-word chars
-      .replace(/\-\-+/g, '-');   // Replace multiple - with single -
+      .replace(/\s+/g, '-')       // Replace spaces with -
+      .replace(/[^\w-]+/g, '')    // Remove all non-word chars
+      .replace(/--+/g, '-');      // Replace multiple - with single -
   };
 
   const handleSubmit = async (e) => {
@@ -73,12 +72,12 @@ const ExamType = () => {
     try {
       if (editingId) {
         // await axios.put(`https://api.pvclasses.in/api/exam-types/${editingId}`, payload);
-                await axiosInstance.put(`/exam-types/${editingId}`, payload); // ✅
+        await axiosInstance.put(`/exam-types/${editingId}`, payload); // ✅
 
         toast.success('Exam type updated successfully');
       } else {
         // await axios.post('https://api.pvclasses.in/api/exam-types', payload);
-                await axiosInstance.post('/exam-types', payload); // ✅
+        await axiosInstance.post('/exam-types', payload); // ✅
 
         toast.success('Exam type created successfully');
       }
@@ -105,10 +104,10 @@ const ExamType = () => {
     if (window.confirm('Are you sure you want to delete this exam type?')) {
       try {
         // await axios.delete(`https://api.pvclasses.in/api/exam-types/${id}`);
-                await axiosInstance.delete(`/exam-types/${id}`); // ✅
+        await axiosInstance.delete(`/exam-types/${id}`); // ✅
         toast.success('Exam type deleted successfully');
         fetchExamTypes();
-      } catch (error) {
+      } catch{
         toast.error('Error deleting exam type');
       }
     }
@@ -179,7 +178,7 @@ const ExamType = () => {
               <div className="border-b border-gray-200 px-6 py-4 bg-green-50">
                 <h2 className="text-xl font-semibold text-green-800">All Exam Types</h2>
               </div>
-              
+
               {examTypes.length > 0 ? (
                 <div className="divide-y divide-gray-100">
                   {examTypes.map((examType) => (

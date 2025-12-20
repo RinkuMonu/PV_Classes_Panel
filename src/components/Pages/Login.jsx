@@ -25,7 +25,7 @@ const Login = ({ setUser }) => {
 
     try {
       const { data } = await axios.post(`${url}/api/users/login`, { phone, password });
-      const { message, token, user } = data || {};
+      const { token, user } = data || {};
 
       if (!token || !user) {
         toast.error("Invalid response from server.");
