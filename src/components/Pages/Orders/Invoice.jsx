@@ -127,8 +127,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../../config/AxiosInstance";
 import { Download, Printer } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+// import html2canvas from "html2canvas";
+// import jsPDF from "jspdf";
 
 const Invoice = () => {
   const { orderId } = useParams();
@@ -158,53 +158,53 @@ const Invoice = () => {
   }, [orderId]);
 
   // ✅ Download invoice as PDF
-const downloadInvoice = () => {
-  const input = invoiceRef.current;
+// const downloadInvoice = () => {
+//   const input = invoiceRef.current;
 
-  // Hide other elements temporarily
-  const mainContent = document.querySelector('.main-content');
-  const sidebar = document.querySelector('.sidebar');
-  const header = document.querySelector('.header');
+//   // Hide other elements temporarily
+//   const mainContent = document.querySelector('.main-content');
+//   const sidebar = document.querySelector('.sidebar');
+//   const header = document.querySelector('.header');
 
-  if (mainContent) mainContent.style.visibility = 'hidden';
-  if (sidebar) sidebar.style.visibility = 'hidden';
-  if (header) header.style.visibility = 'hidden';
+//   if (mainContent) mainContent.style.visibility = 'hidden';
+//   if (sidebar) sidebar.style.visibility = 'hidden';
+//   if (header) header.style.visibility = 'hidden';
 
-  const originalBodyBackground = document.body.style.background;
-  document.body.style.background = 'white';
+//   const originalBodyBackground = document.body.style.background;
+//   document.body.style.background = 'white';
 
-  html2canvas(input, {
-    scale: 2,
-    useCORS: true,
-    foreignObjectRendering: true, // <-- fix: allow svg-based rendering
-    logging: false,
-    backgroundColor: '#ffffff',
-    windowWidth: input.scrollWidth,
-    windowHeight: input.scrollHeight,
-  })
-    .then((canvas) => {
-      if (mainContent) mainContent.style.visibility = 'visible';
-      if (sidebar) sidebar.style.visibility = 'visible';
-      if (header) header.style.visibility = 'visible';
-      document.body.style.background = originalBodyBackground;
+//   html2canvas(input, {
+//     scale: 2,
+//     useCORS: true,
+//     foreignObjectRendering: true, // <-- fix: allow svg-based rendering
+//     logging: false,
+//     backgroundColor: '#ffffff',
+//     windowWidth: input.scrollWidth,
+//     windowHeight: input.scrollHeight,
+//   })
+//     .then((canvas) => {
+//       if (mainContent) mainContent.style.visibility = 'visible';
+//       if (sidebar) sidebar.style.visibility = 'visible';
+//       if (header) header.style.visibility = 'visible';
+//       document.body.style.background = originalBodyBackground;
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//       const imgData = canvas.toDataURL('image/png');
+//       const pdf = new jsPDF('p', 'mm', 'a4');
+//       const imgWidth = 210;
+//       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`invoice-${orderId}.pdf`);
-    })
-    .catch((error) => {
-      console.error("Error generating PDF:", error);
-      if (mainContent) mainContent.style.visibility = 'visible';
-      if (sidebar) sidebar.style.visibility = 'visible';
-      if (header) header.style.visibility = 'visible';
-      document.body.style.background = originalBodyBackground;
-      alert("Failed to generate PDF. Please try again.");
-    });
-};
+//       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+//       pdf.save(`invoice-${orderId}.pdf`);
+//     })
+//     .catch((error) => {
+//       console.error("Error generating PDF:", error);
+//       if (mainContent) mainContent.style.visibility = 'visible';
+//       if (sidebar) sidebar.style.visibility = 'visible';
+//       if (header) header.style.visibility = 'visible';
+//       document.body.style.background = originalBodyBackground;
+//       alert("Failed to generate PDF. Please try again.");
+//     });
+// };
 
 
   // ✅ Print only the invoice

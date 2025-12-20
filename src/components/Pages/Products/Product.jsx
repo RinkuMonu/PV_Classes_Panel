@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Download,
   Upload,
-  MoreHorizontal,
   Trash2,
   Plus,
   Search,
@@ -19,173 +18,173 @@ import 'tippy.js/dist/tippy.css';
 import axiosInstance from "../../../config/AxiosInstance";
 import Swal from "sweetalert2";
 // Sample product data - could be fetched from an API in a real app
-const sampleProducts = [
-  {
-    id: "1",
-    name: "Variant",
-    category: "Woo",
-    price: 20.0,
-    salePrice: 10.0,
-    stock: 4,
-    status: "Selling",
-    published: true,
-    image: "https://picsum.photos/id/1015/400/300", // Generic product
-  },
-  {
-    id: "2",
-    name: "Erfertfg Dgsd Sdf Sdf",
-    category: "Water Filter",
-    price: 200.0,
-    salePrice: 130.0,
-    stock: 405,
-    status: "Selling",
-    published: false,
-    image: "https://images.unsplash.com/photo-1551049838-0a5d62803caa?w=400&h=300", // Water filter
-  },
-  {
-    id: "3",
-    name: "Premium T-Shirt",
-    category: "Men",
-    price: 450.0,
-    salePrice: 450.0,
-    stock: 4972,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300", // T-shirt
-  },
-  {
-    id: "4",
-    name: "Himalaya Powder",
-    category: "Skin Care",
-    price: 174.97,
-    salePrice: 160.0,
-    stock: 5472,
-    status: "Selling",
-    published: false,
-    image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300", // Skin care
-  },
-  {
-    id: "5",
-    name: "Green Leaf Lettuce",
-    category: "Fresh Vegetable",
-    price: 112.72,
-    salePrice: 112.72,
-    stock: 462,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400&h=300", // Lettuce
-  },
-  {
-    id: "6",
-    name: "Rainbow Chard",
-    category: "Fresh Vegetable",
-    price: 7.07,
-    salePrice: 7.72,
-    stock: 472,
-    status: "Selling",
-    published: false,
-    image: "https://images.unsplash.com/photo-1603048719537-7a7b3f4e8ed0?w=400&h=300", // Chard
-  },
-  {
-    id: "7",
-    name: "Aloe Vera Gel",
-    category: "Skin Care",
-    price: 80.0,
-    salePrice: 65.0,
-    stock: 1200,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=300", // Aloe Vera
-  },
-  {
-    id: "8",
-    name: "Running Shoes",
-    category: "Footwear",
-    price: 1200.0,
-    salePrice: 999.0,
-    stock: 540,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300", // Shoes
-  },
-  {
-    id: "9",
-    name: "Wireless Mouse",
-    category: "Electronics",
-    price: 850.0,
-    salePrice: 749.0,
-    stock: 200,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300", // Mouse
-  },
-  {
-    id: "10",
-    name: "Laptop Backpack",
-    category: "Accessories",
-    price: 1100.0,
-    salePrice: 950.0,
-    stock: 300,
-    status: "Selling",
-    published: false,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300", // Backpack
-  },
-  {
-    id: "11",
-    name: "LED Desk Lamp",
-    category: "Home & Living",
-    price: 600.0,
-    salePrice: 520.0,
-    stock: 150,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400&h=300", // Desk Lamp
-  },
-  {
-    id: "12",
-    name: "Organic Honey",
-    category: "Grocery",
-    price: 340.0,
-    salePrice: 299.0,
-    stock: 620,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1558645835-2d0e0a5a1f4a?w=400&h=300", // Honey
-  },
-  {
-    id: "13",
-    name: "Bluetooth Speaker",
-    category: "Electronics",
-    price: 2500.0,
-    salePrice: 1999.0,
-    stock: 180,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=300", // Speaker
-  },
-  {
-    id: "14",
-    name: "Cotton Bath Towel",
-    category: "Home & Living",
-    price: 400.0,
-    salePrice: 350.0,
-    stock: 270,
-    status: "Selling",
-    published: false,
-    image: "https://images.unsplash.com/photo-1615872325684-0695a5ffe786?w=400&h=300", // Towel
-  },
-  {
-    id: "15",
-    name: "Notebook Set",
-    category: "Stationery",
-    price: 150.0,
-    salePrice: 130.0,
-    stock: 999,
-    status: "Selling",
-    published: true,
-    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=300", // Notebook
-  }
-];
+// const sampleProducts = [
+//   {
+//     id: "1",
+//     name: "Variant",
+//     category: "Woo",
+//     price: 20.0,
+//     salePrice: 10.0,
+//     stock: 4,
+//     status: "Selling",
+//     published: true,
+//     image: "https://picsum.photos/id/1015/400/300", // Generic product
+//   },
+//   {
+//     id: "2",
+//     name: "Erfertfg Dgsd Sdf Sdf",
+//     category: "Water Filter",
+//     price: 200.0,
+//     salePrice: 130.0,
+//     stock: 405,
+//     status: "Selling",
+//     published: false,
+//     image: "https://images.unsplash.com/photo-1551049838-0a5d62803caa?w=400&h=300", // Water filter
+//   },
+//   {
+//     id: "3",
+//     name: "Premium T-Shirt",
+//     category: "Men",
+//     price: 450.0,
+//     salePrice: 450.0,
+//     stock: 4972,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300", // T-shirt
+//   },
+//   {
+//     id: "4",
+//     name: "Himalaya Powder",
+//     category: "Skin Care",
+//     price: 174.97,
+//     salePrice: 160.0,
+//     stock: 5472,
+//     status: "Selling",
+//     published: false,
+//     image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300", // Skin care
+//   },
+//   {
+//     id: "5",
+//     name: "Green Leaf Lettuce",
+//     category: "Fresh Vegetable",
+//     price: 112.72,
+//     salePrice: 112.72,
+//     stock: 462,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400&h=300", // Lettuce
+//   },
+//   {
+//     id: "6",
+//     name: "Rainbow Chard",
+//     category: "Fresh Vegetable",
+//     price: 7.07,
+//     salePrice: 7.72,
+//     stock: 472,
+//     status: "Selling",
+//     published: false,
+//     image: "https://images.unsplash.com/photo-1603048719537-7a7b3f4e8ed0?w=400&h=300", // Chard
+//   },
+//   {
+//     id: "7",
+//     name: "Aloe Vera Gel",
+//     category: "Skin Care",
+//     price: 80.0,
+//     salePrice: 65.0,
+//     stock: 1200,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=300", // Aloe Vera
+//   },
+//   {
+//     id: "8",
+//     name: "Running Shoes",
+//     category: "Footwear",
+//     price: 1200.0,
+//     salePrice: 999.0,
+//     stock: 540,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300", // Shoes
+//   },
+//   {
+//     id: "9",
+//     name: "Wireless Mouse",
+//     category: "Electronics",
+//     price: 850.0,
+//     salePrice: 749.0,
+//     stock: 200,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300", // Mouse
+//   },
+//   {
+//     id: "10",
+//     name: "Laptop Backpack",
+//     category: "Accessories",
+//     price: 1100.0,
+//     salePrice: 950.0,
+//     stock: 300,
+//     status: "Selling",
+//     published: false,
+//     image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300", // Backpack
+//   },
+//   {
+//     id: "11",
+//     name: "LED Desk Lamp",
+//     category: "Home & Living",
+//     price: 600.0,
+//     salePrice: 520.0,
+//     stock: 150,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400&h=300", // Desk Lamp
+//   },
+//   {
+//     id: "12",
+//     name: "Organic Honey",
+//     category: "Grocery",
+//     price: 340.0,
+//     salePrice: 299.0,
+//     stock: 620,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1558645835-2d0e0a5a1f4a?w=400&h=300", // Honey
+//   },
+//   {
+//     id: "13",
+//     name: "Bluetooth Speaker",
+//     category: "Electronics",
+//     price: 2500.0,
+//     salePrice: 1999.0,
+//     stock: 180,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=300", // Speaker
+//   },
+//   {
+//     id: "14",
+//     name: "Cotton Bath Towel",
+//     category: "Home & Living",
+//     price: 400.0,
+//     salePrice: 350.0,
+//     stock: 270,
+//     status: "Selling",
+//     published: false,
+//     image: "https://images.unsplash.com/photo-1615872325684-0695a5ffe786?w=400&h=300", // Towel
+//   },
+//   {
+//     id: "15",
+//     name: "Notebook Set",
+//     category: "Stationery",
+//     price: 150.0,
+//     salePrice: 130.0,
+//     stock: 999,
+//     status: "Selling",
+//     published: true,
+//     image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=300", // Notebook
+//   }
+// ];
 
 // Helper function to extract unique categories
 const getUniqueCategories = (products) => {
@@ -203,7 +202,7 @@ export default function Product() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedPrice, setSelectedPrice] = useState("all");
@@ -212,7 +211,7 @@ export default function Product() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [isBulkActionOpen, setIsBulkActionOpen] = useState(false);
+  // const [isBulkActionOpen, setIsBulkActionOpen] = useState(false);
   const [categories, setCategories] = useState([]);
 
   // Find the current product based on ID
@@ -253,40 +252,40 @@ export default function Product() {
     }
   };
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get("/products", {
-        params: {
-          page: currentPage,
-          limit: itemsPerPage,
-          search: searchTerm,
-          category: selectedCategory !== "all" ? selectedCategory : undefined,
-          status: selectedStatus !== "all" ? selectedStatus : undefined,
-          published: selectedPublished === "all" ? undefined : selectedPublished === "published"
-        }
-      });
-      // console.log(response.data);
+const fetchProducts = useCallback(async () => {
+  setLoading(true);
+  try {
+    const response = await axiosInstance.get("/products", {
+      params: {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm,
+        category: selectedCategory !== "all" ? selectedCategory : undefined,
+        status: selectedStatus !== "all" ? selectedStatus : undefined,
+        published:
+          selectedPublished === "all"
+            ? undefined
+            : selectedPublished === "published",
+      },
+    });
 
-      setProducts(response.data.items);
-      setTotalProducts(response.data.total);
+    setProducts(response.data.items);
+    setTotalProducts(response.data.total);
 
-      if (response.data.products) {
-        setCategories(getUniqueCategories(response.data.products));
-      }
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    } finally {
-      setLoading(false);
+    if (response.data.products) {
+      setCategories(getUniqueCategories(response.data.products));
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+  } finally {
+    setLoading(false);
+  }
+}, [currentPage, searchTerm, selectedCategory, selectedStatus, selectedPublished, itemsPerPage]);
 
+useEffect(() => {
+  fetchProducts();
+}, [fetchProducts]);
 
-
-  // Initialize with sample data (in a real app, you'd fetch from API)
-  useEffect(() => {
-    fetchProducts();
-  }, [currentPage, searchTerm, selectedCategory, selectedPrice, selectedStatus, selectedPublished]);
 
   // const filteredProducts = products
   //   .filter((product) => {

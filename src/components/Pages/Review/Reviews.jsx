@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../../config/AxiosInstance';
 
 function Review() {
   const [reviews, setReviews] = useState([]);
-  const [stats, setStats] = useState({ courseStats: [], coachingStats: [] });
+  const [_stats, setStats] = useState({ courseStats: [], coachingStats: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -12,44 +12,44 @@ function Review() {
   const [viewDialog, setViewDialog] = useState(false);
   const [filter, setFilter] = useState('all'); // all, pending, approved
 
-  useEffect(() => {
-    fetchReviews();
-    fetchStats();
-  }, [filter]);
 
-  const fetchReviews = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get('/reviews/all'); // ✅ updated endpoint
+const fetchReviews = useCallback(async () => {
+  try {
+    setLoading(true);
+    const response = await axiosInstance.get('/reviews/all'); 
+    let allReviews = response.data.reviews || [];
 
-      // Use the `reviews` array from response
-      let allReviews = response.data.reviews || [];
-
-      // Filter reviews based on selection
-      let filteredReviews = allReviews;
-      if (filter === 'pending') {
-        filteredReviews = allReviews.filter(review => !review.approved);
-      } else if (filter === 'approved') {
-        filteredReviews = allReviews.filter(review => review.approved);
-      }
-
-      setReviews(filteredReviews);
-    } catch (error) {
-      setError('Failed to fetch reviews');
-      console.error('Error fetching reviews:', error);
-    } finally {
-      setLoading(false);
+    let filteredReviews = allReviews;
+    if (filter === 'pending') {
+      filteredReviews = allReviews.filter(review => !review.approved);
+    } else if (filter === 'approved') {
+      filteredReviews = allReviews.filter(review => review.approved);
     }
-  };
 
-  const fetchStats = async () => {
-    try {
-      const response = await axiosInstance.get('/reviews/review-details');
-      setStats(response.data);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
+    setReviews(filteredReviews);
+  } catch (error) {
+    setError('Failed to fetch reviews');
+    console.error('Error fetching reviews:', error);
+  } finally {
+    setLoading(false);
+  }
+}, [filter]); // include filter here
+
+const fetchStats = useCallback(async () => {
+  try {
+    const response = await axiosInstance.get('/reviews/review-details');
+    setStats(response.data);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  }
+}, []); // no dependencies if axiosInstance is stable
+
+useEffect(() => {
+  fetchReviews();
+  fetchStats();
+}, [fetchReviews, fetchStats ,filter]);
+
+
 
   const approveReview = async (id) => {
     try {

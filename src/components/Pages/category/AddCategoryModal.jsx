@@ -25,7 +25,7 @@ const AddCategoryModal = ({ onClose, onAdd }) => {
       document.body.style.overflow = "auto";
       if (previewImage) URL.revokeObjectURL(previewImage);
     };
-  }, []);
+  }, [previewImage]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -15,19 +15,22 @@ const EditCategoryModal = ({ category, onClose, onUpdate }) => {
   });
 
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [_selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(category?.icon || null);
 
-  useEffect(() => {
-    setIsVisible(true);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-      if (previewImage && previewImage.startsWith('blob:')) {
-        URL.revokeObjectURL(previewImage);
-      }
-    };
-  }, []);
+useEffect(() => {
+  setIsVisible(true);
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    document.body.style.overflow = "auto";
+
+    if (previewImage && previewImage.startsWith("blob:")) {
+      URL.revokeObjectURL(previewImage);
+    }
+  };
+}, [previewImage]); // run cleanup when previewImage changes or on unmount
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

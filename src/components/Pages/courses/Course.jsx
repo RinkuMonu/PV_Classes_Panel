@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaImage, FaTag, FaBook, FaUserTie, FaLanguage, FaMoneyBillWave, FaCalendarAlt, FaCheckCircle, FaList, FaStar, FaFileAlt, FaGlobe, FaQuestionCircle, FaVideo } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
 
@@ -45,7 +45,7 @@ const Course = () => {
 
 
   const [images, setImages] = useState([]);
-  const [videoFile, setVideoFile] = useState(null);
+  // const [videoFile, setVideoFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -61,7 +61,7 @@ const Course = () => {
     isFree: false,
     sourceType: 'youtube'
   });
-  const [editingVideoId, setEditingVideoId] = useState(null);
+  // const [editingVideoId, setEditingVideoId] = useState(null);
 
 
 
@@ -86,7 +86,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get(`/sub/course/${courseId}`);
       setSubjects(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching subjects');
     }
   };
@@ -139,7 +139,7 @@ const Course = () => {
       setEditingSubject(null);
       setSubjectForm({ title: '', description: '' });
       fetchSubjects(currentCourseId);
-    } catch (error) {
+    } catch {
       toast.error('Error saving subject');
     }
   };
@@ -160,7 +160,7 @@ const Course = () => {
         await axiosInstance.delete(`/sub/${subjectId}`);
         toast.success('Subject deleted successfully');
         fetchSubjects(currentCourseId);
-      } catch (error) {
+      } catch{
         toast.error('Error deleting subject');
       }
     }
@@ -216,7 +216,7 @@ const Course = () => {
 
       // Refresh subjects to get updated video list
       fetchSubjects(currentCourseId);
-    } catch (error) {
+    } catch  {
       toast.error('Error saving video');
     }
   };
@@ -246,7 +246,7 @@ const Course = () => {
 
         toast.success('Video deleted successfully');
         fetchSubjects(currentCourseId);
-      } catch (error) {
+      } catch  {
         toast.error('Error deleting video');
       }
     }
@@ -275,7 +275,7 @@ const Course = () => {
       const response = await axiosInstance.get('/courses');
       console.log("courses data : ", response.data);
       setCourses(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching courses');
     } finally {
       setLoading(false);
@@ -286,7 +286,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get('/exams');
       setExams(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching exams');
     }
   };
@@ -295,7 +295,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get('/faculty');
       setFaculties(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching faculties');
     }
   };
@@ -305,7 +305,7 @@ const Course = () => {
       const response = await axiosInstance.get('/combo');
       console.log("combos data : ", response.data);
       setCombos(response.data.combos || response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching combos');
     }
   };
@@ -314,7 +314,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get('/users/getAllUser');
       setAuthors(response.data.data);
-    } catch (error) {
+    } catch  {
       toast.error('Error fetching authors');
     }
   };
@@ -405,7 +405,7 @@ const Course = () => {
         await axiosInstance.delete(`/courses/${id}`);
         toast.success('Course deleted successfully');
         fetchCourses();
-      } catch (error) {
+      } catch {
         toast.error('Error deleting course');
       }
     }
@@ -911,7 +911,7 @@ const Course = () => {
                     <button
                       onClick={() => {
                         setShowVideoModal(false);
-                        resetVideoForm();
+                        // resetVideoForm();
                       }}
                       className="text-gray-500 hover:text-gray-700"
                     >

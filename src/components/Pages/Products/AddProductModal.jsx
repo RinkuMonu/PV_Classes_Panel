@@ -264,9 +264,9 @@ export default function AddProductModal({ isOpen, onClose, onAddProduct }) {
     alert(`${allVariants.length} variant(s) regenerated successfully!`)
   }
 
-  const removeVariant = (variantId) => {
-    setVariantCombinations((prev) => prev.filter((variant) => variant.id !== variantId))
-  }
+  // const removeVariant = (variantId) => {
+  //   setVariantCombinations((prev) => prev.filter((variant) => variant.id !== variantId))
+  // }
 
   const clearAllVariants = () => {
     setVariantCombinations([])
