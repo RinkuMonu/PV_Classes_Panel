@@ -2,6 +2,7 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'https://api.pvclasses.in/api';
+// const API_BASE_URL = 'http://localhost:5006/api';
 
 // Set up axios defaults
 axios.defaults.baseURL = API_BASE_URL;
@@ -55,6 +56,10 @@ export const deleteTestSeries = (id) => {
 
 export const addTestToSeries = (seriesId, testData) => {
   return axios.post(`/test-series/${seriesId}/tests`, testData);
+};
+
+export const deleteQuestionFromTest = (seriesId, testId, questionId) => {
+  return axios.delete(`/test-series/${seriesId}/tests/${testId}/questions/${questionId}`);
 };
 
 export const deleteTestFromSeries = (seriesId, testId) => {

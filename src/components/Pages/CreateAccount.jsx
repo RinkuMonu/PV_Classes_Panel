@@ -26,11 +26,11 @@ const CreateAccount = () => {
               </h1>
               <form>
                 <div className="mb-4">
-                  <label className="block text-sm text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                  <label className="block  text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                     Name
                   </label>
                   <input
-                    className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
+                    className="block w-full border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
                     type="text"
                     name="name"
                     placeholder="Admin"
@@ -39,11 +39,11 @@ const CreateAccount = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                  <label className="block  text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                     Email
                   </label>
                   <input
-                    className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
+                    className="block w-full border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
                     type="email"
                     name="email"
                     placeholder="john@doe.com"
@@ -52,11 +52,11 @@ const CreateAccount = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                  <label className="block  text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                     Password
                   </label>
                   <input
-                    className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
+                    className="block w-full  border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
                     type="password"
                     name="password"
                     placeholder="***************"
@@ -65,7 +65,7 @@ const CreateAccount = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                  <label className="block  text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                     Staff Role
                   </label>
                   <div className="col-span-8 sm:col-span-4">
@@ -90,7 +90,7 @@ const CreateAccount = () => {
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-sm text-gray-800 dark:text-gray-400 inline-flex items-center mt-6">
+                  <label className=" text-sm text-gray-800 dark:text-gray-400 inline-flex items-center mt-6">
                     <input
                       className="text-emerald-600 form-checkbox focus:border-emerald-500 focus:outline-none rounded focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700"
                       type="checkbox"

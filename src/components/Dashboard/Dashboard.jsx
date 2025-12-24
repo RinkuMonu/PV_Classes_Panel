@@ -65,7 +65,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
 
 export default function Dashboard({ user }) {
   const [counts, setCounts] = useState({});
-  const [recentData, setRecentData] = useState([]);
+  const [_recentData, setRecentData] = useState([]);
   const url = import.meta.env.VITE_API_SERVER_URL;
 
   useEffect(() => {

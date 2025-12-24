@@ -29,15 +29,15 @@ import {
 const Sidebar = ({ isCollapsed }) => {
   const location = useLocation();
   const [isCoursesOpen, setCoursesOpen] = useState(false);
-  const [isCatalogOpen, setCatalogOpen] = useState(false);
+  // const [isCatalogOpen, setCatalogOpen] = useState(false);
 
   const toggleCourses = () => {
     setCoursesOpen(!isCoursesOpen);
   };
 
-  const toggleCatalog = () => {
-    setCatalogOpen(!isCatalogOpen);
-  };
+  // const toggleCatalog = () => {
+  //   setCatalogOpen(!isCatalogOpen);
+  // };
 
   // Check if current path matches or starts with the given path
   const isActive = (path) => {
@@ -50,14 +50,14 @@ const Sidebar = ({ isCollapsed }) => {
   };
 
   // Check if any catalog subitem is active
-  const isCatalogActive = () => {
-    return catalogSubItems.some(item => isActive(item.path));
-  };
+  // const isCatalogActive = () => {
+  //   return catalogSubItems.some(item => isActive(item.path));
+  // };
 
   const menuItems = [
     { name: "Dashboard", Icon: Home, path: "/dashboard" },
     { name: "Courses", Icon: BookOpen },
-    { name: "Test Series", Icon: FileText, path: "/test-series" },
+    { name: "Test Series", Icon: FileText ,path: "/test-series" },
     { name: "Notes", Icon: StickyNote, path: "/notes" },
     { name: "PYQs", Icon: Calendar, path: "/pyq" },
     { name: "Current Affairs", Icon: ClipboardList, path: "/affairs" },
@@ -81,11 +81,11 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Faculty", path: "/courses/faculty" },
   ];
 
-  const catalogSubItems = [
-    { name: "Products", path: "/catalog/products" },
-    { name: "Categories", path: "/catalog/categories" },
-    { name: "Coupons", path: "/catalog/coupons" },
-  ];
+  // const catalogSubItems = [
+  //   { name: "Products", path: "/catalog/products" },
+  //   { name: "Categories", path: "/catalog/categories" },
+  //   { name: "Coupons", path: "/catalog/coupons" },
+  // ];
 
   return (
     <div className="h-full flex flex-col bg-white border-r border-gray-200">
@@ -98,7 +98,7 @@ const Sidebar = ({ isCollapsed }) => {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-2 overflow-y-auto overflow-x-hidden">
-        {menuItems.map(({ name, Icon, path }) => (
+        {menuItems.map(({Icon, name, path }) => (
           <div key={name}>
             {name === "Courses" ? (
               <>
@@ -110,7 +110,7 @@ const Sidebar = ({ isCollapsed }) => {
                   onClick={toggleCourses}
                 >
                   <div className="flex items-center space-x-3">
-                    <Icon size={18} className="flex-shrink-0" />
+                      {Icon && <Icon size={18} className="flex-shrink-0" />}
                     <span className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
                       }`}>
                       {name}

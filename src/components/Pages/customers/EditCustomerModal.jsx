@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import axios from "axios";
 
-const EditCustomerModal = ({ onClose, onAdd, initialData = {}, onUpdateSuccess }) => {
+const EditCustomerModal = ({ onClose, initialData = {}, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
     id: initialData._id || "",
     name: initialData.name || "",
