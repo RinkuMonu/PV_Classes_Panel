@@ -36,12 +36,6 @@ const Course = () => {
     videos: [] // Added videos field
 
   });
-  // const [images, setImages] = useState([]);
-  // const [editingId, setEditingId] = useState(null);
-  // const [showModal, setShowModal] = useState(false);
-  // const [activeTab, setActiveTab] = useState('basic');
-
-
 
 
   const [images, setImages] = useState([]);
@@ -79,43 +73,21 @@ const Course = () => {
     title: '',
     description: ''
   });
+
   const [notesFiles, setNotesFiles] = useState([]);
+
+  const [videoFile, setVideoFile] = useState(null);
 
   // Add these functions
   const fetchSubjects = async (courseId) => {
     try {
       const response = await axiosInstance.get(`/sub/course/${courseId}`);
       setSubjects(response.data);
-    } catch  {
+    } catch {
       toast.error('Error fetching subjects');
     }
   };
 
-  // const handleSubjectSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     if (editingSubject) {
-  //       await axiosInstance.put(`/sub/${editingSubject._id}`, {
-  //         ...subjectForm,
-  //         course: currentCourseId
-  //       });
-  //       toast.success('Subject updated successfully');
-  //     } else {
-  //       await axiosInstance.post('/sub', {
-  //         ...subjectForm,
-  //         course: currentCourseId
-  //       });
-  //       toast.success('Subject created successfully');
-  //     }
-
-  //     setShowSubjectForm(false);
-  //     setEditingSubject(null);
-  //     setSubjectForm({ title: '', description: '' });
-  //     fetchSubjects(currentCourseId);
-  //   } catch (error) {
-  //     toast.error('Error saving subject');
-  //   }
-  // };
 
 
   const handleSubjectSubmit = async (e) => {
@@ -160,7 +132,7 @@ const Course = () => {
         await axiosInstance.delete(`/sub/${subjectId}`);
         toast.success('Subject deleted successfully');
         fetchSubjects(currentCourseId);
-      } catch{
+      } catch {
         toast.error('Error deleting subject');
       }
     }
@@ -171,9 +143,26 @@ const Course = () => {
     try {
       const formDataToSend = new FormData();
 
-      Object.keys(videoForm).forEach(key => {
-        formDataToSend.append(key, videoForm[key]);
-      });
+      // Object.keys(videoForm).forEach(key => {
+      //   formDataToSend.append(key, videoForm[key]);
+      // });
+
+      formDataToSend.append("title", videoForm.title);
+      formDataToSend.append("duration", videoForm.duration);
+      formDataToSend.append("order", videoForm.order);
+      formDataToSend.append("isFree", videoForm.isFree);
+      formDataToSend.append("shortDescription", videoForm.shortDescription);
+      formDataToSend.append("longDescription", videoForm.longDescription);
+
+      // If YouTube
+      if (videoForm.sourceType === "youtube") {
+        formDataToSend.append("url", videoForm.url);
+      }
+
+      // If Local Upload
+      if (videoForm.sourceType === "upload" && videoFile) {
+        formDataToSend.append("video", videoFile);
+      }
 
       notesFiles.forEach(file => {
         formDataToSend.append('notes', file);
@@ -213,41 +202,68 @@ const Course = () => {
         isFree: false
       });
       setNotesFiles([]);
+      setVideoFile(null);
 
       // Refresh subjects to get updated video list
       fetchSubjects(currentCourseId);
-    } catch  {
+    } catch {
       toast.error('Error saving video');
     }
   };
 
+  // const handleEditVideo = (subjectId, video, index) => {
+  //   setVideoForm({
+  //     title: video.title,
+  //     url: video.url,
+  //     duration: video.duration || '',
+  //     order: video.order || '',
+  //     isFree: video.isFree || false
+  //   });
+  //   setEditingVideoIndex(index);
+  //   setShowVideoForm(true);
+  // };
+
   const handleEditVideo = (subjectId, video, index) => {
+    let sourceType = "youtube";
+
+    // Detect local video
+    if (video.url?.startsWith("/uploads")) {
+      sourceType = "upload";
+    }
+
+
     setVideoForm({
-      title: video.title,
-      url: video.url,
-      duration: video.duration || '',
-      order: video.order || '',
-      isFree: video.isFree || false
+      title: video.title || "",
+      url: sourceType === "youtube" ? video.url : "",
+      duration: video.duration || "",
+      order: video.order || "",
+      isFree: video.isFree || false,
+      shortDescription: video.shortDescription || "",
+      longDescription: video.longDescription || "",
+      sourceType
     });
+
+    setVideoFile(null); // reset file
     setEditingVideoIndex(index);
     setShowVideoForm(true);
   };
 
+
   const handleDeleteVideo = async (subjectId, index) => {
-    if (window.confirm('Are you sure you want to delete this video?')) {
+    if (window.confirm("Are you sure you want to delete this video?")) {
       try {
-        // For simplicity, we'll update the subject by removing the video
-        const subject = subjects.find(s => s._id === subjectId);
-        subject.videos.splice(index, 1);
+        await axiosInstance.delete(
+          `/sub/${subjectId}/videos/${index}`
+        );
 
-        await axiosInstance.put(`/sub/${subjectId}`, {
-          videos: subject.videos
-        });
+        toast.success("Video deleted successfully");
 
-        toast.success('Video deleted successfully');
+        // Refresh subjects list
         fetchSubjects(currentCourseId);
-      } catch  {
-        toast.error('Error deleting video');
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message || "Error deleting video"
+        );
       }
     }
   };
@@ -258,7 +274,6 @@ const Course = () => {
     setShowVideoModal(true);
     fetchSubjects(courseId);
   };
-
 
 
   useEffect(() => {
@@ -275,7 +290,7 @@ const Course = () => {
       const response = await axiosInstance.get('/courses');
       console.log("courses data : ", response.data);
       setCourses(response.data);
-    } catch  {
+    } catch {
       toast.error('Error fetching courses');
     } finally {
       setLoading(false);
@@ -286,7 +301,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get('/exams');
       setExams(response.data);
-    } catch  {
+    } catch {
       toast.error('Error fetching exams');
     }
   };
@@ -295,7 +310,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get('/faculty');
       setFaculties(response.data);
-    } catch  {
+    } catch {
       toast.error('Error fetching faculties');
     }
   };
@@ -305,7 +320,7 @@ const Course = () => {
       const response = await axiosInstance.get('/combo');
       console.log("combos data : ", response.data);
       setCombos(response.data.combos || response.data);
-    } catch  {
+    } catch {
       toast.error('Error fetching combos');
     }
   };
@@ -314,7 +329,7 @@ const Course = () => {
     try {
       const response = await axiosInstance.get('/users/getAllUser');
       setAuthors(response.data.data);
-    } catch  {
+    } catch {
       toast.error('Error fetching authors');
     }
   };
@@ -495,109 +510,6 @@ const Course = () => {
   };
 
 
-  // const handleVideoSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const formDataToSend = new FormData();
-
-  //     Object.keys(videoForm).forEach(key => {
-  //       if (key !== 'url' || videoForm.sourceType === 'youtube') {
-  //         formDataToSend.append(key, videoForm[key]);
-  //       }
-  //     });
-
-  //     if (videoForm.sourceType === 'cloudinary' && videoFile) {
-  //       formDataToSend.append('url', videoFile);
-  //     }
-
-  //     if (editingVideoId) {
-  //       await axiosInstance.put(
-  //         `/courses/${currentCourseId}/update-videos/${editingVideoId}`,
-  //         formDataToSend,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data'
-  //           }
-  //         }
-  //       );
-  //       toast.success('Video updated successfully');
-  //     } else {
-  //       await axiosInstance.post(
-  //         `/courses/${currentCourseId}/upload-video`,
-  //         formDataToSend,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data'
-  //           }
-  //         }
-  //       );
-  //       toast.success('Video uploaded successfully');
-  //     }
-
-  //     setShowVideoModal(false);
-  //     resetVideoForm();
-  //     fetchCourses();
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message || 'Error saving video');
-  //     console.error('Error details:', error.response?.data);
-  //   }
-  // };
-
-  // const handleEditVideo = (courseId, video) => {
-  //   setVideoForm({
-  //     title: video.title,
-  //     url: video.url,
-  //     shortDescription: video.shortDescription || '',
-  //     longDescription: video.longDescription || '',
-  //     duration: video.duration || '',
-  //     order: video.order || '',
-  //     isFree: video.isFree || false,
-  //     sourceType: video.sourceType || 'youtube'
-  //   });
-  //   setEditingVideoId(video._id);
-  //   setCurrentCourseId(courseId);
-  //   setShowVideoModal(true);
-  // };
-
-  // const handleDeleteVideo = async (courseId, videoId) => {
-  //   if (window.confirm('Are you sure you want to delete this video?')) {
-  //     try {
-  //       const course = await axiosInstance.get(`/courses/${courseId}`);
-  //       const updatedVideos = course.data.videos.filter(v => v._id !== videoId);
-
-  //       await axiosInstance.put(`/courses/${courseId}`, {
-  //         videos: updatedVideos
-  //       });
-
-  //       toast.success('Video deleted successfully');
-  //       fetchCourses();
-  //     } catch (error) {
-  //       toast.error('Error deleting video');
-  //     }
-  //   }
-  // };
-
-  // const resetVideoForm = () => {
-  //   setVideoForm({
-  //     title: '',
-  //     url: '',
-  //     shortDescription: '',
-  //     longDescription: '',
-  //     duration: '',
-  //     order: '',
-  //     isFree: false,
-  //     sourceType: 'youtube'
-  //   });
-  //   setVideoFile(null);
-  //   setEditingVideoId(null);
-  //   setCurrentCourseId(null);
-  // };
-
-  // const openVideoModal = (courseId) => {
-  //   setCurrentCourseId(courseId);
-  //   setShowVideoModal(true);
-  // };
-
 
 
   return (
@@ -617,7 +529,7 @@ const Course = () => {
           </button>
         </div>
 
-        {/* Courses Grid */}
+        {/* courses Grid */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
@@ -686,219 +598,6 @@ const Course = () => {
                 </div>
               </div>
             ))}
-
-
-
-            {/* Video Management Modal */}
-            {/* {showVideoModal && (
-              <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-50">
-                <div className="w-full max-w-2xl mx-4 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
-                  <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-xl p-6 flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-green-800">
-                      {editingVideoId ? 'Edit Video' : 'Add Video'}
-                    </h2>
-                    <button
-                      onClick={() => {
-                        setShowVideoModal(false);
-                        resetVideoForm();
-                      }}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <FaTimes size={24} />
-                    </button>
-                  </div>
-
-                  <div className="p-6">
-                    <form onSubmit={handleVideoSubmit}>
-                      <div className="grid grid-cols-1 gap-4">
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2">
-                            Title *
-                          </label>
-                          <input
-                            type="text"
-                            value={videoForm.title}
-                            onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                            required
-                            placeholder="Video Title"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2">
-                            Source Type
-                          </label>
-                          <select
-                            value={videoForm.sourceType}
-                            onChange={(e) => setVideoForm({ ...videoForm, sourceType: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                          >
-                            <option value="youtube">YouTube URL</option>
-                            <option value="cloudinary">Upload Video</option>
-                          </select>
-                        </div>
-
-                        {videoForm.sourceType === 'youtube' ? (
-                          <div>
-                            <label className="block text-gray-700 font-medium mb-2">
-                              YouTube URL *
-                            </label>
-                            <input
-                              type="url"
-                              value={videoForm.url}
-                              onChange={(e) => setVideoForm({ ...videoForm, url: e.target.value })}
-                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                              required
-                              placeholder="https://www.youtube.com/watch?v=..."
-                            />
-                          </div>
-                        ) : (
-                          <div>
-                            <label className="block text-gray-700 font-medium mb-2">
-                              Video File *
-                            </label>
-                            <div className="flex items-center justify-center w-full">
-                              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors">
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  <FaVideo className="w-10 h-10 text-blue-500 mb-2" />
-                                  <p className="text-sm text-blue-700">
-                                    {videoFile ? videoFile.name : 'Click to upload video'}
-                                  </p>
-                                </div>
-                                <input
-                                  type="file"
-                                  onChange={(e) => setVideoFile(e.target.files[0])}
-                                  className="hidden"
-                                  accept="video/*"
-                                  required={!editingVideoId}
-                                />
-                              </label>
-                            </div>
-                          </div>
-                        )}
-
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2">
-                            Order *
-                          </label>
-                          <input
-                            type="number"
-                            value={videoForm.order}
-                            onChange={(e) => setVideoForm({ ...videoForm, order: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                            required
-                            min="1"
-                            placeholder="1"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2">
-                            Duration (seconds)
-                          </label>
-                          <input
-                            type="number"
-                            value={videoForm.duration}
-                            onChange={(e) => setVideoForm({ ...videoForm, duration: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                            min="0"
-                            placeholder="Duration in seconds"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2">
-                            Short Description
-                          </label>
-                          <textarea
-                            value={videoForm.shortDescription}
-                            onChange={(e) => setVideoForm({ ...videoForm, shortDescription: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                            rows="2"
-                            placeholder="Brief description"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2">
-                            Long Description
-                          </label>
-                          <textarea
-                            value={videoForm.longDescription}
-                            onChange={(e) => setVideoForm({ ...videoForm, longDescription: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                            rows="3"
-                            placeholder="Detailed description"
-                          />
-                        </div>
-
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={videoForm.isFree}
-                            onChange={(e) => setVideoForm({ ...videoForm, isFree: e.target.checked })}
-                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                          />
-                          <label className="ml-2 block text-gray-700 font-medium">
-                            Free Video
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end space-x-4 mt-6 pt-4 border-t border-gray-200">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowVideoModal(false);
-                            resetVideoForm();
-                          }}
-                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md transition-colors"
-                        >
-                          {editingVideoId ? 'Update Video' : 'Add Video'}
-                        </button>
-                      </div>
-                    </form>
-
-                    {currentCourseId && (
-                      <div className="mt-8">
-                        <h3 className="text-lg font-medium text-gray-700 mb-4">Course Videos</h3>
-                        <div className="space-y-3">
-                          {courses.find(c => c._id === currentCourseId)?.videos?.map((video) => (
-                            <div key={video._id} className="border border-gray-200 rounded-lg p-3 flex justify-between items-center">
-                              <div>
-                                <h4 className="font-medium">{video.title}</h4>
-                                <p className="text-sm text-gray-600">Order: {video.order} | Duration: {video.duration}s</p>
-                              </div>
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleEditVideo(currentCourseId, video)}
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  <FaEdit />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteVideo(currentCourseId, video._id)}
-                                  className="text-red-500 hover:text-red-700"
-                                >
-                                  <FaTrash />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )} */}
 
 
             {showVideoModal && (
@@ -987,7 +686,7 @@ const Course = () => {
                               <div>
                                 <h4 className="font-medium">{video.title}</h4>
                                 <p className="text-sm text-gray-600">
-                                  Order: {video.order} | Duration: {video.duration}s |
+                                  Order: {video.order} | Duration: {video.duration}min |
                                   Notes: {video.notes?.length || 0} file(s)
                                 </p>
                               </div>
@@ -1086,7 +785,7 @@ const Course = () => {
                                 required
                               />
                             </div>
-                            <div className="mb-4">
+                            {/* <div className="mb-4">
                               <label className="block text-gray-700 font-medium mb-2">
                                 YouTube URL *
                               </label>
@@ -1098,10 +797,61 @@ const Course = () => {
                                 required
                                 placeholder="https://www.youtube.com/watch?v=..."
                               />
-                            </div>
+                            </div> */}
+
+                            {/* Source Type Selector */}
                             <div className="mb-4">
                               <label className="block text-gray-700 font-medium mb-2">
-                                Duration (seconds)
+                                Video Source
+                              </label>
+                              <select
+                                value={videoForm.sourceType}
+                                onChange={(e) =>
+                                  setVideoForm({ ...videoForm, sourceType: e.target.value })
+                                }
+                                className="w-full p-2 border border-gray-300 rounded"
+                              >
+                                <option value="youtube">YouTube Link</option>
+                                <option value="upload">Upload Video</option>
+                              </select>
+                            </div>
+
+                            {/* YouTube URL */}
+                            {videoForm.sourceType === "youtube" && (
+                              <div className="mb-4">
+                                <label className="block text-gray-700 font-medium mb-2">
+                                  YouTube URL *
+                                </label>
+                                <input
+                                  type="url"
+                                  value={videoForm.url}
+                                  onChange={(e) =>
+                                    setVideoForm({ ...videoForm, url: e.target.value })
+                                  }
+                                  className="w-full p-2 border border-gray-300 rounded"
+                                  required
+                                />
+                              </div>
+                            )}
+
+                            {/* Local Video Upload */}
+                            {videoForm.sourceType === "upload" && (
+                              <div className="mb-4">
+                                <label className="block text-gray-700 font-medium mb-2">
+                                  Upload Video *
+                                </label>
+                                <input
+                                  type="file"
+                                  accept="video/mp4,video/webm,video/mkv"
+                                  onChange={(e) => setVideoFile(e.target.files[0])}
+                                  className="w-full p-2 border border-gray-300 rounded"
+                                  required
+                                />
+                              </div>
+                            )}
+                            <div className="mb-4">
+                              <label className="block text-gray-700 font-medium mb-2">
+                                Duration (min)
                               </label>
                               <input
                                 type="number"

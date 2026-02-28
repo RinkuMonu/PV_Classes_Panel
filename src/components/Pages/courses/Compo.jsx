@@ -76,16 +76,40 @@ function Compo() {
     }
   };
 
+  // const fetchNotes = async () => {
+  //   try {
+  //     const response = await axiosInstance.get("/notes");
+  //     setNotes(response.data);
+  //     // toast.success("Notes loaded successfully!");
+  //   } catch (error) {
+  //     console.error("Error fetching notes:", error);
+  //     // toast.error("Failed to load notes");
+  //   }
+  // };
+
   const fetchNotes = async () => {
-    try {
-      const response = await axiosInstance.get("/notes");
-      setNotes(response.data);
-      // toast.success("Notes loaded successfully!");
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-      // toast.error("Failed to load notes");
-    }
-  };
+  try {
+    const response = await axiosInstance.get("/notes");
+
+    const groupedData = response.data;
+
+    // Convert grouped object into flat array
+    const flatNotes = [];
+
+    Object.keys(groupedData).forEach((course) => {
+      Object.keys(groupedData[course]).forEach((group) => {
+        groupedData[course][group].forEach((note) => {
+          flatNotes.push(note);
+        });
+      });
+    });
+
+    setNotes(flatNotes);
+
+  } catch (error) {
+    console.error("Error fetching notes:", error);
+  }
+};
 
   const fetchPyqs = async () => {
     try {
