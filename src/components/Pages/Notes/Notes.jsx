@@ -1,32 +1,351 @@
-import React, { useEffect, useState, useRef } from "react";
-import axiosInstance from "../../../config/AxiosInstance";
-import { FaEdit, FaEye, FaTrash, FaPlus, FaTimes, FaFilePdf } from "react-icons/fa";
 
-// ✅ Import Toast
+// import React, { useEffect, useState } from "react";
+// import axiosInstance from "../../../config/AxiosInstance";
+// import {
+//   FaEdit,
+//   FaEye,
+//   FaTrash,
+//   FaPlus,
+//   FaFilePdf,
+//   FaSearch,
+// } from "react-icons/fa";
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+
+// const Notes = () => {
+//   const [notesData, setNotesData] = useState({});
+//   const [search, setSearch] = useState("");
+//   const [formData, setFormData] = useState({
+//     courseName: "",
+//     noteTitle: "",
+//     title: "",
+//     description: "",
+//     pdf: null,
+//   });
+//   const [editingId, setEditingId] = useState(null);
+
+//   // ================= FETCH ALL =================
+//   const fetchNotes = async () => {
+//     try {
+//       const res = await axiosInstance.get("/notes");
+//       setNotesData(res.data);
+//     } catch (err) {
+//       toast.error("Failed to fetch notes");
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchNotes();
+//   }, []);
+
+//   // ================= SEARCH =================
+//   const handleSearch = async () => {
+//     if (!search) return fetchNotes();
+
+//     try {
+//       const res = await axiosInstance.get(`/notes/search?q=${search}`);
+//       const grouped = {};
+//       res.data.forEach((note) => {
+//         if (!grouped[note.courseName]) grouped[note.courseName] = {};
+//         if (!grouped[note.courseName][note.noteTitle])
+//           grouped[note.courseName][note.noteTitle] = [];
+//         grouped[note.courseName][note.noteTitle].push(note);
+//       });
+//       setNotesData(grouped);
+//     } catch {
+//       toast.error("Search failed");
+//     }
+//   };
+
+//   // ================= HANDLE CHANGE =================
+//   const handleChange = (e) => {
+//     const { name, value, files } = e.target;
+//     if (name === "pdf") {
+//       setFormData({ ...formData, pdf: files[0] });
+//     } else {
+//       setFormData({ ...formData, [name]: value });
+//     }
+//   };
+
+//   // ================= CREATE / UPDATE =================
+//   // const handleSubmit = async (e) => {
+//   //   e.preventDefault();
+//   //   const data = new FormData();
+//   //   Object.keys(formData).forEach((key) => {
+//   //     if (formData[key]) data.append(key, formData[key]);
+//   //   });
+
+//   //   try {
+//   //     if (editingId) {
+//   //       await axiosInstance.put(`/notes/${editingId}`, data);
+//   //       toast.success("Note updated");
+//   //     } else {
+//   //       await axiosInstance.post("/notes", data);
+//   //       toast.success("Note created");
+//   //     }
+//   //     setFormData({
+//   //       courseName: "",
+//   //       noteTitle: "",
+//   //       title: "",
+//   //       description: "",
+//   //       pdf: null,
+//   //     });
+//   //     setEditingId(null);
+//   //     fetchNotes();
+//   //   } catch {
+//   //     toast.error("Failed to save note");
+//   //   }
+//   // };
+
+//   const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   try {
+//     const data = new FormData();
+//     data.append("courseName", formData.courseName);
+//     data.append("noteTitle", formData.noteTitle);
+//     data.append("title", formData.title);
+//     data.append("description", formData.description);
+
+//     if (formData.pdf) {
+//       data.append("pdf", formData.pdf);
+//     }
+
+//     if (editingId) {
+//       await axiosInstance.put(`/notes/${editingId}`, data, {
+//         headers: { "Content-Type": "multipart/form-data" },
+//       });
+//       toast.success("Note updated successfully!");
+//     } else {
+//       await axiosInstance.post("/notes", data, {
+//         headers: { "Content-Type": "multipart/form-data" },
+//       });
+//       toast.success("Note created successfully!");
+//     }
+
+//     setFormData({
+//       courseName: "",
+//       noteTitle: "",
+//       title: "",
+//       description: "",
+//       pdf: null,
+//     });
+
+//     setEditingId(null);
+//     fetchNotes();
+//   } catch (error) {
+//     console.error(error);
+//     toast.error("Failed to save note!");
+//   }
+// };
+
+//   // ================= DELETE =================
+//   const handleDelete = async (id) => {
+//     try {
+//       await axiosInstance.delete(`/notes/${id}`);
+//       toast.success("Deleted successfully");
+//       fetchNotes();
+//     } catch {
+//       toast.error("Delete failed");
+//     }
+//   };
+
+//   // ================= VIEW PDF =================
+//   // const handleView = (pdfUrl) => {
+//   //   window.open(`http://localhost:5006/${pdfUrl}`, "_blank");
+//   // };
+
+//   const handleView = (pdfUrl) => {
+//   const baseURL = import.meta.env.VITE_API_SERVER_URL;
+//   window.open(`${baseURL}/${pdfUrl}`, "_blank");
+// };
+
+//   // ================= EDIT =================
+//   const handleEdit = (note) => {
+//     setFormData({
+//       courseName: note.courseName,
+//       noteTitle: note.noteTitle,
+//       title: note.title,
+//       description: note.description,
+//       pdf: null,
+//     });
+//     setEditingId(note._id);
+//   };
+
+//   return (
+//     <div className="p-8 bg-gray-100 min-h-screen">
+//       <ToastContainer />
+//       <h1 className="text-3xl font-bold text-green-700 mb-6">
+//         Notes Management
+//       </h1>
+
+//       {/* SEARCH */}
+//       <div className="flex mb-6">
+//         <input
+//           type="text"
+//           placeholder="Search..."
+//           className="border px-4 py-2 rounded-l w-80"
+//           value={search}
+//           onChange={(e) => setSearch(e.target.value)}
+//         />
+//         <button
+//           onClick={handleSearch}
+//           className="bg-green-600 text-white px-4 rounded-r"
+//         >
+//           <FaSearch />
+//         </button>
+//       </div>
+
+//       {/* FORM */}
+//       <form
+//         onSubmit={handleSubmit}
+//         className="bg-white p-6 rounded shadow mb-10 space-y-4"
+//       >
+//         <div className="grid grid-cols-2 gap-4">
+//           <input
+//             name="courseName"
+//             placeholder="Course Name"
+//             value={formData.courseName}
+//             onChange={handleChange}
+//             className="border p-2 rounded"
+//             required
+//           />
+//           <input
+//             name="noteTitle"
+//             placeholder="Note Title Group"
+//             value={formData.noteTitle}
+//             onChange={handleChange}
+//             className="border p-2 rounded"
+//             required
+//           />
+//           <input
+//             name="title"
+//             placeholder="Actual Note Title"
+//             value={formData.title}
+//             onChange={handleChange}
+//             className="border p-2 rounded"
+//             required
+//           />
+//           <input
+//             type="file"
+//             name="pdf"
+//             accept="application/pdf"
+//             onChange={handleChange}
+//             className="border p-2 rounded"
+//           />
+//         </div>
+
+//         <textarea
+//           name="description"
+//           placeholder="Description"
+//           value={formData.description}
+//           onChange={handleChange}
+//           className="border p-2 rounded w-full"
+//           required
+//         />
+
+//         <button className="bg-green-600 text-white px-6 py-2 rounded">
+//           {editingId ? "Update Note" : "Create Note"}
+//         </button>
+//       </form>
+
+//       {/* DISPLAY GROUPED DATA */}
+//       {Object.keys(notesData).map((course) => (
+//         <div key={course} className="mb-8">
+//           <h2 className="text-2xl font-bold text-blue-700 mb-4">
+//             📘 {course}
+//           </h2>
+
+//           {Object.keys(notesData[course]).map((group) => (
+//             <div key={group} className="mb-4 bg-white p-4 rounded shadow">
+//               <h3 className="font-semibold text-lg text-gray-700 mb-3">
+//                 📂 {group}
+//               </h3>
+
+//               <div className="grid md:grid-cols-3 gap-4">
+//                 {notesData[course][group].map((note) => (
+//                   <div
+//                     key={note._id}
+//                     className="border rounded p-4 hover:shadow-lg transition"
+//                   >
+//                     <h4 className="font-bold">{note.title}</h4>
+//                     <p className="text-sm text-gray-600 mb-2">
+//                       {note.description}
+//                     </p>
+
+//                     <div className="flex justify-between mt-3">
+//                       <button
+//                         onClick={() => handleView(note.pdfUrl)}
+//                         className="text-blue-600"
+//                       >
+//                         <FaEye />
+//                       </button>
+//                       <button
+//                         onClick={() => handleEdit(note)}
+//                         className="text-green-600"
+//                       >
+//                         <FaEdit />
+//                       </button>
+//                       <button
+//                         onClick={() => handleDelete(note._id)}
+//                         className="text-red-600"
+//                       >
+//                         <FaTrash />
+//                       </button>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
+
+// export default Notes;
+
+
+
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../../../config/AxiosInstance";
+import {
+  FaEdit,
+  FaEye,
+  FaTrash,
+  FaPlus,
+  FaFilePdf,
+  FaSearch,
+  FaFolder,
+  FaBook,
+  FaTimes,
+  FaCloudUploadAlt,
+} from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Notes = () => {
-  const [notes, setNotes] = useState([]);
+  const [notesData, setNotesData] = useState({});
+  const [search, setSearch] = useState("");
   const [formData, setFormData] = useState({
+    courseName: "",
+    noteTitle: "",
     title: "",
     description: "",
     pdf: null,
   });
-  const [editingNote, setEditingNote] = useState(null);
-  const [pdfPreview, setPdfPreview] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const formRef = useRef(null);
-
-  // Fetch notes
+  // ================= FETCH ALL =================
   const fetchNotes = async () => {
     try {
       const res = await axiosInstance.get("/notes");
-      setNotes(res.data);
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-      toast.error("Failed to fetch notes!");
+      setNotesData(res.data);
+    } catch (err) {
+      toast.error("Failed to fetch notes");
     }
   };
 
@@ -34,325 +353,402 @@ const Notes = () => {
     fetchNotes();
   }, []);
 
-  // Handle input change
+  // ================= SEARCH =================
+  const handleSearch = async () => {
+    if (!search) return fetchNotes();
+
+    try {
+      const res = await axiosInstance.get(`/notes/search?q=${search}`);
+      const grouped = {};
+      res.data.forEach((note) => {
+        if (!grouped[note.courseName]) grouped[note.courseName] = {};
+        if (!grouped[note.courseName][note.noteTitle])
+          grouped[note.courseName][note.noteTitle] = [];
+        grouped[note.courseName][note.noteTitle].push(note);
+      });
+      setNotesData(grouped);
+    } catch {
+      toast.error("Search failed");
+    }
+  };
+
+  // ================= HANDLE CHANGE =================
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "pdf") {
       setFormData({ ...formData, pdf: files[0] });
-      if (files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => setPdfPreview(e.target.result);
-        reader.readAsDataURL(files[0]);
-      } else {
-        setPdfPreview(null);
-      }
+      setSelectedFile(files[0]);
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  // Submit (create or update)
+  // ================= CREATE / UPDATE =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const data = new FormData();
+      data.append("courseName", formData.courseName);
+      data.append("noteTitle", formData.noteTitle);
       data.append("title", formData.title);
       data.append("description", formData.description);
+
       if (formData.pdf) {
         data.append("pdf", formData.pdf);
       }
 
-      if (editingNote) {
-        // Update API
-        await axiosInstance.put(`/notes/${editingNote._id}`, data, {
+      if (editingId) {
+        await axiosInstance.put(`/notes/${editingId}`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Note updated successfully!");
-        setEditingNote(null);
       } else {
-        // Create API
         await axiosInstance.post("/notes", data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Note created successfully!");
       }
 
-      setFormData({ title: "", description: "", pdf: null });
-      setPdfPreview(null);
+      setFormData({
+        courseName: "",
+        noteTitle: "",
+        title: "",
+        description: "",
+        pdf: null,
+      });
+      setSelectedFile(null);
+      setEditingId(null);
       setIsFormVisible(false);
       fetchNotes();
     } catch (error) {
-      console.error("Error saving note:", error);
+      console.error(error);
       toast.error("Failed to save note!");
     }
   };
 
-  // Delete Note
+  // ================= DELETE =================
   const handleDelete = async (id) => {
-    // Instead of window.confirm, use toast confirm
-    toast.info(
-      <div>
-        <p>Are you sure you want to delete this note?</p>
-        <div className="flex space-x-2 mt-2">
-          <button
-            onClick={async () => {
-              try {
-                await axiosInstance.delete(`/notes/${id}`);
-                fetchNotes();
-                toast.dismiss();
-                toast.success("Note deleted successfully!");
-              } catch (error) {
-                console.error("Error deleting note:", error);
-                toast.dismiss();
-                toast.error("Failed to delete note!");
-              }
-            }}
-            className="bg-red-600 text-white px-3 py-1 rounded"
-          >
-            Yes
-          </button>
-          <button
-            onClick={() => toast.dismiss()}
-            className="bg-gray-300 px-3 py-1 rounded"
-          >
-            No
-          </button>
-        </div>
-      </div>,
-      { autoClose: false }
-    );
+    if (window.confirm("Are you sure you want to delete this note?")) {
+      try {
+        await axiosInstance.delete(`/notes/${id}`);
+        toast.success("Deleted successfully");
+        fetchNotes();
+      } catch {
+        toast.error("Delete failed");
+      }
+    }
   };
 
-  // Edit Note
-  const handleUpdate = (note) => {
-    setEditingNote(note);
+  // ================= VIEW PDF =================
+  // const handleView = (pdfUrl) => {
+  //   window.open(`http://localhost:5006/${pdfUrl}`, "_blank");
+  // };
+
+  const handleView = (pdfUrl) => {
+    const baseURL = import.meta.env.VITE_API_SERVER_URL;
+    window.open(`${baseURL}/${pdfUrl}`, "_blank");
+  };
+
+  // ================= EDIT =================
+  const handleEdit = (note) => {
     setFormData({
+      courseName: note.courseName,
+      noteTitle: note.noteTitle,
       title: note.title,
       description: note.description,
       pdf: null,
     });
-    setPdfPreview(note.pdfUrl ? `https://api.pvclasses.in/${note.pdfUrl}` : null);
+    setSelectedFile(null);
+    setEditingId(note._id);
     setIsFormVisible(true);
-
-    // ✅ Smooth scroll to form
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // View Note (open pdf if available)
-  const handleView = (note) => {
-    if (note.pdfUrl) {
-      window.open(`https://api.pvclasses.in/${note.pdfUrl}`, "_blank");
-    } else {
-      toast.warn("No PDF available for this note!");
-    }
-  };
-
-  // Reset form
-  const resetForm = () => {
-    setFormData({ title: "", description: "", pdf: null });
-    setEditingNote(null);
-    setPdfPreview(null);
+  // ================= CANCEL FORM =================
+  const handleCancel = () => {
+    setFormData({
+      courseName: "",
+      noteTitle: "",
+      title: "",
+      description: "",
+      pdf: null,
+    });
+    setSelectedFile(null);
+    setEditingId(null);
     setIsFormVisible(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <ToastContainer position="top-right" />
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-green-800">Notes Management</h1>
-          {!isFormVisible && !editingNote && (
-            <button
-              onClick={() => setIsFormVisible(true)}
-              className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              <FaPlus className="mr-2" /> Add New Note
-            </button>
-          )}
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 p-6 md:p-8">
+      <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Header Section */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-emerald-600 mb-2">
+          📚 Notes Management
+        </h1>
+        <p className="text-gray-600">Organize and manage your course notes efficiently</p>
+      </div>
+
+      {/* Search and Add Section */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex-1 flex">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search notes by title, course, or description..."
+              className="w-full pl-12 pr-4 py-3 rounded-l-lg border-2 border-green-200 focus:border-green-500 focus:outline-none transition shadow-sm"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-400" />
+          </div>
+          <button
+            onClick={handleSearch}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-r-lg hover:from-green-700 hover:to-emerald-700 transition shadow-md flex items-center gap-2"
+          >
+            Search
+          </button>
         </div>
 
-        {/* Form Section */}
-        {(isFormVisible || editingNote) && (
-          <div ref={formRef} className="bg-white rounded-xl shadow-md p-6 mb-8 border border-green-100">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-green-800">
-                {editingNote ? "Update Note" : "Create New Note"}
-              </h2>
-              <button
-                onClick={resetForm}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <FaTimes size={20} />
-              </button>
-            </div>
+        <button
+          onClick={() => setIsFormVisible(!isFormVisible)}
+          className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition shadow-md flex items-center gap-2 justify-center md:w-auto"
+        >
+          {isFormVisible ? (
+            <>
+              <FaTimes /> Close Form
+            </>
+          ) : (
+            <>
+              <FaPlus /> Add New Note
+            </>
+          )}
+        </button>
+      </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Form Section */}
+      {isFormVisible && (
+        <div className="mb-10 bg-white rounded-xl shadow-xl p-6 border-l-4 border-green-500 animate-fadeIn">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+            {editingId ? (
+              <>
+                <FaEdit className="text-green-600" /> Edit Note
+              </>
+            ) : (
+              <>
+                <FaPlus className="text-green-600" /> Create New Note
+              </>
+            )}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Course Name
                 </label>
                 <input
-                  type="text"
+                  name="courseName"
+                  placeholder="e.g., Computer Science"
+                  value={formData.courseName}
+                  onChange={handleChange}
+                  className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-green-500 focus:outline-none transition"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Note Title Group
+                </label>
+                <input
+                  name="noteTitle"
+                  placeholder="e.g., Chapter 1"
+                  value={formData.noteTitle}
+                  onChange={handleChange}
+                  className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-green-500 focus:outline-none transition"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Actual Note Title
+                </label>
+                <input
                   name="title"
-                  placeholder="Enter note title"
+                  placeholder="e.g., Introduction to Programming"
                   value={formData.title}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                  className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-green-500 focus:outline-none transition"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  placeholder="Enter note description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows="4"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   PDF File
                 </label>
-                <div className="flex items-center space-x-4">
-                  <label className="flex flex-col items-center justify-center w-40 h-32 border-2 border-dashed border-green-300 rounded-lg cursor-pointer bg-green-50 hover:bg-green-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <FaFilePdf className="w-8 h-8 text-green-500 mb-2" />
-                      <p className="text-xs text-green-700">Upload PDF</p>
-                    </div>
-                    <input
-                      type="file"
-                      name="pdf"
-                      accept="application/pdf"
-                      onChange={handleChange}
-                      className="hidden"
-                    />
-                  </label>
-
-                  {pdfPreview && (
-                    <div className="flex flex-col items-center">
-                      <div className="w-12 h-16 bg-red-100 flex items-center justify-center rounded-md">
-                        <FaFilePdf className="text-red-600 text-xl" />
-                      </div>
-                      <span className="text-xs mt-1 text-gray-600">
-                        PDF Ready
-                      </span>
-                    </div>
+                <div className="relative">
+                  <input
+                    type="file"
+                    name="pdf"
+                    accept="application/pdf"
+                    onChange={handleChange}
+                    className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-green-500 focus:outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                  />
+                  {selectedFile && (
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-green-600">
+                      {selectedFile.name}
+                    </span>
                   )}
                 </div>
               </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  {editingNote ? "Update Note" : "Create Note"}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Notes List */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-green-100">
-          <h2 className="text-xl font-semibold text-green-800 mb-6">Notes List</h2>
-
-          {notes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {notes.map((note) => (
-                <div
-                  key={note._id}
-                  className="border border-green-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="bg-green-50 p-4 border-b border-green-200">
-                    <h3 className="font-semibold text-green-800 truncate">
-                      {note.title}
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-gray-600 text-sm h-12 overflow-hidden mb-4">
-                      {note.description.length > 100
-                        ? `${note.description.substring(0, 100)}...`
-                        : note.description}
-                    </p>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        {note.pdfUrl && (
-                          <span className="flex items-center text-xs text-green-600">
-                            <FaFilePdf className="mr-1" /> PDF Attached
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex space-x-2">
-                        <button
-                          className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
-                          onClick={() => handleUpdate(note)}
-                          title="Edit"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-100 transition-colors"
-                          onClick={() => handleView(note)}
-                          title="View"
-                        >
-                          <FaEye />
-                        </button>
-                        <button
-                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
-                          onClick={() => handleDelete(note._id)}
-                          title="Delete"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <FaFilePdf className="text-green-500 text-3xl" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-700 mb-2">
-                No notes yet
-              </h3>
-              <p className="text-gray-500 mb-4">
-                Get started by creating your first note
-              </p>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                placeholder="Write a detailed description of the note..."
+                value={formData.description}
+                onChange={handleChange}
+                rows="4"
+                className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-green-500 focus:outline-none transition resize-none"
+                required
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
               <button
-                onClick={() => setIsFormVisible(true)}
-                className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                type="submit"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition shadow-md flex items-center gap-2"
               >
-                <FaPlus className="mr-2" /> Create Note
+                {editingId ? (
+                  <>
+                    <FaEdit /> Update Note
+                  </>
+                ) : (
+                  <>
+                    <FaCloudUploadAlt /> Create Note
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 transition shadow-md flex items-center gap-2"
+              >
+                <FaTimes /> Cancel
               </button>
             </div>
-          )}
+          </form>
         </div>
-      </div>
+      )}
+
+      {/* Display Grouped Data */}
+      {Object.keys(notesData).length > 0 ? (
+        Object.keys(notesData).map((course) => (
+          <div key={course} className="mb-10 animate-slideIn">
+            <div className="flex items-center gap-3 mb-4">
+              <FaBook className="text-3xl text-green-600" />
+              <h2 className="text-2xl font-bold text-gray-800">{course}</h2>
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                {Object.keys(notesData[course]).reduce((acc, group) => acc + notesData[course][group].length, 0)} notes
+              </span>
+            </div>
+
+            {Object.keys(notesData[course]).map((group) => (
+              <div key={group} className="mb-6 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-3 border-b border-green-100">
+                  <h3 className="font-semibold text-lg text-gray-700 flex items-center gap-2">
+                    <FaFolder className="text-green-600" />
+                    {group}
+                  </h3>
+                </div>
+
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {notesData[course][group].map((note) => (
+                      <div
+                        key={note._id}
+                        className="group border border-gray-200 rounded-xl p-5 hover:shadow-xl transition-all duration-300 hover:border-green-300 hover:scale-105 bg-white"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <h4 className="font-bold text-lg text-gray-800 group-hover:text-green-700 transition">
+                            {note.title}
+                          </h4>
+                          <FaFilePdf className="text-red-500 text-xl" />
+                        </div>
+
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                          {note.description}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                          <button
+                            onClick={() => handleView(note.pdfUrl)}
+                            className="text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-full"
+                            title="View PDF"
+                          >
+                            <FaEye size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(note)}
+                            className="text-green-600 hover:text-green-800 transition p-2 hover:bg-green-50 rounded-full"
+                            title="Edit"
+                          >
+                            <FaEdit size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(note._id)}
+                            className="text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-full"
+                            title="Delete"
+                          >
+                            <FaTrash size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))
+      ) : (
+        <div className="text-center py-16 bg-white rounded-xl shadow-md">
+          <FaBook className="text-6xl text-green-300 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg">No notes found. Create your first note!</p>
+        </div>
+      )}
+
+      {/* Add custom animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        
+        .animate-slideIn {
+          animation: slideIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

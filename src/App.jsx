@@ -57,12 +57,11 @@ const Layout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <div className={`h-full bg-white shadow-lg transition-all duration-300 ease-in-out ${
-        isSidebarCollapsed ? 'w-20' : 'w-64'
-      }`}>
+      <div className={`h-full bg-white shadow-lg transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'
+        }`}>
         <Sidebar isCollapsed={isSidebarCollapsed} />
       </div>
-      
+
       <div className="flex-1 flex flex-col overflow-hidden bg-white shadow">
         <Header toggleSidebar={toggleSidebar} />
         <main className="flex-1 overflow-y-auto p-4 transition-all duration-300 ease-in-out bg-gray-50">
@@ -78,54 +77,55 @@ function App() {
 
   return (
     <>
-          <ToastContainer position="top-right" autoClose={3000} />
+    
+      <ToastContainer position="top-right" autoClose={3000} />
 
-    <Routes>
-      
-      <Route path="/" element={<PublicRoute><Login setUser={setUser}/></PublicRoute>} />
-      <Route path="/login" element={<PublicRoute><Login setUser={setUser}/></PublicRoute>} />
-      <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
-      <Route path="/signup" element={<PublicRoute><CreateAccount /></PublicRoute>} />
-      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route path="/dashboard" element={<Dashboard user={user}/>} />
+      <Routes>
 
-        <Route path="/courses/categories" element={<CourceCategory />} />
-        <Route path="/courses/exam-types" element={<ExamType />} />
-        <Route path="/courses/exams" element={<Exam />} />
-        <Route path="/courses/courses" element={<Course />} />
-        <Route path="/courses/compo" element={<Compo />} />
-        <Route path="/courses/faculty" element={<Faculty />} />
+        <Route path="/" element={<PublicRoute><Login setUser={setUser} /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login setUser={setUser} /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><CreateAccount /></PublicRoute>} />
+        <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route path="/dashboard" element={<Dashboard user={user} />} />
 
-        <Route path="/customer" element={<Customer />} />
-        <Route path="/alluser" element={<AllUser />} />
-        <Route path="/customer/:id" element={<CustomerOrderList />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/catalog/products" element={<Product />} />
-        <Route path="/catalog/products/:id" element={<ProductDetails />} />
-        <Route path="/catalog/categories" element={<Category />} />
-        <Route path="/catalog/categories/:id" element={<ViewCategory />} />
-        <Route path="/catalog/attributes" element={<Attribute />} />
-        <Route path="/catalog/attributes/:id" element={<AttributesValues />} />
-        <Route path="/catalog/coupons" element={<Coupon />} />
-        <Route path="/invoice/:orderId" element={<Invoice />} />
-        <Route path="/setting" element={<SettingsPage />} />
-        <Route path="/edit-profile" element={<ProfileForm />} />
-        <Route path="/notification" element={<Notifications/>} />
-        <Route path="/notes" element={<Notes/>} />
-        <Route path="/pyq" element={<Pyq/>} />
-        <Route path="/faq" element={<FAQ/>} />
-        <Route path="/affairs" element={<CurrentAffairsAdmin/>} />
-        <Route path="/doubt" element={<DoubtsTable/>} />
-        <Route path="/test-series" element={<TestSeriesDashboard/>} />
-        <Route path="/banner" element={<Banner/>} />
-        <Route path="/review" element={<Review/>} />
-        <Route path="/contact" element={<Contact/>} />
-        <Route path="/couponmanager" element={<CouponManager/>} />
-        
-      </Route>
-    </Routes>
+          <Route path="/courses/categories" element={<CourceCategory />} />
+          <Route path="/courses/exam-types" element={<ExamType />} />
+          <Route path="/courses/exams" element={<Exam />} />
+          <Route path="/courses/courses" element={<Course />} />
+          <Route path="/courses/compo" element={<Compo />} />
+          <Route path="/courses/faculty" element={<Faculty />} />
 
-        </>
+          <Route path="/customer" element={<Customer />} />
+          <Route path="/alluser" element={<AllUser />} />
+          <Route path="/customer/:id" element={<CustomerOrderList />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/catalog/products" element={<Product />} />
+          <Route path="/catalog/products/:id" element={<ProductDetails />} />
+          <Route path="/catalog/categories" element={<Category />} />
+          <Route path="/catalog/categories/:id" element={<ViewCategory />} />
+          <Route path="/catalog/attributes" element={<Attribute />} />
+          <Route path="/catalog/attributes/:id" element={<AttributesValues />} />
+          <Route path="/catalog/coupons" element={<Coupon />} />
+          <Route path="/invoice/:orderId" element={<Invoice />} />
+          <Route path="/setting" element={<SettingsPage />} />
+          <Route path="/edit-profile" element={<ProfileForm />} />
+          <Route path="/notification" element={<Notifications />} />
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/pyq" element={<Pyq />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/affairs" element={<CurrentAffairsAdmin />} />
+          <Route path="/doubt" element={<DoubtsTable />} />
+          <Route path="/test-series" element={<TestSeriesDashboard />} />
+          <Route path="/banner" element={<Banner />} />
+          <Route path="/review" element={<Review />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/couponmanager" element={<CouponManager />} />
+
+        </Route>
+      </Routes>
+
+    </>
 
   );
 }

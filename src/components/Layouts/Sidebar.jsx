@@ -39,6 +39,7 @@ const Sidebar = ({ isCollapsed }) => {
   //   setCatalogOpen(!isCatalogOpen);
   // };
 
+  
   // Check if current path matches or starts with the given path
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -67,7 +68,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Notification", Icon: Bell, path: "/notification" },
     { name: "Orders", Icon: ShoppingCart, path: "/orders" },
     { name: "Banner", Icon: Image, path: "/banner" },
-    { name: "Contact", Icon: Phone, path: "/contact" },
+    // { name: "Contact", Icon: Phone, path: "/contact" },
     { name: "Review", Icon: Star, path: "/review" },
     { name: "Coupon", Icon: Tag, path: "/couponmanager" },
   ];
