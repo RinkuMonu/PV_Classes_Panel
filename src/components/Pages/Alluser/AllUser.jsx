@@ -10,6 +10,12 @@ import axiosInstance from '../../../config/AxiosInstance'; // <-- Import your ax
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+  const [search, setSearch] = useState("");
+
   const [showModal, setShowModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -31,20 +37,23 @@ const Users = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [errors, setErrors] = useState({});
 
+
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [page, search]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axiosInstance.get('/users/getAllUser', {
+      // const response = await axiosInstance.get(`/users/getAllUser?page=${page}&limit=${limit}`, {
+      const response = await axiosInstance.get(`/users/getAllUser?page=${page}&limit=${limit}&search=${search}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       setUsers(response.data.data || response.data);
+      setTotalPages(response.data.pagination.totalPages);
     } catch (error) {
       toast.error('Error fetching users');
       console.error('Error fetching users:', error);
@@ -55,17 +64,17 @@ const Users = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone)) {
       newErrors.phone = 'Phone number must be 10 digits';
     }
-    
+
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email address is invalid';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,7 +106,7 @@ const Users = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -120,7 +129,7 @@ const Users = () => {
 
       if (editingUser) {
         // await axios.put(`https://api.pvclasses.in/api/users/updateUser`, formDataToSend, {
-                await axiosInstance.put('/users/updateUser', formDataToSend, {
+        await axiosInstance.put('/users/updateUser', formDataToSend, {
 
           headers: {
             Authorization: `Bearer ${token}`,
@@ -155,7 +164,7 @@ const Users = () => {
     try {
       const token = localStorage.getItem('token');
       // await axios.put(`https://api.pvclasses.in/api/users/updateStatus`, {
-            await axiosInstance.put('/users/updateStatus', { 
+      await axiosInstance.put('/users/updateStatus', {
 
         userId,
         status: currentStatus === 'active' ? 'inactive' : 'active'
@@ -198,7 +207,7 @@ const Users = () => {
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -211,7 +220,7 @@ const Users = () => {
   // Check if email already exists in other users
   const isEmailUnique = (email) => {
     if (!email) return true;
-    return !users.some(user => 
+    return !users.some(user =>
       user.email === email && user._id !== editingUser?._id
     );
   };
@@ -228,6 +237,17 @@ const Users = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Users Management</h1>
+
+        <input
+          type="text"
+          placeholder="Search user by name..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64"
+        />
       </div>
 
       {loading ? (
@@ -292,18 +312,16 @@ const Users = () => {
                     {user.email || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                    <span className={`px-2 py-1 text-xs rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
                       user.role === 'teacher' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                        'bg-gray-100 text-gray-800'
+                      }`}>
                       {user.role}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
                       {user.status}
                     </span>
                   </td>
@@ -322,9 +340,8 @@ const Users = () => {
                     </button> */}
                     <button
                       onClick={() => handleStatusChange(user._id, user.status)}
-                      className={`${
-                        user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                      }`}
+                      className={`${user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                        }`}
                     >
                       {user.status === 'active' ? 'Deactivate' : 'Activate'}
                     </button>
@@ -333,6 +350,41 @@ const Users = () => {
               ))}
             </tbody>
           </table>
+
+          <div className="flex justify-between items-center p-4 border-t">
+
+            <button
+              onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <div className="flex gap-2">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`px-3 py-1 rounded ${page === i + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                    }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+
+          </div>
         </div>
       )}
 
@@ -340,7 +392,7 @@ const Users = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center overflow-y-auto">
           <div className="bg-white p-6 rounded-md w-full max-w-2xl my-8 max-h-screen overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">User Information</h2>
-            
+
             <div className="flex items-center mb-6">
               {selectedUser.profile_image_url ? (
                 <img
@@ -361,7 +413,7 @@ const Users = () => {
                 <p className="text-gray-600">{selectedUser.email || 'No Email'}</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-gray-700 font-medium mb-1">Role</label>
@@ -369,14 +421,13 @@ const Users = () => {
               </div>
               <div>
                 <label className="block text-gray-700 font-medium mb-1">Status</label>
-                <p className={`p-2 rounded-md ${
-                  selectedUser.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <p className={`p-2 rounded-md ${selectedUser.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
                   {selectedUser.status}
                 </p>
               </div>
             </div>
-            
+
             {selectedUser.role === 'teacher' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -389,7 +440,7 @@ const Users = () => {
                 </div>
               </div>
             )}
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-gray-700 font-medium mb-1">Address</label>
@@ -400,7 +451,7 @@ const Users = () => {
                 <p className="bg-gray-100 p-2 rounded-md">{selectedUser.city || 'N/A'}</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-gray-700 font-medium mb-1">State</label>
@@ -411,12 +462,12 @@ const Users = () => {
                 <p className="bg-gray-100 p-2 rounded-md">{selectedUser.pincode || 'N/A'}</p>
               </div>
             </div>
-            
+
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-1">District</label>
               <p className="bg-gray-100 p-2 rounded-md">{selectedUser.district || 'N/A'}</p>
             </div>
-            
+
             <div className="flex justify-end">
               <button
                 onClick={() => setShowInfoModal(false)}
@@ -453,9 +504,8 @@ const Users = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`w-full p-2 border rounded-md ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-2 border rounded-md ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                   disabled={!!editingUser} // Disable phone editing for existing users
                 />
@@ -470,9 +520,8 @@ const Users = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full p-2 border rounded-md ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-2 border rounded-md ${errors.email ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>

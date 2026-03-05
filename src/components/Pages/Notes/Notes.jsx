@@ -471,7 +471,7 @@ const Notes = () => {
   const [search, setSearch] = useState("");
 
   const [formData, setFormData] = useState({
-    course: "",   // 🔥 changed
+    course: "",
     noteTitle: "",
     title: "",
     description: "",
