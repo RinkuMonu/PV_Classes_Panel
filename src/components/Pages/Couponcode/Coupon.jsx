@@ -48,7 +48,7 @@ const CouponManager = () => {
         await axiosInstance.put(`/coupon/${editingId}`, form);
         toast.success("Coupon updated successfully");
       } else {
-      await axiosInstance.post("/coupon", form);
+        await axiosInstance.post("/coupon", form);
         toast.success("Coupon created successfully");
       }
       setForm({
@@ -104,9 +104,17 @@ const CouponManager = () => {
   };
 
   // ✅ View coupon details
-  const handleView = (coupon) => {
-    setViewingCoupon(coupon);
-    setIsViewModalOpen(true);
+  const handleView = async (coupon) => {
+    try {
+      const res = await axiosInstance.get(`/coupon/${coupon.code}`);
+
+      setViewingCoupon(res.data.data);
+      setIsViewModalOpen(true);
+
+    } catch (error) {
+      toast.error("Failed to fetch coupon details");
+      console.error(error);
+    }
   };
 
   // ✅ Close view modal
@@ -125,9 +133,8 @@ const CouponManager = () => {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`bg-white p-6 rounded-lg shadow-md mb-8 border transition-all duration-500 ${
-          highlight ? "border-green-500 ring-2 ring-green-300" : "border-gray-200"
-        }`}
+        className={`bg-white p-6 rounded-lg shadow-md mb-8 border transition-all duration-500 ${highlight ? "border-green-500 ring-2 ring-green-300" : "border-gray-200"
+          }`}
       >
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
           {editingId ? "Edit Coupon" : "Create New Coupon"}
@@ -398,6 +405,23 @@ const CouponManager = () => {
                   {viewingCoupon.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
+            </div>
+
+            <div>
+              <span className="font-medium">Used By:</span>
+
+              {viewingCoupon.usedBy && viewingCoupon.usedBy.length > 0 ? (
+                <div className="mt-2 border rounded-md p-2 bg-gray-50 max-h-32 overflow-y-auto">
+                  {viewingCoupon.usedBy.map((user) => (
+                    <div key={user._id} className="flex justify-between text-sm py-1">
+                      <span>{user.name}</span>
+                      <span className="text-gray-500">{user.phone}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">No users used this coupon</p>
+              )}
             </div>
 
             <div className="mt-6 flex justify-end">

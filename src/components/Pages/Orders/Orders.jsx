@@ -15,6 +15,12 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
 
+  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
+
+  const [type, setType] = useState("");
+  const [counts, setCounts] = useState({});
+
   const navigate = useNavigate();
 
   // ✅ Fetch all orders
@@ -22,21 +28,25 @@ const Orders = () => {
     const fetchOrders = async () => {
       try {
         // const response = await axiosInstance.get("/checkout/get-all");
-        const response = await axiosInstance.get(`/checkout/get-all?page=${page}&limit=${limit}`);
+        const response = await axiosInstance.get(`/checkout/get-all?page=${page}&limit=${limit}&status=${status}&search=${search}&type=${type}`);
         setOrdersData(response.data.orders || []);
         setTotalPages(response.data.pagination.totalPages);
+        setCounts(response.data.counts || {});
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
     };
     fetchOrders();
-  }, [page]);
+  }, [page, status, search, type]);
 
   // ✅ Status badge
   const getStatusBadge = (status) => {
     const statusClasses = {
       pending: "bg-yellow-100 text-yellow-800",
       processing: "bg-blue-100 text-blue-800",
+      confirmed: "bg-indigo-100 text-indigo-800",
+      packed: "bg-purple-100 text-purple-800",
+      shipped: "bg-cyan-100 text-cyan-800",
       completed: "bg-green-100 text-green-800",
       cancel: "bg-red-100 text-red-800",
     };
@@ -76,12 +86,68 @@ const Orders = () => {
 
   return (
     <div className="p-6">
-      <div className="flex items-center mb-6">
-        <ShoppingCart className="h-8 w-8 text-blue-600 mr-2" />
-        <h1 className="text-2xl font-bold">Orders</h1>
+      <div className="flex items-center justify-between mb-6">
+
+        <div className="flex items-center">
+          <ShoppingCart className="h-8 w-8 text-blue-600 mr-2" />
+          <h1 className="text-2xl font-bold">Orders</h1>
+        </div>
+
+        <div className="flex items-center gap-3">
+
+          <input
+            type="text"
+            placeholder="Search order..."
+            value={search}
+            onChange={(e) => {
+              setPage(1);
+              setSearch(e.target.value);
+            }}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64"
+          />
+
+          <select
+            value={status}
+            onChange={(e) => {
+              setPage(1);
+              setStatus(e.target.value);
+            }}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+          >
+            <option value="">All Orders</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="shipped">shipped</option>
+            <option value="packed">packed</option>
+            <option value="confirmed">confirmed</option>
+          </select>
+
+          <select
+            value={type}
+            onChange={(e) => {
+              setPage(1);
+              setType(e.target.value);
+            }}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+          >
+            <option value="">All Products</option>
+            <option value="course">Courses ({counts.courses || 0})</option>
+            <option value="book">Books ({counts.books || 0})</option>
+            <option value="testSeries">Test Series ({counts.testSeries || 0})</option>
+            <option value="combo">Combo ({counts.combo || 0})</option>
+          </select>
+
+        </div>
+
+
+
       </div>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
+
+
+
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -136,7 +202,10 @@ const Orders = () => {
                       <option value="pending">Pending</option>
                       <option value="processing">Processing</option>
                       <option value="completed">Completed</option>
-                      <option value="cancel">Cancel</option>
+                      <option value="cancelled">Cancel</option>
+                      <option value="confirmed">confirmed</option>
+                      <option value="shipped">shipped</option>
+                      <option value="packed">packed</option>
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-2">

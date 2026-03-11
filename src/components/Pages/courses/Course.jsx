@@ -510,8 +510,6 @@ const Course = () => {
   };
 
 
-
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -632,7 +630,7 @@ const Course = () => {
                       </div>
 
                       {/* Subject List */}
-                      <div className="grid grid-cols-1 gap-3 mb-6">
+                      {/* <div className="grid grid-cols-1 gap-3 mb-6">
                         {subjects.map((subject) => (
                           <div key={subject._id} className="border border-gray-200 rounded-lg p-3 flex justify-between items-center">
                             <div>
@@ -661,7 +659,59 @@ const Course = () => {
                             </div>
                           </div>
                         ))}
+                      </div> */}
+
+                      {/* Subject List */}
+                      <div className="grid grid-cols-1 gap-4 mb-6">
+                        {subjects.map((subject) => (
+                          <div
+                            key={subject._id}
+                            className="border border-gray-200 rounded-lg p-4 flex items-start justify-between bg-white hover:shadow-sm transition"
+                          >
+                            {/* Left Content */}
+                            <div className="flex-1 pr-6">
+                              <h4 className="text-base font-semibold text-gray-900">
+                                {subject.title}
+                              </h4>
+
+                              <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                {subject.description}
+                              </p>
+                            </div>
+
+                            {/* Right Actions */}
+                            <div className="flex items-center gap-4 shrink-0">
+
+                              {/* Edit */}
+                              <button
+                                onClick={() => handleEditSubject(subject)}
+                                className="text-blue-600 hover:text-blue-800 text-lg"
+                              >
+                                <FaEdit />
+                              </button>
+
+                              {/* Delete */}
+                              <button
+                                onClick={() => handleDeleteSubject(subject._id)}
+                                className="text-red-500 hover:text-red-700 text-lg"
+                              >
+                                <FaTrash />
+                              </button>
+
+                              {/* Manage Videos */}
+                              <button
+                                onClick={() => setSelectedSubject(subject)}
+                                className="flex items-center gap-2 text-green-600 hover:text-green-800 font-medium"
+                              >
+                                <FaVideo />
+                                <span className="hidden sm:inline">Manage Videos</span>
+                              </button>
+
+                            </div>
+                          </div>
+                        ))}
                       </div>
+
                     </div>
 
                     {/* Video Management Section (only show when a subject is selected) */}
@@ -1065,7 +1115,7 @@ const Course = () => {
                         </select>
                       </div>
 
-                      <div>
+                      {/* <div>
                         <label className="block text-gray-700 font-medium mb-2">
                           Author *
                         </label>
@@ -1082,7 +1132,7 @@ const Course = () => {
                             </option>
                           ))}
                         </select>
-                      </div>
+                      </div> */}
 
                       <div>
                         <label className="block text-gray-700 font-medium mb-2">
