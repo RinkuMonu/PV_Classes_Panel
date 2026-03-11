@@ -1,3 +1,4 @@
+
 import {
   ShoppingCart,
   Users,
@@ -6,9 +7,14 @@ import {
   FileText,
   Layers,
   MessageCircle,
+  IndianRupee,
 } from "lucide-react";
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+
+import { useNavigate } from "react-router-dom";
+
 import {
   LineChart,
   Line,
@@ -19,178 +25,222 @@ import {
   PieChart,
   Pie,
   Cell,
+  CartesianGrid,
 } from "recharts";
+
 import { ToastContainer, toast } from "react-toastify";
 
-import RecentOrders from "../Pages/Orders/RecentOrders";
-
-// Cards config
 const cardsData = [
-  { bgColor: "bg-teal-600", icon: ShoppingCart, title: "Total Orders", key: "totalOrders" },
-  { bgColor: "bg-orange-400", icon: Users, title: "Total Users", key: "totalUsers" },
-  { bgColor: "bg-blue-500", icon: BookOpen, title: "Total Courses", key: "totalCourses" },
-  { bgColor: "bg-cyan-700", icon: HelpCircle, title: "Total FAQ", key: "totalFaq" },
-  { bgColor: "bg-green-600", icon: FileText, title: "Total Test Series", key: "totalTestSeries" },
-  { bgColor: "bg-purple-600", icon: Layers, title: "Total Notes", key: "totalNotes" },
-  { bgColor: "bg-pink-500", icon: MessageCircle, title: "Total Doubts", key: "totalDoubts" },
-];
-
-// API → frontend key mapping
-const keyMapping = {
-  totalOrders: "orders",
-  totalUsers: "users",
-  totalCourses: "courses",
-  totalFaq: "faqs",
-  totalTestSeries: "testSeries",
-  totalNotes: "notes",
-  totalDoubts: "doubts",
-};
-
-// Sample chart data (replace with API later if needed)
-const salesData = [
-  { date: "2025-07-14", sales: 800 },
-  { date: "2025-07-15", sales: 1400 },
-  { date: "2025-07-16", sales: 1200 },
+  { bgColor: "bg-teal-600", icon: ShoppingCart, title: "Total Orders", key: "orders", route: "/orders" },
+  { bgColor: "bg-orange-400", icon: Users, title: "Total Users", key: "users", route: "/alluser" },
+  { bgColor: "bg-blue-500", icon: BookOpen, title: "Total Courses", key: "courses", route: "/courses/courses" },
+  { bgColor: "bg-cyan-700", icon: HelpCircle, title: "Total FAQ", key: "faqs", route: "/faq" },
+  { bgColor: "bg-green-600", icon: FileText, title: "Total Test Series", key: "testSeries", route: "/test-series" },
+  { bgColor: "bg-purple-600", icon: Layers, title: "Total Notes", key: "notes", route: "/notes" },
+  { bgColor: "bg-pink-500", icon: MessageCircle, title: "Total Doubts", key: "doubts", route: "/doubt" },
 ];
 
 const pieData = [
-  { name: "Mini Lettuce", value: 35 },
-  { name: "Organic Baby Carrot", value: 30 },
-  { name: "Yellow Sweet Corn", value: 35 },
+  { name: "Courses", value: 40 },
+  { name: "Test Series", value: 35 },
+  { name: "Notes", value: 25 },
 ];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
+const COLORS = ["#6366F1", "#10B981", "#F59E0B"];
 
 export default function Dashboard({ user }) {
+
   const [counts, setCounts] = useState({});
-  const [_recentData, setRecentData] = useState([]);
+  const [today, setToday] = useState({});
+  const [revenue, setRevenue] = useState({});
+  const [ordersChart, setOrdersChart] = useState([]);
+
+  const navigate = useNavigate();
+
   const url = import.meta.env.VITE_API_SERVER_URL;
 
   useEffect(() => {
     if (user) {
-    toast.success(`Welcome back, ${user.name}!`);
+      toast.success(`Welcome back, ${user.name}!`);
     }
   }, [user]);
-
-  console.log("Dashboard user:", user);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const res = await axios.get(`${url}/api/count`);
-        const apiCounts = res.data?.counts || {};
-        setCounts(apiCounts); 
 
-        // ⚡ if backend later adds recentOrders inside count response
-        setRecentData(res.data?.recentOrders || []);
+        const res = await axios.get(`${url}/api/count`);
+
+        const dashboard = res.data.dashboard;
+
+        setCounts(dashboard.totals);
+        setToday(dashboard.today);
+        setRevenue(dashboard.revenue);
+        setOrdersChart(dashboard.charts.orders);
+
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Dashboard Error:", error);
       }
     };
 
     fetchDashboardData();
   }, [url]);
 
-  // Map API counts into card data
-  const updatedCardsData = cardsData.map((card) => ({
-    ...card,
-    amount: Number(counts?.[keyMapping[card.key]] || 0).toLocaleString("en-IN"),
+  const salesData = ordersChart.map((item) => ({
+    date: item._id,
+    orders: item.orders,
   }));
 
   return (
     <>
       <ToastContainer />
-      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-        <div className="max-w-full">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-            Dashboard Overview
-          </h1>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 w-full">
-            {updatedCardsData.map((card, index) => (
-              <div
-                key={index}
-                className={`${card.bgColor} text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300`}
-              >
-                <div className="flex justify-center mb-4">
-                  <card.icon className="h-6 w-6" />
-                </div>
-                <div className="text-xs font-medium text-center uppercase tracking-wider opacity-80">
-                  {card.title}
-                </div>
-                <div className="text-2xl font-bold text-center my-3">
-                  {card.amount}
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="min-h-screen bg-gray-50 p-6">
 
-          {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 w-full">
-            {/* Weekly Sales Line Chart */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-medium mb-4">Weekly Sales</h2>
-              <div className="w-full h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={salesData}>
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={10} />
-                    <YAxis
-                      tick={{ fontSize: 12 }}
-                      tickMargin={10}
-                      domain={[0, 1600]}
-                      ticks={[0, 200, 400, 600, 800, 1000, 1200, 1400, 1600]}
-                    />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#10B981"
-                      strokeWidth={2}
-                      activeDot={{ r: 6 }}
-                      dot={{ r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+        <h1 className="text-2xl font-semibold mb-6">Dashboard Overview</h1>
+
+        {/* TOTAL STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+          {cardsData.map((card, index) => (
+            <div
+              key={index}
+              onClick={() => navigate(card.route)}
+              className={`${card.bgColor} text-white p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer`}
+            >
+              <div className="flex justify-center mb-3">
+                <card.icon className="h-6 w-6" />
               </div>
+
+              <p className="text-xs uppercase text-center opacity-80">
+                {card.title}
+              </p>
+
+              <h2 className="text-2xl font-bold text-center mt-2">
+                {Number(counts?.[card.key] || 0).toLocaleString("en-IN")}
+              </h2>
             </div>
+          ))}
 
-            {/* Best Selling Products */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-medium mb-4">Best Selling Products</h2>
-              <div className="flex flex-col items-center">
-                <div className="h-[250px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label={({ name, percent }) =>
-                          `${name} ${(percent * 100).toFixed(0)}%`
-                        }
-                      >
-                        {pieData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Orders */}
-          {/* <RecentOrders recentData={recentData} /> */}
         </div>
+
+        {/* TODAY + REVENUE */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+          <div className="bg-white rounded-xl shadow p-6">
+            <p className="text-gray-500 text-sm">Today's Users</p>
+            <h2 className="text-2xl font-bold text-blue-600 mt-1">
+              {today.users || 0}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-6">
+            <p className="text-gray-500 text-sm">Today's Orders</p>
+            <h2 className="text-2xl font-bold text-green-600 mt-1">
+              {today.orders || 0}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-2">
+            <IndianRupee className="text-purple-500" />
+            <div>
+              <p className="text-gray-500 text-sm">Total Revenue</p>
+              <h2 className="text-xl font-bold text-purple-600">
+                ₹{Number(revenue.total || 0).toLocaleString("en-IN")}
+              </h2>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-2">
+            <IndianRupee className="text-pink-500" />
+            <div>
+              <p className="text-gray-500 text-sm">Today's Revenue</p>
+              <h2 className="text-xl font-bold text-pink-600">
+                ₹{Number(revenue.today || 0).toLocaleString("en-IN")}
+              </h2>
+            </div>
+          </div>
+
+        </div>
+
+        {/* CHARTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* Orders Chart */}
+          <div className="bg-white rounded-xl shadow p-6">
+
+            <h2 className="text-lg font-semibold mb-4">
+              Last 7 Days Orders
+            </h2>
+
+            <div className="h-[300px]">
+
+              <ResponsiveContainer width="100%" height="100%">
+
+                <LineChart data={salesData}>
+
+                  <CartesianGrid strokeDasharray="3 3" />
+
+                  <XAxis dataKey="date" />
+
+                  <YAxis />
+
+                  <Tooltip />
+
+                  <Line
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="#10B981"
+                    strokeWidth={3}
+                  />
+
+                </LineChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          </div>
+
+          {/* Pie Chart */}
+          <div className="bg-white rounded-xl shadow p-6">
+
+            <h2 className="text-lg font-semibold mb-4">
+              Product Distribution
+            </h2>
+
+            <div className="h-[300px]">
+
+              <ResponsiveContainer width="100%" height="100%">
+
+                <PieChart>
+
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={100}
+                    label
+                  >
+
+                    {pieData.map((entry, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+
+                  </Pie>
+
+                  <Tooltip />
+
+                </PieChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
     </>
   );

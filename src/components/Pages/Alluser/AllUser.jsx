@@ -115,7 +115,7 @@ const Users = () => {
       const token = localStorage.getItem('token');
       const formDataToSend = new FormData();
 
-      // Append all form fields
+      // Append all form fields 
       Object.keys(formData).forEach(key => {
         if (formData[key] !== null && formData[key] !== undefined) {
           formDataToSend.append(key, formData[key]);
@@ -209,6 +209,7 @@ const Users = () => {
     }));
 
     // Clear error when user starts typing
+    // 
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
