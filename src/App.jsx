@@ -43,6 +43,11 @@ import Review from './components/Pages/Review/Reviews';
 import Contact from './components/Pages/Contactus/Contact';
 import CouponManager from './components/Pages/Couponcode/Coupon';
 
+// Books
+import BookCategory from './components/Pages/Books/BookCategory';
+import BookSubCategory from './components/Pages/Books/BookSubCategory';
+import Books from './components/Pages/Books/Books';
+
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -77,7 +82,7 @@ function App() {
 
   return (
     <>
-    
+
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Routes>
@@ -121,6 +126,12 @@ function App() {
           <Route path="/review" element={<Review />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/couponmanager" element={<CouponManager />} />
+
+          {/* Books  */}
+
+          <Route path="/books/categories" element={<BookCategory />} />
+          <Route path="/books/subcategories" element={<BookSubCategory />} />
+          <Route path="/books/books" element={<Books />} />
 
         </Route>
       </Routes>
