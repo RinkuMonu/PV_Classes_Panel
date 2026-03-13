@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 // import axios from 'axios';
@@ -15,6 +13,10 @@ const Users = () => {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
   const [search, setSearch] = useState("");
+
+  const [exams, setExams] = useState([]);
+  const [selectedExam, setSelectedExam] = useState("");
+
 
   const [showModal, setShowModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -40,23 +42,42 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, search]);
+  }, [page, search, selectedExam]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      // const response = await axiosInstance.get(`/users/getAllUser?page=${page}&limit=${limit}`, {
-      const response = await axiosInstance.get(`/users/getAllUser?page=${page}&limit=${limit}&search=${search}`, {
+      // const response = await axiosInstance.get(`/users/getAllUser?page=${page}&limit=${limit}&search=${search}`, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // });
+
+      let url = `/users/getAllUser?page=${page}&limit=${limit}&search=${search}`;
+
+      if (selectedExam) {
+        url = `/users/exam/${selectedExam}`;
+      }
+
+      const response = await axiosInstance.get(url, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setUsers(response.data.data || response.data);
-      setTotalPages(response.data.pagination.totalPages);
+
+      if (selectedExam) {
+        setUsers(response.data);
+        setTotalPages(1);
+      } else {
+        // 👇 Normal API
+        setUsers(response.data.data);
+        setTotalPages(response.data.pagination.totalPages);
+      }
+
     } catch (error) {
-      toast.error('Error fetching users');
-      console.error('Error fetching users:', error);
+      toast.error("Error fetching users");
+      console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
     }
@@ -226,17 +247,22 @@ const Users = () => {
     );
   };
 
-  // Check if phone already exists in other users
-  // const isPhoneUnique = (phone) => {
-  //   if (!phone) return true;
-  //   return !users.some(user => 
-  //     user.phone === phone && user._id !== editingUser?._id
-  //   );
-  // };
+  useEffect(() => {
+    fetchExams();
+  }, []);
+
+  const fetchExams = async () => {
+    try {
+      const res = await axiosInstance.get("/exams");
+      setExams(res.data);
+    } catch (error) {
+      console.log("Error fetching exams", error);
+    }
+  };
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Users Management</h1>
 
         <input
@@ -249,6 +275,23 @@ const Users = () => {
           }}
           className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64"
         />
+
+        <select
+          value={selectedExam}
+          onChange={(e) => {
+            setSelectedExam(e.target.value);
+            setPage(1);
+          }}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+        >
+          <option value="">All Exams</option>
+
+          {exams.map((exam) => (
+            <option key={exam._id} value={exam._id}>
+              {exam.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading ? (

@@ -163,24 +163,24 @@ const CouponManager = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="fixed">Fixed Amount</option>
-              <option value="percent">Percentage</option>
+              <option value="percentage">Percentage</option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Discount Value {form.discountType === "percent" ? "(%)" : "(₹)"}
+              Discount Value {form.discountType === "percentage" ? "(%)" : "(₹)"}
             </label>
             <input
               type="number"
               name="discountValue"
-              placeholder={form.discountType === "percent" ? "10" : "100"}
+              placeholder={form.discountType === "percentage" ? "10" : "100"}
               value={form.discountValue}
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
               required
               min="0"
-              step={form.discountType === "percent" ? "1" : "0.01"}
+              step={form.discountType === "percentage" ? "1" : "0.01"}
             />
           </div>
 
@@ -299,7 +299,7 @@ const CouponManager = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {coupon.discountType === 'percent' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}
+                        {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -377,7 +377,7 @@ const CouponManager = () => {
               <div className="flex justify-between">
                 <span className="font-medium">Discount Value:</span>
                 <span className="font-bold">
-                  {viewingCoupon.discountType === 'percent'
+                  {viewingCoupon.discountType === 'percentage'
                     ? `${viewingCoupon.discountValue}%`
                     : `₹${viewingCoupon.discountValue}`
                   }
