@@ -260,6 +260,29 @@ const Users = () => {
     }
   };
 
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    let start = Math.max(1, page - 2);
+    let end = Math.min(totalPages, page + 2);
+
+    if (page <= 3) {
+      end = Math.min(totalPages, maxVisible);
+    }
+
+    if (page >= totalPages - 2) {
+      start = Math.max(1, totalPages - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6 gap-4">
@@ -395,40 +418,41 @@ const Users = () => {
             </tbody>
           </table>
 
-          <div className="flex justify-between items-center p-4 border-t">
+        <div className="flex justify-center gap-2 items-center p-4 border-t">
 
-            <button
-              onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
+  {page > 1 && (
+    <>
+      <button onClick={() => setPage(1)} className="px-3 py-1 bg-gray-200 rounded">
+        1
+      </button>
+      {page > 3 && <span>...</span>}
+    </>
+  )}
 
-            <div className="flex gap-2">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1 rounded ${page === i + 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                    }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
+  {getPageNumbers().map((p) => (
+    <button
+      key={p}
+      onClick={() => setPage(p)}
+      className={`px-3 py-1 rounded ${
+        page === p ? "bg-blue-600 text-white" : "bg-gray-200"
+      }`}
+    >
+      {p}
+    </button>
+  ))}
 
-            <button
-              onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={page === totalPages}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
+  {page < totalPages - 2 && <span>...</span>}
 
-          </div>
+  {page < totalPages && (
+    <button
+      onClick={() => setPage(totalPages)}
+      className="px-3 py-1 bg-gray-200 rounded"
+    >
+      {totalPages}
+    </button>
+  )}
+
+</div>
         </div>
       )}
 
