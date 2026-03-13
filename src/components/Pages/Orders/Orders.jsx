@@ -23,6 +23,28 @@ const Orders = () => {
 
   const navigate = useNavigate();
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    let start = Math.max(1, page - 2);
+    let end = Math.min(totalPages, page + 2);
+
+    if (page <= 3) {
+      end = Math.min(totalPages, maxVisible);
+    }
+
+    if (page >= totalPages - 2) {
+      start = Math.max(1, totalPages - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
   // ✅ Fetch all orders
   useEffect(() => {
     const fetchOrders = async () => {
@@ -237,38 +259,45 @@ const Orders = () => {
           </tbody>
         </table>
 
-        <div className="flex justify-between items-center p-4 border-t">
+  <div className="flex gap-2 justify-center items-center">
 
-          <button
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
+  {page > 1 && (
+    <>
+      <button
+        onClick={() => setPage(1)}
+        className="px-3 py-1 bg-gray-200 rounded"
+      >
+        1
+      </button>
 
-          <div className="flex gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i + 1)}
-                className={`px-3 py-1 rounded ${page === i + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
-                  }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
+      {page > 3 && <span>...</span>}
+    </>
+  )}
 
-          <button
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={page === totalPages}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+  {getPageNumbers().map((p) => (
+    <button
+      key={p}
+      onClick={() => setPage(p)}
+      className={`px-3 py-1 rounded ${
+        page === p ? "bg-blue-600 text-white" : "bg-gray-200"
+      }`}
+    >
+      {p}
+    </button>
+  ))}
 
-        </div>
+  {page < totalPages - 2 && <span>...</span>}
+
+  {page < totalPages && (
+    <button
+      onClick={() => setPage(totalPages)}
+      className="px-3 py-1 bg-gray-200 rounded"
+    >
+      {totalPages}
+    </button>
+  )}
+
+</div>
 
       </div>
     </div>
