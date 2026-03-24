@@ -31,7 +31,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 
 const cardsData = [
-  { bgColor: "bg-teal-600", icon: ShoppingCart, title: "Total Orders", key: "orders", route: "/orders" },
+  { bgColor: "bg-teal-600", icon: ShoppingCart, title: "Total successful Orders", key: "orders", route: "/orders" },
   { bgColor: "bg-orange-400", icon: Users, title: "Total Users", key: "users", route: "/alluser" },
   { bgColor: "bg-blue-500", icon: BookOpen, title: "Total Courses", key: "courses", route: "/courses/courses" },
   { bgColor: "bg-cyan-700", icon: HelpCircle, title: "Total FAQ", key: "faqs", route: "/faq" },
