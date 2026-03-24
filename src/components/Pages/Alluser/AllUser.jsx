@@ -17,6 +17,18 @@ const Users = () => {
   const [exams, setExams] = useState([]);
   const [selectedExam, setSelectedExam] = useState("");
 
+  const [notificationData, setNotificationData] = useState({
+    title: "",
+    exam: "",
+    testDate: "",
+    lastDate: "",
+    location: ""
+  });
+
+  const [sending, setSending] = useState(false);
+
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+
 
   const [showModal, setShowModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -283,8 +295,54 @@ const Users = () => {
     return pages;
   };
 
+  const handleSendNotification = async () => {
+    try {
+      if (
+        !notificationData.title ||
+        !notificationData.exam ||
+        !notificationData.testDate ||
+        !notificationData.lastDate ||
+        !notificationData.location
+      ) {
+        return toast.error("All fields are required");
+      }
+
+      setSending(true);
+
+      const res = await axiosInstance.post("/users/send-whatsapp", notificationData);
+
+      toast.success("Notification sent successfully 🚀");
+
+      console.log(res.data);
+      setShowNotificationModal(false);
+
+      // reset form
+      setNotificationData({
+        title: "",
+        exam: "",
+        testDate: "",
+        lastDate: "",
+        location: ""
+      });
+
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send notification");
+      console.error(error);
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="p-6">
+
+      <button
+        onClick={() => setShowNotificationModal(true)}
+        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer mb-4"
+      >
+        📢 Send Notification
+      </button>
+
       <div className="flex justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Users Management</h1>
 
@@ -350,7 +408,7 @@ const Users = () => {
               {users.map((user) => (
                 <tr key={user._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
+                    <div className="flex items-center ">
                       {user.profile_image_url ? (
                         <img
                           src={user.profile_image_url}
@@ -418,41 +476,40 @@ const Users = () => {
             </tbody>
           </table>
 
-        <div className="flex justify-center gap-2 items-center p-4 border-t">
+          <div className="flex justify-center gap-2 items-center p-4 border-t">
 
-  {page > 1 && (
-    <>
-      <button onClick={() => setPage(1)} className="px-3 py-1 bg-gray-200 rounded">
-        1
-      </button>
-      {page > 3 && <span>...</span>}
-    </>
-  )}
+            {page > 1 && (
+              <>
+                <button onClick={() => setPage(1)} className="px-3 py-1 bg-gray-200 rounded">
+                  1
+                </button>
+                {page > 3 && <span>...</span>}
+              </>
+            )}
 
-  {getPageNumbers().map((p) => (
-    <button
-      key={p}
-      onClick={() => setPage(p)}
-      className={`px-3 py-1 rounded ${
-        page === p ? "bg-blue-600 text-white" : "bg-gray-200"
-      }`}
-    >
-      {p}
-    </button>
-  ))}
+            {getPageNumbers().map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`px-3 py-1 rounded ${page === p ? "bg-blue-600 text-white" : "bg-gray-200"
+                  }`}
+              >
+                {p}
+              </button>
+            ))}
 
-  {page < totalPages - 2 && <span>...</span>}
+            {page < totalPages - 2 && <span>...</span>}
 
-  {page < totalPages && (
-    <button
-      onClick={() => setPage(totalPages)}
-      className="px-3 py-1 bg-gray-200 rounded"
-    >
-      {totalPages}
-    </button>
-  )}
+            {page < totalPages && (
+              <button
+                onClick={() => setPage(totalPages)}
+                className="px-3 py-1 bg-gray-200 rounded"
+              >
+                {totalPages}
+              </button>
+            )}
 
-</div>
+          </div>
         </div>
       )}
 
@@ -729,6 +786,87 @@ const Users = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/*  notification modal */}
+      {showNotificationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-2xl p-6">
+
+            <h2 className="text-lg font-semibold mb-4">
+              📢 Send WhatsApp Notification
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder="Title ( PV Classes – जरूरी सूचना )"
+                value={notificationData.title}
+                onChange={(e) =>
+                  setNotificationData({ ...notificationData, title: e.target.value })
+                }
+                className="border p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Exam ( KVS / NVS Special Educator Tier-2 ) "
+                value={notificationData.exam}
+                onChange={(e) =>
+                  setNotificationData({ ...notificationData, exam: e.target.value })
+                }
+                className="border p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Test Date ( 21 march ) "
+                value={notificationData.testDate}
+                onChange={(e) =>
+                  setNotificationData({ ...notificationData, testDate: e.target.value })
+                }
+                className="border p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Last Date ( 20 march ) "
+                value={notificationData.lastDate}
+                onChange={(e) =>
+                  setNotificationData({ ...notificationData, lastDate: e.target.value })
+                }
+                className="border p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Location ( Jaipur (Rajasthan) ) "
+                value={notificationData.location}
+                onChange={(e) =>
+                  setNotificationData({ ...notificationData, location: e.target.value })
+                }
+                className="border p-2 rounded col-span-2"
+              />
+            </div>
+
+            <div className="flex justify-end mt-4 gap-2">
+              <button
+                onClick={() => setShowNotificationModal(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSendNotification}
+                disabled={sending}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                {sending ? "Sending..." : "Send"}
+              </button>
+            </div>
           </div>
         </div>
       )}

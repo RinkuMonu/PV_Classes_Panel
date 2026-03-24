@@ -22,6 +22,7 @@ import {
   Image,
   Phone,
   ClipboardList,
+  ClipboardListIcon,
 } from "lucide-react";
 
 const Sidebar = ({ isCollapsed }) => {
@@ -59,12 +60,13 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Courses", Icon: BookOpen },
     { name: "Books", Icon: Bookmark },   // ✅ ADD
 
-    { name: "Test Series", Icon: FileText, path: "/test-series" },
+    { name: "Offline Event", Icon: ClipboardListIcon, path: "/offline-event" },
     { name: "Notes", Icon: StickyNote, path: "/notes" },
     { name: "PYQs", Icon: Calendar, path: "/pyq" },
+    { name: "Users", Icon: Users, path: "/alluser" },
+    { name: "Test Series", Icon: FileText, path: "/test-series" },
     { name: "Current Affairs", Icon: ClipboardList, path: "/affairs" },
     { name: "Home Page FAQ", Icon: HelpCircle, path: "/faq" },
-    { name: "Users", Icon: Users, path: "/alluser" },
     { name: "Doubts", Icon: HelpCircle, path: "/doubt" },
     { name: "Notification", Icon: Bell, path: "/notification" },
     { name: "Orders", Icon: ShoppingCart, path: "/orders" },

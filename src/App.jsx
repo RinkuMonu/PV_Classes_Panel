@@ -48,6 +48,10 @@ import BookCategory from './components/Pages/Books/BookCategory';
 import BookSubCategory from './components/Pages/Books/BookSubCategory';
 import Books from './components/Pages/Books/Books';
 
+// Offline-event
+import OfflineEvent from './components/Pages/OfflineEvent/OfflineEvent';
+
+
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -132,6 +136,9 @@ function App() {
           <Route path="/books/categories" element={<BookCategory />} />
           <Route path="/books/subcategories" element={<BookSubCategory />} />
           <Route path="/books/books" element={<Books />} />
+
+
+          <Route path="/offline-event" element={<OfflineEvent />} />
 
         </Route>
       </Routes>
