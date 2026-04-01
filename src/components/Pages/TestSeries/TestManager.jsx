@@ -2,7 +2,7 @@
 // components/TestSeries/TestManager.jsx
 import React, { useState } from 'react';
 import QuestionManager from './QuestionManager';
-import { addTestToSeries  } from '../../../services/testSeriesApi';
+import { addTestToSeries, deleteTestFromSeries  } from '../../../services/testSeriesApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -68,6 +68,7 @@ const TestManager = ({ series, onBack }) => {
   
   try {
     // const response = await deleteTestFromSeries(series._id, testId);
+    await deleteTestFromSeries(series._id, testId);
     toast.success("Test deleted successfully!");
     // Remove from local state
     setTests(tests.filter((t) => t._id !== testId));

@@ -51,10 +51,12 @@ import Books from './components/Pages/Books/Books';
 // Offline-event
 import OfflineEvent from './components/Pages/OfflineEvent/OfflineEvent';
 
+import ResultManagement from './components/Pages/Results/ResultManagement';
+
+
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 
 const Layout = () => {
@@ -139,6 +141,9 @@ function App() {
 
 
           <Route path="/offline-event" element={<OfflineEvent />} />
+
+          <Route path="/results" element={<ResultManagement />} />
+
 
         </Route>
       </Routes>

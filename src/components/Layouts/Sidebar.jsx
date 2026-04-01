@@ -24,6 +24,7 @@ import {
   ClipboardList,
   ClipboardListIcon,
 } from "lucide-react";
+import { FiAward } from "react-icons/fi";
 
 const Sidebar = ({ isCollapsed }) => {
   const location = useLocation();
@@ -61,6 +62,8 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Books", Icon: Bookmark },   // ✅ ADD
 
     { name: "Offline Event", Icon: ClipboardListIcon, path: "/offline-event" },
+    { name: "Exam Results", Icon: FiAward, path: "/results" },
+
     { name: "Notes", Icon: StickyNote, path: "/notes" },
     { name: "PYQs", Icon: Calendar, path: "/pyq" },
     { name: "Users", Icon: Users, path: "/alluser" },
