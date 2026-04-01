@@ -58,7 +58,8 @@ function ResultManagement() {
 
             const response = await axiosInstance.get(url);
             setResults(response.data.data);
-            setTotalPages(response.data.pagination?.totalPages || 1);
+            // setTotalPages(response.data.pagination?.totalPages || 1);
+            setTotalPages(response.data.totalPages || 1);
         } catch (err) {
             console.error(err);
             toast.error("Failed to fetch results");
