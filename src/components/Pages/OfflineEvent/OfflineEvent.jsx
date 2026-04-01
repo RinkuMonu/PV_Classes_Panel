@@ -34,8 +34,6 @@ const OfflineTestStudents = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("all");
 
-  const [subjectStats, setSubjectStats] = useState([]);
-  const [disabilityStats, setDisabilityStats] = useState([]);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -45,7 +43,7 @@ const OfflineTestStudents = () => {
   // Group creation modal
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupSize, setGroupSize] = useState(5);
-  const [groupType, setGroupType] = useState("test");
+  const [groupType, setGroupType] = useState("interview");
 
   // Schedule modal
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -59,13 +57,14 @@ const OfflineTestStudents = () => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationData, setNotificationData] = useState({
     groupNumber: "",
-    type: "test"
+    type: "interview"
   });
 
   // Student details modal
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loadingStudent, setLoadingStudent] = useState(false);
+
 
   // Stats
   const [stats, setStats] = useState({
@@ -80,7 +79,7 @@ const OfflineTestStudents = () => {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/offline-interview/students?type=test");
+      const response = await axiosInstance.get("/offline-interview/students");
       const data = response.data;
       setStudents(data);
       filterStudents(data, searchTerm, selectedGroup);
@@ -95,23 +94,8 @@ const OfflineTestStudents = () => {
 
   useEffect(() => {
     fetchStudents();
-    fetchStatsData(); // ✅ ADD THIS
 
   }, []);
-
-
-  const fetchStatsData = async () => {
-    try {
-      const res = await axiosInstance.get("/offline-interview/student-stats");
-
-      setSubjectStats(res.data.data.subjects);
-      setDisabilityStats(res.data.data.disability);
-
-    } catch (error) {
-      console.log("Stats error", error);
-    }
-  };
-
 
 
   // Handle view student
@@ -173,6 +157,7 @@ const OfflineTestStudents = () => {
     });
   };
 
+
   // Create groups
   const handleCreateGroups = async () => {
     if (!groupSize || groupSize < 1) {
@@ -186,7 +171,7 @@ const OfflineTestStudents = () => {
         type: groupType
       });
 
-      toast.success(`Groups created successfully! Total students: ${response.data.totalStudents}`);
+      toast.success(`Groups Created Successfully! Total students: ${response.data.totalStudents}`);
       setShowGroupModal(false);
       fetchStudents();
     } catch (error) {
@@ -225,7 +210,7 @@ const OfflineTestStudents = () => {
       const response = await axiosInstance.post("/offline-interview/send-notification", notificationData);
       toast.success(`Notification sent to ${response.data.totalStudents} students!`);
       setShowNotificationModal(false);
-      setNotificationData({ groupNumber: "", type: "test" });
+      setNotificationData({ groupNumber: "", type: "interview" });
       fetchStudents();
     } catch (error) {
       console.error("Error sending notification:", error);
@@ -235,7 +220,7 @@ const OfflineTestStudents = () => {
 
   // Export to CSV
   const exportToCSV = () => {
-    const headers = ["Name", "Father's Name", "Mother's Name", "Email", "Mobile", "Roll Number", "Group", "Schedule Date", "Location", "Notification Sent", "Qualification", "City", "State", "Teaching Subjects", "Disability Specialization"];
+    const headers = ["Name", "Father's Name", "Mother's Name", "Email", "Mobile", "Roll Number", "Group", "Schedule Date", "Location", "Notification Sent", "Qualification", "City", "State"];
 
     const csvData = filteredStudents.map(s => [
       s.name,
@@ -308,22 +293,6 @@ const OfflineTestStudents = () => {
   // Status badge
   const getStatusBadge = (student) => {
 
-    // ✅ PAYMENT STATUS FIRST
-    if (student.paymentStatus === "paid") {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          💳 Paid
-        </span>
-      );
-    }
-
-    if (student.paymentStatus === "pending") {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          ⏳ Pending Payment
-        </span>
-      );
-    }
 
     // 🔽 existing logic
     if (student.notificationSent) {
@@ -363,7 +332,7 @@ const OfflineTestStudents = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center">
           <Users className="h-8 w-8 text-green-600 mr-2" />
-          <h1 className="text-2xl font-bold text-gray-800">Offline Test Students</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Offline Interview</h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -426,25 +395,6 @@ const OfflineTestStudents = () => {
         </div>
       </div>
 
-      {/* Subject Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        {subjectStats.map((item) => (
-          <div key={item.subject} className="bg-white shadow rounded-lg p-4 border-l-4 border-indigo-500">
-            <p className="text-sm text-gray-600 capitalize">{item.subject}</p>
-            <p className="text-xl font-bold">{item.count}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Disability Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        {disabilityStats.map((item, index) => (
-          <div key={index} className="bg-white shadow rounded-lg p-4 border-l-4 border-pink-500">
-            <p className="text-sm text-gray-600">{item._id}</p>
-            <p className="text-xl font-bold">{item.count}</p>
-          </div>
-        ))}
-      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
@@ -698,7 +648,7 @@ const OfflineTestStudents = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="test">Test</option>
-                  <option value="interview">Interview</option>
+                  {/* <option value="interview">Interview</option> */}
                 </select>
               </div>
 
@@ -810,7 +760,7 @@ const OfflineTestStudents = () => {
               <h2 className="text-xl font-bold">Send Notification</h2>
               <button
                 onClick={() => setShowNotificationModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 "
               >
                 <X className="h-5 w-5" />
               </button>
@@ -842,7 +792,7 @@ const OfflineTestStudents = () => {
                   onChange={(e) => setNotificationData({ ...notificationData, type: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="test">Test</option>
+                  {/* <option value="test">Test</option> */}
                   <option value="interview">Interview</option>
                 </select>
               </div>
@@ -925,18 +875,7 @@ const OfflineTestStudents = () => {
                       <p className="text-sm text-gray-500">Qualification</p>
                       <p className="font-medium">{selectedStudent.qualification || 'N/A'}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Teaching Subjects</p>
-                      <p className="font-medium">
-                        {selectedStudent.teachingSubjects?.length > 0
-                          ? selectedStudent.teachingSubjects.join(', ').toUpperCase()
-                          : 'N/A'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Disability Specialization</p>
-                      <p className="font-medium">{selectedStudent.disabilitySpecialization || 'N/A'}</p>
-                    </div>
+
                   </div>
                 </div>
 
@@ -1041,6 +980,10 @@ const OfflineTestStudents = () => {
                     <div>
                       <p className="text-gray-500">Type</p>
                       <p className="font-medium capitalize">{selectedStudent.type}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Interview Type</p>
+                      <p className="font-medium capitalize">{selectedStudent.interviewType}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Registered On</p>
