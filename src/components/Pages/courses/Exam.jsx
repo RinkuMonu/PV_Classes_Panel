@@ -16,6 +16,7 @@ const Exam = () => {
     name: '',
     description: '',
     examType: '',
+    serialNo: 0,
     status: 'active'
   });
   const [logo, setLogo] = useState(null);
@@ -32,7 +33,7 @@ const Exam = () => {
     try {
       setLoading(true);
       // const response = await axios.get('https://api.pvclasses.in/api/exams');
-            const response = await axiosInstance.get('/exams'); // ✅ using axiosInstance
+      const response = await axiosInstance.get('/exams'); // ✅ using axiosInstance
 
       setExams(response.data);
     } catch {
@@ -45,10 +46,10 @@ const Exam = () => {
   const fetchExamTypes = async () => {
     try {
       // const response = await axios.get('https://api.pvclasses.in/api/exam-types');
-            const response = await axiosInstance.get('/exam-types'); // ✅ using axiosInstance
+      const response = await axiosInstance.get('/exam-types'); // ✅ using axiosInstance
 
       setExamTypes(response.data);
-    } catch{
+    } catch {
       toast.error('Error fetching exam types');
     }
   };
@@ -58,9 +59,9 @@ const Exam = () => {
       .toString()
       .toLowerCase()
       .trim()
-   .replace(/\s+/g, '-')       // spaces → -
-.replace(/[^\w-]+/g, '')    // remove non-word chars
-.replace(/-+/g, '-');       // collapse multiple dashes
+      .replace(/\s+/g, '-')       // spaces → -
+      .replace(/[^\w-]+/g, '')    // remove non-word chars
+      .replace(/-+/g, '-');       // collapse multiple dashes
   };
 
   const handleSubmit = async (e) => {
@@ -71,6 +72,7 @@ const Exam = () => {
       formDataToSend.append('slug', slugify(formData.name));
       formDataToSend.append('description', formData.description);
       formDataToSend.append('examType', formData.examType);
+      formDataToSend.append('serialNo', formData.serialNo);
 
       if (logo) {
         // formDataToSend.append('logo', logo);
@@ -84,7 +86,7 @@ const Exam = () => {
         //   }
         // });
 
-            await axiosInstance.put(`/exams/${editingId}`, formDataToSend, {
+        await axiosInstance.put(`/exams/${editingId}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -92,7 +94,7 @@ const Exam = () => {
         toast.success('Exam updated successfully');
       } else {
         // await axios.post('https://api.pvclasses.in/api/exams', formDataToSend, {
-                await axiosInstance.post('/exams', formDataToSend, {
+        await axiosInstance.post('/exams', formDataToSend, {
 
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -103,7 +105,7 @@ const Exam = () => {
       setShowModal(false);
       resetForm();
       fetchExams();
-    } catch{
+    } catch {
       toast.error('Error saving exam');
     }
   };
@@ -113,6 +115,7 @@ const Exam = () => {
       name: exam.name,
       description: exam.description,
       examType: exam.examType._id,
+      serialNo: exam.serialNo || 0,
       status: exam.status
     });
     setEditingId(exam._id);
@@ -126,11 +129,11 @@ const Exam = () => {
     if (window.confirm('Are you sure you want to delete this exam?')) {
       try {
         // await axios.delete(`https://api.pvclasses.in/api/exams/${id}`);
-                await axiosInstance.delete(`/exams/${id}`); // ✅ using axiosInstance
+        await axiosInstance.delete(`/exams/${id}`); // ✅ using axiosInstance
 
         toast.success('Exam deleted successfully');
         fetchExams();
-      } catch  {
+      } catch {
         toast.error('Error deleting exam');
       }
     }
@@ -153,6 +156,7 @@ const Exam = () => {
       name: '',
       description: '',
       examType: '',
+      serialNo: 0,
       status: 'active'
     });
     setLogo(null);
@@ -194,10 +198,10 @@ const Exam = () => {
                 <div className="p-5">
                   <div className="flex items-center mb-4">
                     {exam.logo ? (
-                      <img 
-                        src={`https://api.pvclasses.in${exam.logo}`} 
-                        alt={exam.name} 
-                        className="h-14 w-14 rounded-full object-cover border-2 border-green-200" 
+                      <img
+                        src={`https://api.pvclasses.in${exam.logo}`}
+                        alt={exam.name}
+                        className="h-14 w-14 rounded-full object-cover border-2 border-green-200"
                       />
                     ) : (
                       <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
@@ -206,16 +210,19 @@ const Exam = () => {
                     )}
                     <div className="ml-4">
                       <h3 className="font-semibold text-lg text-green-800">{exam.name}</h3>
+                      <p className="text-xs text-green-600 font-medium">
+                        Serial No: {exam.serialNo || 0}
+                      </p>
                       <p className="text-sm text-gray-500">{exam.examType?.name}</p>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-600 text-sm mb-4 h-12 overflow-hidden">
-                    {exam.description.length > 80 
-                      ? `${exam.description.substring(0, 80)}...` 
+                    {exam.description.length > 80
+                      ? `${exam.description.substring(0, 80)}...`
                       : exam.description}
                   </p>
-                  
+
                   <div className="flex justify-between items-center">
                     <span className={`px-3 py-1 rounded-full text-xs ${exam.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                       {exam.status}
@@ -274,7 +281,7 @@ const Exam = () => {
                   <FaTimes size={20} />
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Exam Name</label>
@@ -287,7 +294,7 @@ const Exam = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea
@@ -298,9 +305,12 @@ const Exam = () => {
                     placeholder="Enter exam description"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Exam Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Exam Type
+                  </label>
+
                   <select
                     value={formData.examType}
                     onChange={(e) => setFormData({ ...formData, examType: e.target.value })}
@@ -308,6 +318,7 @@ const Exam = () => {
                     required
                   >
                     <option value="">Select Exam Type</option>
+
                     {examTypes.map((examType) => (
                       <option key={examType._id} value={examType._id}>
                         {examType.name}
@@ -315,7 +326,27 @@ const Exam = () => {
                     ))}
                   </select>
                 </div>
-                
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Serial Number
+                  </label>
+
+                  <input
+                    type="number"
+                    value={formData.serialNo}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        serialNo: Number(e.target.value)
+                      })
+                    }
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                    placeholder="Enter serial number"
+                    min="0"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
                   <div className="flex items-center space-x-4">
@@ -331,7 +362,7 @@ const Exam = () => {
                         accept="image/*"
                       />
                     </label>
-                    
+
                     {logoPreview && (
                       <div className="flex flex-col items-center">
                         <img src={logoPreview} alt="Preview" className="w-16 h-16 rounded-full object-cover border border-green-200" />
@@ -340,7 +371,7 @@ const Exam = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
@@ -352,7 +383,7 @@ const Exam = () => {
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
-                
+
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
