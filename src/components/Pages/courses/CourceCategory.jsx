@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaRegFolderOpen } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
+import TableActionButton from '../../common/TableActionButton';
 
 
 const CourceCategory = () => {
@@ -106,95 +107,41 @@ const CourceCategory = () => {
     setEditingId(null);
   };
 
+  // UI-only: normalize missing/boolean API status values for display and table filtering.
+  const getCategoryStatus = (category) => category.status || (category.isActive === false ? 'inactive' : 'active');
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        {/* UI-only: standardized page header; course-category logic is unchanged. */}
+        <div data-page-icon data-icon-symbol="▤" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-green-800">Course Categories</h1>
-            <p className="text-gray-600 mt-2">Manage and organize your course categories</p>
+            <h1 className="text-2xl font-bold">Course Categories</h1>
+            <p className="mt-1 opacity-90">Manage and organize your course categories</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-colors shadow-md"
+            className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-3 rounded-lg  shadow-md"
           >
             <FaPlus className="mr-2" /> Add Category
           </button>
         </div>
 
-        {/* Categories Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-pulse text-center">
-              <div className="w-16 h-16 bg-green-200 rounded-full mx-auto mb-4"></div>
-              <p className="text-green-800">Loading categories...</p>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category) => (
-              <div key={category._id} className="bg-white rounded-xl shadow-md overflow-hidden border border-green-100 hover:shadow-lg transition-shadow">
-                <div className="bg-green-50 p-5 border-b border-green-200">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                      <FaRegFolderOpen className="text-green-600 text-xl" />
-                    </div>
-                    <h3 className="font-semibold text-green-800 text-lg truncate">{category.name}</h3>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <p className="text-gray-600 text-sm mb-6 h-16 overflow-hidden">
-                    {category.description || 'No description provided'}
-                  </p>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className={`px-3 py-1 text-xs rounded-full ${category.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {category.status}
-                    </span>
-                    
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(category)}
-                        className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
-                        title="Edit"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category._id)}
-                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
-                        title="Delete"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+        {/* UI-only: restore the original Course Categories card layout with shared action icons. */}
+        {loading ? <div className="flex h-64 items-center justify-center"><p className="text-[#204972]">Loading categories...</p></div> : categories.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => { const status = getCategoryStatus(category); return (
+              <div key={category._id} className="flex h-full flex-col overflow-hidden rounded-xl border border-[#204972]/10 bg-white shadow-md transition-shadow hover:shadow-lg">
+                <div className="border-b border-[#204972]/10 bg-[#204972]/[0.05] p-5"><div className="flex items-center"><div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#204972]/10"><FaRegFolderOpen className="text-xl text-[#204972]" /></div><h3 className="truncate text-lg font-semibold text-[#204972]">{category.name}</h3></div></div>
+                <div className="flex flex-1 flex-col p-5"><p className="mb-6 h-16 overflow-hidden text-sm text-gray-600">{category.description || 'No description provided'}</p><div className="mt-auto flex items-center justify-between"><span className={`rounded-full px-3 py-1 text-xs ${status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{status}</span><div className="flex gap-3"><TableActionButton onClick={() => handleEdit(category)} tone="edit" title="Edit category"><FaEdit /></TableActionButton><TableActionButton onClick={() => handleDelete(category._id)} tone="delete" title="Delete category"><FaTrash /></TableActionButton></div></div></div>
               </div>
-            ))}
+            ); })}
           </div>
-        )}
-
-        {categories.length === 0 && !loading && (
-          <div className="text-center py-16 bg-white rounded-xl shadow-md">
-            <div className="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
-              <FaRegFolderOpen className="text-green-500 text-3xl" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No categories yet</h3>
-            <p className="text-gray-500 mb-6">Get started by creating your first category</p>
-            <button
-              onClick={() => setShowModal(true)}
-              className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              <FaPlus className="mr-2" /> Create Category
-            </button>
-          </div>
-        )}
+        ) : <div className="rounded-xl bg-white py-16 text-center shadow-md"><FaRegFolderOpen className="mx-auto mb-4 text-3xl text-[#204972]" /><h3 className="text-lg font-medium text-gray-700">No categories yet</h3></div>}
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-opacity-50 flex items-center shadow-2xl justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center shadow-2xl justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-md">
               <div className="flex justify-between items-center p-6 border-b border-green-100">
                 <h2 className="text-xl font-bold text-green-800">
@@ -254,7 +201,7 @@ const CourceCategory = () => {
                       setShowModal(false);
                       resetForm();
                     }}
-                    className="px-5 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-colors"
+                    className="px-5 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-colors form-cancel-button"
                   >
                     Cancel
                   </button>

@@ -66,8 +66,8 @@ const AddAttributeModal = ({ onClose, onAdd }) => {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
-          isVisible ? "opacity-50" : "opacity-0"
+        className={`fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0"
         }`}
         onClick={handleClose}
       ></div>
@@ -210,7 +210,7 @@ const AddAttributeModal = ({ onClose, onAdd }) => {
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-gray-600 border-gray-200 border dark:text-gray-400 bg-gray-200 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700 w-full h-12"
+                    className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-gray-600 border-gray-200 border dark:text-gray-400 bg-gray-200 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700 w-full h-12 form-cancel-button"
                   >
                     Cancel
                   </button>

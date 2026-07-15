@@ -346,8 +346,6 @@ import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import {
   FaEdit,
-  FaEye,
-  FaTrash,
   FaPlus,
   FaFilePdf,
   FaSearch,
@@ -360,9 +358,11 @@ import {
   FaLock,
   FaLockOpen,
 } from "react-icons/fa";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
+import TableActionButton from "../../common/TableActionButton";
 
 const Notes = () => {
   const [notesData, setNotesData] = useState({});
@@ -570,6 +570,42 @@ const Notes = () => {
     }
   };
 
+  // ================= VIEW PDF SAFELY =================
+  const handleViewPdf = async (note) => {
+    if (!note.full_pdf) {
+      toast.info("No PDF available for this note");
+      return;
+    }
+
+    // Frontend safety: check the existing Notes file before opening a preview tab.
+    const previewTab = window.open("about:blank", "_blank");
+    if (previewTab) previewTab.opener = null;
+
+    try {
+      const apiOrigin = new URL(axiosInstance.defaults.baseURL).origin;
+      const pdfUrl = new URL(note.full_pdf, `${apiOrigin}/`);
+
+      if (!["http:", "https:"].includes(pdfUrl.protocol)) {
+        throw new Error("Unsupported PDF URL");
+      }
+
+      const response = await fetch(pdfUrl.href, { method: "HEAD" });
+      if (!response.ok) {
+        throw new Error(`PDF unavailable (${response.status})`);
+      }
+
+      if (previewTab) {
+        previewTab.location.replace(pdfUrl.href);
+      } else {
+        window.open(pdfUrl.href, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      previewTab?.close();
+      console.error("Error opening Notes PDF:", error);
+      toast.error("PDF file is unavailable or has been removed.");
+    }
+  };
+
   // ================= EDIT WITH AUTO SCROLL =================
   const handleEdit = (note) => {
     setFormData({
@@ -631,25 +667,32 @@ const Notes = () => {
   };
 
   const displayedNotes = filterNotes();
+  const displayedNoteCount = Object.values(displayedNotes).reduce(
+    (acc, course) =>
+      acc + Object.values(course).reduce((sum, notes) => sum + notes.length, 0),
+    0
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 p-6">
-      <ToastContainer position="top-right" theme="colored" />
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* UI-only: use the shared light toast presentation instead of a full-color error card. */}
+      <ToastContainer position="top-right" autoClose={3000} closeOnClick pauseOnHover theme="light" />
       
-      {/* Header Section */}
+      {/* UI-only redesign: modern Notes page shell, no data/API logic changed. */}
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border-l-4 border-green-500">
+        {/* UI-only: standardized page header; notes logic is unchanged. */}
+        <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                <FaBook className="text-green-600" />
-                Notes Management
+              {/* UI-only: direct title icon uses the shared page-header tile styling. */}
+              <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                <FaBook /> Notes Management
               </h1>
-              <p className="text-gray-500 mt-1">Organize and manage your course notes efficiently</p>
+              <p className="mt-1 opacity-90">Organize and manage your course notes efficiently</p>
             </div>
             
             <div className="flex gap-3">
-              <div className="relative">
+              {/* <div className="relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
@@ -658,7 +701,7 @@ const Notes = () => {
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full md:w-64"
                 />
-              </div>
+              </div> */}
               
               <button
                 onClick={() => {
@@ -682,10 +725,10 @@ const Notes = () => {
                     }, 100);
                   }
                 }}
-                className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-all duration-300 ${
+                className={`flex items-center gap-2 rounded-md px-6 py-2 transition-all duration-300  ${
                   isFormVisible 
-                    ? 'bg-red-500 hover:bg-red-600 text-white' 
-                    : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-md hover:shadow-lg'
+                    ? 'bg-red-600 text-white' 
+                    : 'bg-[#204972] hover:bg-[#183654] text-white shadow-sm'
                 }`}
               >
                 {isFormVisible ? (
@@ -704,7 +747,7 @@ const Notes = () => {
 
         {/* ================= FORM WITH REF ================= */}
         {isFormVisible && (
-          <div ref={formRef} className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-green-100 scroll-mt-4">
+          <div ref={formRef} className="mb-8 scroll-mt-4 rounded-lg border border-[#87b105]/30 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <FaCloudUploadAlt className="text-green-600" />
               {editingId ? (
@@ -799,7 +842,7 @@ const Notes = () => {
                 {/* File Upload */}
                 <div className="md:col-span-2 space-y-1">
                   <label className="text-sm font-medium text-gray-700">PDF File</label>
-                  <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-green-500 transition-colors">
+                  <div className="border-2 border-dashed  rounded-lg p-4 text-center border-[#87b105] hover:bg-[#EEF7E0] transition-colors">
                     <input
                       type="file"
                       name="pdf"
@@ -822,7 +865,7 @@ const Notes = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-md bg-[#204972] px-6 py-2 text-white shadow-sm transition-all duration-300"
                 >
                   {editingId ? (
                     <>
@@ -838,7 +881,7 @@ const Notes = () => {
                 <button
                   type="button"
                   onClick={() => setIsFormVisible(false)}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-all duration-300"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-all duration-300 form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -849,17 +892,17 @@ const Notes = () => {
 
         {/* ================= STATS CARDS ================= */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
+          <div className="rounded-lg border border-green-100 bg-white p-4 shadow-sm">
             <p className="text-sm text-gray-500">Total Courses</p>
             <p className="text-2xl font-bold text-gray-800">{Object.keys(notesData).length}</p>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-emerald-500">
+          <div className="rounded-lg border border-green-100 bg-white p-4 shadow-sm">
             <p className="text-sm text-gray-500">Total Groups</p>
             <p className="text-2xl font-bold text-gray-800">
               {Object.values(notesData).reduce((acc, course) => acc + Object.keys(course).length, 0)}
             </p>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
+          <div className="rounded-lg border border-green-100 bg-white p-4 shadow-sm">
             <p className="text-sm text-gray-500">Total Notes</p>
             <p className="text-2xl font-bold text-gray-800">
               {Object.values(notesData).reduce((acc, course) => 
@@ -867,7 +910,7 @@ const Notes = () => {
               )}
             </p>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-500">
+          <div className="rounded-lg border border-green-100 bg-white p-4 shadow-sm">
             <p className="text-sm text-gray-500">Free Notes</p>
             <p className="text-2xl font-bold text-gray-800">
               {Object.values(notesData).reduce((acc, course) => 
@@ -878,9 +921,44 @@ const Notes = () => {
           </div>
         </div>
 
+        {/* ================= SEARCH BAR ================= */}
+        <div className="mb-6 rounded-lg border border-green-100 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Browse Notes</h2>
+              <p className="text-sm text-gray-500">
+                {search
+                  ? `${displayedNoteCount} note${displayedNoteCount === 1 ? "" : "s"} found`
+                  : "Search by note title or description"}
+              </p>
+            </div>
+
+            <div className="relative w-full md:max-w-sm">
+              <FaSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search notes..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-10 text-sm text-gray-800 outline-none transition focus:border-[#87b105] focus:bg-white focus:ring-2 focus:ring-[#87b105]/20"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                  title="Clear search"
+                >
+                  <FaTimes className="text-xs" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* ================= DISPLAY ================= */}
         {Object.keys(displayedNotes).length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div className="rounded-lg border border-green-100 bg-white p-12 text-center shadow-sm">
             <FaBook className="mx-auto text-6xl text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-2">No Notes Found</h3>
             <p className="text-gray-500 mb-4">
@@ -897,7 +975,7 @@ const Notes = () => {
                     });
                   }, 100);
                 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300"
+                className="inline-flex items-center gap-2 rounded-md bg-[#87b105] px-6 py-2 text-white transition-all duration-300 hover:scale-105"
               >
                 <FaPlus /> Add Your First Note
               </button>
@@ -906,24 +984,24 @@ const Notes = () => {
         ) : (
           <div className="space-y-4">
             {Object.keys(displayedNotes).map((course) => (
-              <div key={course} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                {/* Course Header */}
+              <div key={course} className="overflow-hidden rounded-lg border border-green-100 bg-white shadow-sm">
+                {/* UI-only redesign: soft course accordion header matching project theme. */}
                 <div 
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 cursor-pointer"
+                  className="cursor-pointer border-b border-[#204972]/20 bg-[#EEF4FA] px-6 py-4"
                   onClick={() => toggleCourse(course)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <FaFolder className="text-white text-xl" />
-                      <h2 className="font-bold text-lg text-white">{course}</h2>
-                      <span className="bg-white/20 text-white text-sm px-2 py-1 rounded-full">
+                      <FaFolder className="text-[#204972] text-xl" />
+                      <h2 className="font-bold text-lg text-gray-900">{course}</h2>
+                      <span className="rounded-full bg-white px-2 py-1 text-sm text-[#5f7f03]">
                         {Object.keys(displayedNotes[course]).length} groups
                       </span>
                     </div>
                     {expandedCourses[course] ? (
-                      <FaChevronUp className="text-white" />
+                      <FaChevronUp className="text-[#204972]" />
                     ) : (
-                      <FaChevronDown className="text-white" />
+                      <FaChevronDown className="text-[#204972]" />
                     )}
                   </div>
                 </div>
@@ -932,15 +1010,15 @@ const Notes = () => {
                 {expandedCourses[course] && (
                   <div className="p-4 space-y-3">
                     {Object.keys(displayedNotes[course]).map((group) => (
-                      <div key={group} className="border border-gray-100 rounded-xl overflow-hidden">
+                      <div key={group} className="overflow-hidden rounded-lg border border-gray-100">
                         {/* Group Header */}
                         <div 
-                          className="bg-gray-50 px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                          className="cursor-pointer bg-gray-50 px-4 py-3 transition-colors hover:bg-[#EEF4FA]/60"
                           onClick={() => toggleGroup(course, group)}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <FaBook className="text-green-600 text-sm" />
+                              <FaBook className="text-[#87b105] text-sm" />
                               <h3 className="font-semibold text-gray-700">{group}</h3>
                               <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
                                 {displayedNotes[course][group].length} notes
@@ -978,27 +1056,27 @@ const Notes = () => {
                                   </div>
 
                                   <div className="flex gap-2">
-                                    <button
-                                      onClick={() => window.open(note.full_pdf)}
-                                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    <TableActionButton
+                                      tone="view"
+                                      onClick={() => handleViewPdf(note)}
                                       title="View PDF"
                                     >
-                                      <FaEye />
-                                    </button>
-                                    <button
+                                      <Eye className="h-4 w-4" />
+                                    </TableActionButton>
+                                    <TableActionButton
+                                      tone="edit"
                                       onClick={() => handleEdit(note)}
-                                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                       title="Edit"
                                     >
-                                      <FaEdit />
-                                    </button>
-                                    <button
+                                      <Pencil className="h-4 w-4" />
+                                    </TableActionButton>
+                                    <TableActionButton
+                                      tone="delete"
                                       onClick={() => handleDelete(note._id)}
-                                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                       title="Delete"
                                     >
-                                      <FaTrash />
-                                    </button>
+                                      <Trash2 className="h-4 w-4" />
+                                    </TableActionButton>
                                   </div>
                                 </div>
                               </div>

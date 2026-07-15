@@ -58,24 +58,56 @@ import ResultManagement from './components/Pages/Results/ResultManagement';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// const Layout = () => {
+//   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+//   const toggleSidebar = () => {
+//     setIsSidebarOpen(!isSidebarOpen);
+//   };
 const Layout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Added: controls sidebar collapse on large screens only.
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Added: toggles desktop sidebar between full width and icon-only mode.
+  const toggleDesktopSidebar = () => {
+    setIsSidebarCollapsed((prev) => !prev);
   };
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <div className={`h-full bg-white shadow-lg transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'
-        }`}>
-        <Sidebar isCollapsed={isSidebarCollapsed} />
-      </div>
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-      <div className="flex-1 flex flex-col overflow-hidden bg-white shadow">
-        <Header toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto p-4 transition-all duration-300 ease-in-out bg-gray-50">
+       {/* Changed: desktop sidebar can now collapse to icon-only width. */}
+        <div
+          className={`fixed inset-y-0 left-0 z-50 h-full w-64 bg-white shadow-lg transition-all duration-300 ease-in-out md:static md:translate-x-0 ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } ${
+            isSidebarCollapsed ? 'md:w-20' : 'md:w-64'
+          }`}
+        >
+          <Sidebar isCollapsed={isSidebarCollapsed} />
+        </div>
+
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-white shadow">
+        {/* Changed: Header gets desktop sidebar toggle props. */}
+        <Header
+          toggleSidebar={toggleSidebar}
+          toggleDesktopSidebar={toggleDesktopSidebar}
+          isSidebarCollapsed={isSidebarCollapsed}
+        />
+        {/* UI-only: hide the main scrollbar while preserving normal scrolling. */}
+        <main className="no-scrollbar flex-1 overflow-y-auto p-4 transition-all duration-300 ease-in-out bg-gray-50">
           <Outlet />
         </main>
       </div>
@@ -143,7 +175,6 @@ function App() {
           <Route path="/offline-event" element={<OfflineEvent />} />
 
           <Route path="/results" element={<ResultManagement />} />
-
 
         </Route>
       </Routes>

@@ -1,15 +1,21 @@
 
 // components/TestSeries/TestManager.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QuestionManager from './QuestionManager';
 import { addTestToSeries, deleteTestFromSeries  } from '../../../services/testSeriesApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GlobalTable from '../../common/GlobalTable';
+import TableActionButton from '../../common/TableActionButton';
+import { ClipboardList, Trash2 } from 'lucide-react';
 
 const TestManager = ({ series, onBack }) => {
   const [activeTestId, setActiveTestId] = useState(null);
   const [tests, setTests] = useState(series.tests || []);
   const [showTestForm, setShowTestForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
   const [newTest, setNewTest] = useState({
     title: '',
     subject: '',
@@ -86,6 +92,87 @@ const TestManager = ({ series, onBack }) => {
   const handleBackToTests = () => {
     setActiveTestId(null);
   };
+
+  // UI-only: filter and paginate the existing test list for the shared table.
+  const filteredTests = tests.filter((test) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      test.title?.toLowerCase().includes(search) ||
+      test.subject?.toLowerCase().includes(search) ||
+      test.type?.toLowerCase().includes(search) ||
+      (test.is_active ? 'active' : 'inactive').includes(search)
+    );
+  });
+
+  const totalPages = Math.max(Math.ceil(filteredTests.length / pageSize), 1);
+  const paginatedTests = filteredTests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const firstVisibleTest = filteredTests.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const lastVisibleTest = Math.min(currentPage * pageSize, filteredTests.length);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  // UI-only: global table columns with shared action symbols.
+  const testColumns = [
+    {
+      key: 'title',
+      header: 'Title',
+      render: (test) => <div className="text-sm font-medium text-gray-900">{test.title}</div>,
+    },
+    {
+      key: 'subject',
+      header: 'Subject',
+      render: (test) => <div className="text-sm text-gray-700">{test.subject}</div>,
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      render: (test) => (
+        <span className="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 capitalize">
+          {test.type.replace('_', ' ')}
+        </span>
+      ),
+    },
+    {
+      key: 'questions',
+      header: 'Questions',
+      render: (test) => test.questions?.length || 0,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (test) => (
+        <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${test.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          {test.is_active ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (test) => (
+        <div className="flex items-center gap-2">
+          <TableActionButton
+            tone="view"
+            onClick={() => handleManageQuestions(test._id)}
+            title="Manage Questions"
+          >
+            <ClipboardList className="h-4 w-4" />
+          </TableActionButton>
+          <TableActionButton
+            tone="delete"
+            onClick={() => handleDeleteTest(test._id)}
+            title="Delete"
+          >
+            <Trash2 className="h-4 w-4" />
+          </TableActionButton>
+        </div>
+      ),
+    },
+  ];
 
   if (activeTestId) {
     const test = tests.find(t => t._id === activeTestId);
@@ -228,7 +315,7 @@ const TestManager = ({ series, onBack }) => {
               <button
                 type="button"
                 onClick={() => setShowTestForm(false)}
-                className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors form-cancel-button"
               >
                 Cancel
               </button>
@@ -243,89 +330,42 @@ const TestManager = ({ series, onBack }) => {
         </div>
       )}
 
-   <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-  <div className="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b border-green-200">
-    <h3 className="text-lg font-semibold text-green-800">Test List</h3>
-  </div>
-
-  {/* Scroll Wrapper */}
-  <div className="w-full overflow-x-auto">
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Questions</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-        </tr>
-      </thead>
-
-      <tbody className="bg-white divide-y divide-gray-200">
-        {tests.length === 0 ? (
-          <tr>
-            <td colSpan="6" className="px-6 py-8 text-center">
-              <div className="flex flex-col items-center justify-center text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <p className="text-lg">No tests found.</p>
-                <p className="mt-1">Add your first test to get started.</p>
-              </div>
-            </td>
-          </tr>
-        ) : (
-          tests.map((test) => (
-            <tr key={test._id} className="hover:bg-green-50 transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">{test.title}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-700">{test.subject}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 capitalize">
-                  {test.type.replace('_', ' ')}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                {test.questions?.length || 0}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${test.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {test.is_active ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  onClick={() => handleManageQuestions(test._id)}
-                  className="text-green-600 hover:text-green-900 flex items-center transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                  </svg>
-                  Manage Questions
-                </button>
-              </td>
-              <td>
-                <button
-                  onClick={() => handleDeleteTest(test._id)}
-                  className="text-red-600 hover:text-red-800 flex items-center transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2h12a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-4 6a1 1 0 011 1v7a2 2 0 002 2h4a2 2 0 002-2V9a1 1 0 112 0v7a4 4 0 01-4 4H8a4 4 0 01-4-4V9a1 1 0 011-1z" clipRule="evenodd" />
-                  </svg>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
+      {/* UI-only: shared table filters, export, and Previous/Next pagination. */}
+      <GlobalTable
+        title={`Test List (${filteredTests.length})`}
+        filters={{
+          searchValue: searchTerm,
+          onSearchChange: (value) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+          },
+          searchPlaceholder: 'Search tests...',
+          resultText: `${filteredTests.length} test${filteredTests.length === 1 ? '' : 's'} found`,
+          exportData: filteredTests,
+          exportFileName: 'tests.csv',
+          exportColumns: [
+            { key: 'title', header: 'Title' },
+            { key: 'subject', header: 'Subject' },
+            { key: 'type', header: 'Type', value: (test) => test.type?.replace('_', ' ') || '' },
+            { key: 'questions', header: 'Questions', value: (test) => test.questions?.length || 0 },
+            { key: 'status', header: 'Status', value: (test) => test.is_active ? 'Active' : 'Inactive' },
+          ],
+        }}
+        columns={testColumns}
+        data={paginatedTests}
+        emptyText="No tests found. Add your first test to get started."
+        getRowKey={(test) => test._id}
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: setCurrentPage,
+          rightContent: (
+            <p className="text-sm text-gray-500">
+              Showing {firstVisibleTest}-{lastVisibleTest} of {filteredTests.length}
+            </p>
+          ),
+        }}
+      />
 
     </div>
   );

@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import {
-  FaEdit,
-  FaEye,
-  FaTrash,
   FaPlus,
   FaTimes,
   FaFilePdf,
 } from "react-icons/fa";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import TableActionButton from "../../common/TableActionButton";
 
 const Pyq = () => {
   const [pyqs, setPyqs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     exam: "",
     description: "",
@@ -147,15 +147,38 @@ const Pyq = () => {
   };
 
   // View PDF
-  const handleView = (pyq) => {
-    if (pyq.pdfUrl) {
-      const baseUrl = "https://api.pvclasses.in";
-      const pdfUrl = pyq.pdfUrl.startsWith("http")
-        ? pyq.pdfUrl
-        : `${baseUrl}/${pyq.pdfUrl}`;
-      window.open(pdfUrl, "_blank");
-    } else {
+  const handleView = async (pyq) => {
+    if (!pyq.pdfUrl) {
       toast.info("No PDF available for this PYQ");
+      return;
+    }
+
+    // Frontend safety: verify the stored PDF exists before navigating away.
+    const previewTab = window.open("about:blank", "_blank");
+    if (previewTab) previewTab.opener = null;
+
+    try {
+      const apiOrigin = new URL(axiosInstance.defaults.baseURL).origin;
+      const pdfUrl = new URL(pyq.pdfUrl, `${apiOrigin}/`);
+
+      if (!['http:', 'https:'].includes(pdfUrl.protocol)) {
+        throw new Error("Unsupported PDF URL");
+      }
+
+      const response = await fetch(pdfUrl.href, { method: "HEAD" });
+      if (!response.ok) {
+        throw new Error(`PDF unavailable (${response.status})`);
+      }
+
+      if (previewTab) {
+        previewTab.location.replace(pdfUrl.href);
+      } else {
+        window.open(pdfUrl.href, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      previewTab?.close();
+      console.error("Error opening PYQ PDF:", error);
+      toast.error("PDF file is unavailable or has been removed.");
     }
   };
 
@@ -167,17 +190,30 @@ const Pyq = () => {
     setIsFormVisible(false);
   };
 
+  const filteredPyqs = pyqs.filter((pyq) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      pyq.exam?.toLowerCase().includes(search) ||
+      pyq.category?.toLowerCase().includes(search) ||
+      pyq.description?.toLowerCase().includes(search)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <ToastContainer position="top-right" />
+      {/* UI-only: keep file errors consistent with the website's shared light toast style. */}
+      <ToastContainer position="top-right" autoClose={3000} closeOnClick pauseOnHover theme="light" />
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-green-800">PYQ Management</h1>
+        {/* UI-only: standardized page header; handlers and rendering logic are unchanged. */}
+        <div data-page-icon data-icon-symbol="▧" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+          <div>
+            <h1 className="text-2xl font-bold">PYQ Management</h1>
+            <p className="mt-1 opacity-90">Manage previous year questions</p>
+          </div>
           {!isFormVisible && !editingPyq && (
             <button
               onClick={() => setIsFormVisible(true)}
-              className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-2 rounded-lg transition-colors"
             >
               <FaPlus className="mr-2" /> Add New PYQ
             </button>
@@ -287,7 +323,7 @@ const Pyq = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -296,63 +332,78 @@ const Pyq = () => {
           </div>
         )}
 
-        {/* PYQ List */}
+        {/* UI-only: PYQ cards use the shared theme and global action symbols. */}
         <div className="bg-white rounded-xl shadow-md p-6 border border-green-100">
-          <h2 className="text-xl font-semibold text-green-800 mb-6">PYQ List</h2>
+          <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-xl font-semibold text-black">PYQ List</h2>
+            <div className="relative w-full md:max-w-sm">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search PYQs..."
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm outline-none transition focus:border-[#87b105] focus:ring-1 focus:ring-[#87b105]"
+              />
+            </div>
+          </div>
 
-          {pyqs.length > 0 ? (
+          {filteredPyqs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pyqs.map((pyq) => (
+              {filteredPyqs.map((pyq) => (
                 <div
                   key={pyq._id}
-                  className="border border-green-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                  className="flex h-full flex-col overflow-hidden rounded-lg border border-green-200 bg-white transition-shadow hover:shadow-md"
                 >
-                  <div className="bg-green-50 p-4 border-b border-green-200">
-                    <h3 className="font-semibold text-green-800 truncate">
+                  <div className="flex flex-1 flex-col p-4">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                        <FaFilePdf className="mr-1" /> PYQ
+                      </span>
+                      <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-600">
+                        {pyq.category}
+                      </span>
+                    </div>
+
+                    <h3 className="mb-2 line-clamp-1 font-semibold text-black">
                       {pyq.exam}
                     </h3>
-                    <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                      {pyq.category}
-                    </span>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-gray-600 text-sm h-12 overflow-hidden mb-4">
+                    <p className="mb-4 line-clamp-3 text-sm text-gray-600">
                       {pyq.description.length > 100
                         ? `${pyq.description.substring(0, 100)}...`
                         : pyq.description}
                     </p>
 
-                    <div className="flex justify-between items-center">
+                    <div className="mt-auto flex items-center justify-between gap-3 pt-4">
                       <div className="flex items-center">
                         {pyq.pdfUrl && (
-                          <span className="flex items-center text-xs text-green-600">
+                          <span className="flex items-center text-xs font-medium text-[#5f7f03]">
                             <FaFilePdf className="mr-1" /> PDF Attached
                           </span>
                         )}
                       </div>
 
-                      <div className="flex space-x-2">
-                        <button
-                          className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
+                      <div className="flex gap-2">
+                        <TableActionButton
+                          tone="edit"
                           onClick={() => handleUpdate(pyq)}
                           title="Edit"
                         >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-100 transition-colors"
+                          <Pencil className="h-4 w-4" />
+                        </TableActionButton>
+                        <TableActionButton
+                          tone="view"
                           onClick={() => handleView(pyq)}
                           title="View"
                         >
-                          <FaEye />
-                        </button>
-                        <button
-                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
+                          <Eye className="h-4 w-4" />
+                        </TableActionButton>
+                        <TableActionButton
+                          tone="delete"
                           onClick={() => handleDelete(pyq._id)}
                           title="Delete"
                         >
-                          <FaTrash />
-                        </button>
+                          <Trash2 className="h-4 w-4" />
+                        </TableActionButton>
                       </div>
                     </div>
                   </div>
@@ -368,7 +419,7 @@ const Pyq = () => {
                 No PYQs yet
               </h3>
               <p className="text-gray-500 mb-4">
-                Get started by creating your first PYQ
+                {searchTerm ? "No PYQs match your search" : "Get started by creating your first PYQ"}
               </p>
               <button
                 onClick={() => setIsFormVisible(true)}

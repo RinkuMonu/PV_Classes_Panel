@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axiosInstance from "../components/services/AxiosInstance";
+import axiosInstance from "../config/AxiosInstance";
 import { useLocation } from "react-router-dom";
 
 
@@ -26,13 +26,12 @@ export const UserProvider = ({ children }) => {
     setLoading(true); // 👈 Start loading
     try {
       const response = await axiosInstance.get("/v1/auth/profile");
-      console.log("response in context is: ", response);
       setData(response?.data?.user);
       userId(response?.data?.user?._id);
       setUser(response?.data?.user);
       setmetaData(response?.data?.userMeta);
     } catch (err) {
-      console.log(err.message);
+      console.error(err.message);
     } finally {
       setLoading(false); // 👈 Done loading
     }
@@ -46,7 +45,7 @@ export const UserProvider = ({ children }) => {
       setUser(response?.data?.user);
       setmetaData(response?.data?.userMeta);
     } catch (err) {
-      console.log(err.message);
+      console.error(err.message);
     }
   };
 
@@ -72,7 +71,6 @@ export const UserProvider = ({ children }) => {
         );
         const json = await res.json();
         setAllSeoData(json?.data || []);
-        console.log(json?.data,"json?.data")
       } catch (err) {
         console.error("SEO Fetch Error:", err);
       }

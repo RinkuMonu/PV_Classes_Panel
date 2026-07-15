@@ -977,7 +977,7 @@ const QuestionManager = ({ series, test, onBack }) => {
               <button
                 type="button"
                 onClick={() => setShowQuestionForm(false)}
-                className="px-5 py-2 border border-green-300 rounded-lg text-green-700 hover:bg-green-50 transition-colors"
+                className="px-5 py-2 border border-green-300 rounded-lg text-green-700 hover:bg-green-50 transition-colors form-cancel-button"
               >
                 Cancel
               </button>
