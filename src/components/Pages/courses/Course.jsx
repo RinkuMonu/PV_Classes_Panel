@@ -1,18 +1,20 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
-import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaImage, FaTag, FaBook, FaUserTie, FaLanguage, FaMoneyBillWave, FaCalendarAlt, FaCheckCircle, FaList, FaStar, FaFileAlt, FaGlobe, FaQuestionCircle, FaVideo } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaTimes, FaEye, FaImage, FaTag, FaBook, FaUserTie, FaLanguage, FaMoneyBillWave, FaCalendarAlt, FaCheckCircle, FaList, FaStar, FaFileAlt, FaGlobe, FaQuestionCircle, FaVideo, FaSearch, FaFilter } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
+import TableActionButton from '../../common/TableActionButton';
 
 const Course = () => {
   const [courses, setCourses] = useState([]);
   const [exams, setExams] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [combos, setCombos] = useState([]);
-  const [authors, setAuthors] = useState([]);
+  const [, setAuthors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [examFilter, setExamFilter] = useState('all');
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -77,6 +79,19 @@ const Course = () => {
   const [notesFiles, setNotesFiles] = useState([]);
 
   const [videoFile, setVideoFile] = useState(null);
+
+  const filteredCourses = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return courses.filter((course) => {
+      const matchesSearch = !query || [course.title, course.exam?.name, course.type, course.language]
+        .some((value) => String(value || '').toLowerCase().includes(query));
+      const matchesStatus = statusFilter === 'all' || course.status === statusFilter;
+      const matchesExam = examFilter === 'all' || course.exam?._id === examFilter;
+
+      return matchesSearch && matchesStatus && matchesExam;
+    });
+  }, [courses, searchTerm, statusFilter, examFilter]);
 
   // Add these functions
   const fetchSubjects = async (courseId) => {
@@ -288,7 +303,6 @@ const Course = () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get('/courses');
-      console.log("courses data : ", response.data);
       setCourses(response.data);
     } catch {
       toast.error('Error fetching courses');
@@ -318,7 +332,6 @@ const Course = () => {
   const fetchCombos = async () => {
     try {
       const response = await axiosInstance.get('/combo');
-      console.log("combos data : ", response.data);
       setCombos(response.data.combos || response.data);
     } catch {
       toast.error('Error fetching combos');
@@ -426,15 +439,14 @@ const Course = () => {
     }
   };
 
-  const handleFacultyChange = (e) => {
-    const options = e.target.options;
-    const selectedValues = [];
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selectedValues.push(options[i].value);
-      }
-    }
-    setFormData({ ...formData, faculty: selectedValues });
+  const handleFacultyChange = (facultyId, isChecked) => {
+    // UI-only: ordinary checkboxes update the same faculty ID array used by course submission.
+    setFormData((current) => ({
+      ...current,
+      faculty: isChecked
+        ? [...current.faculty, facultyId]
+        : current.faculty.filter((id) => id !== facultyId),
+    }));
   };
 
   // Handle FAQs changes
@@ -509,22 +521,63 @@ const Course = () => {
     );
   };
 
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        {/* UI-only: standardized page header; course logic is unchanged. */}
+        <div data-page-icon data-icon-symbol="▥" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-green-800">Course Managementt</h1>
-            <p className="text-gray-600 mt-2">Create and manage courses for your platform</p>
+            <h1 className="text-2xl font-bold">Course Management</h1>
+            <p className="mt-1 opacity-90">Create and manage courses for your platform</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg shadow-md transition-all hover:shadow-lg"
+            className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-3 rounded-lg shadow-md transition-all hover:shadow-lg"
           >
             <FaPlus className="mr-2" /> Add New Course
           </button>
+        </div>
+
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative flex-1">
+              <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search by course, exam, type, or language..."
+                className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#87b105] focus:ring-2 focus:ring-[#87b105]/20"
+              />
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative">
+                <FaFilter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <select
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value)}
+                  className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-9 text-sm outline-none focus:border-[#87b105] focus:ring-2 focus:ring-[#87b105]/20 sm:w-40"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <select
+                value={examFilter}
+                onChange={(event) => setExamFilter(event.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:border-[#87b105] focus:ring-2 focus:ring-[#87b105]/20 sm:w-44"
+              >
+                <option value="all">All exams</option>
+                {exams.map((exam) => (
+                  <option key={exam._id} value={exam._id}>{exam.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-gray-500">
+            Showing {filteredCourses.length} of {courses.length} courses
+          </p>
         </div>
 
         {/* courses Grid */}
@@ -534,15 +587,12 @@ const Course = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {courses.map((course) => (
-              <div key={course._id} className="bg-white rounded-xl shadow-md overflow-hidden border border-green-100 hover:shadow-lg transition-shadow">
-                <div className="h-40 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
+            {/* UI-only: All Courses is restored to its original card presentation; handlers remain unchanged. */}
+            {filteredCourses.map((course) => (
+              <div key={course._id} className="flex h-full flex-col bg-white rounded-xl shadow-md overflow-hidden border border-[#204972]/10 hover:shadow-lg transition-shadow">
+                <div className="aspect-video w-full bg-gradient-to-r from-[#204972]/10 to-[#87b105]/10 flex items-center justify-center overflow-hidden">
                   {course.full_image && course.full_image.length > 0 ? (
-                    <img
-                      src={course.full_image[0]}
-                      alt={course.title}
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={course.full_image[0]} alt={course.title} className="block h-auto max-h-full w-full object-contain" />
                   ) : (
                     <div className="text-white text-center p-4">
                       <FaBook className="text-4xl mx-auto mb-2" />
@@ -551,56 +601,62 @@ const Course = () => {
                   )}
                 </div>
 
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="flex justify-between items-start gap-2 mb-3">
                     <h3 className="font-bold text-lg text-gray-800 truncate">{course.title}</h3>
                     <StatusBadge status={course.status} />
                   </div>
-
                   <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <FaBook className="mr-2 text-green-500" />
+                    <FaBook className="mr-2 text-[#204972]" />
                     <span>{course.exam?.name}</span>
                   </div>
-
                   <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <FaUserTie className="mr-2 text-green-500" />
+                    <FaUserTie className="mr-2 text-[#204972]" />
                     <span>{course.type}</span>
                   </div>
-
                   <div className="flex items-center text-sm text-gray-600 mb-4">
-                    <FaMoneyBillWave className="mr-2 text-green-500" />
+                    <FaMoneyBillWave className="mr-2 text-[#204972]" />
                     <PriceDisplay price={course.price} discountPrice={course.discountPrice} isFree={course.isFree} />
                   </div>
-
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                    <button
-                      onClick={() => handleEdit(course)}
-                      className="flex items-center text-green-600 hover:text-green-800 font-medium"
-                    >
-                      <FaEdit className="mr-1" /> Edit
-                    </button>
-
-                    <button
-                      onClick={() => openVideoModal(course._id)}
-                      className="flex items-center text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      <FaVideo className="mr-1" /> Videos
-                    </button>
-                    <button
-                      onClick={() => handleDelete(course._id)}
-                      className="flex items-center text-red-500 hover:text-red-700 font-medium"
-                    >
-                      <FaTrash className="mr-1" /> Delete
-                    </button>
+                  {/* UI-only: keep card actions centered and anchored consistently at the card bottom. */}
+                  <div className="mt-auto flex w-full items-center justify-center gap-5 border-t border-gray-100 pt-4">
+                    <TableActionButton onClick={() => handleEdit(course)} tone="edit" title="Edit course">
+                      <FaEdit />
+                    </TableActionButton>
+                    <TableActionButton onClick={() => openVideoModal(course._id)} tone="view" title="Manage videos">
+                      <FaVideo />
+                    </TableActionButton>
+                    <TableActionButton onClick={() => handleDelete(course._id)} tone="delete" title="Delete course">
+                      <FaTrash />
+                    </TableActionButton>
                   </div>
                 </div>
               </div>
             ))}
 
+            {courses.length > 0 && filteredCourses.length === 0 && (
+              <div className="col-span-full rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+                <FaSearch className="mx-auto mb-3 text-3xl text-gray-300" />
+                <h3 className="text-lg font-semibold text-gray-700">No matching courses</h3>
+                <p className="mt-1 text-sm text-gray-500">Try changing your search or filters.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setStatusFilter('all');
+                    setExamFilter('all');
+                  }}
+                  className="mt-4 text-sm font-semibold text-[#204972] hover:text-[#87b105]"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
 
             {showVideoModal && (
-              <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-50">
-                <div className="w-full max-w-4xl mx-4 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50">
+                {/* UI-only: course-content modal remains scrollable with its scrollbar hidden. */}
+                <div className="no-scrollbar w-full max-w-4xl mx-4 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
                   <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-xl p-6 flex justify-between items-center">
                     <h2 className="text-2xl font-bold text-green-800">
                       Course Content Management
@@ -762,7 +818,7 @@ const Course = () => {
 
                     {/* Subject Form Modal */}
                     {showSubjectForm && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                      <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50">
                         <div className="bg-white p-6 rounded-lg w-full max-w-md">
                           <h3 className="text-xl font-bold mb-4">
                             {editingSubject ? 'Edit Subject' : 'Add New Subject'}
@@ -799,7 +855,7 @@ const Course = () => {
                                   setEditingSubject(null);
                                   setSubjectForm({ title: '', description: '' });
                                 }}
-                                className="px-4 py-2 border border-gray-300 rounded"
+                                className="px-4 py-2 border border-gray-300 rounded form-cancel-button"
                               >
                                 Cancel
                               </button>
@@ -817,8 +873,9 @@ const Course = () => {
 
                     {/* Video Form Modal */}
                     {showVideoForm && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+                      <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50">
+                        {/* UI-only: nested course form remains scrollable with its scrollbar hidden. */}
+                        <div className="no-scrollbar bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
                           <h3 className="text-xl font-bold mb-4">
                             {editingVideoIndex !== null ? 'Edit Video' : 'Add New Video'}
                           </h3>
@@ -960,7 +1017,7 @@ const Course = () => {
                                   });
                                   setNotesFiles([]);
                                 }}
-                                className="px-4 py-2 border border-gray-300 rounded"
+                                className="px-4 py-2 border border-gray-300 rounded form-cancel-button"
                               >
                                 Cancel
                               </button>
@@ -1003,8 +1060,9 @@ const Course = () => {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 shadow-2xl">
-            <div className="w-full max-w-4xl mx-4 my-8 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 shadow-2xl">
+            {/* UI-only: Add/Edit Course form remains scrollable with its scrollbar hidden. */}
+            <div className="no-scrollbar w-full max-w-4xl mx-4 my-8 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-xl p-6 flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-green-800">
                   {editingId ? 'Edit Course' : 'Create New Course'}
@@ -1151,20 +1209,24 @@ const Course = () => {
 
                       <div className="md:col-span-2">
                         <label className="block text-gray-700 font-medium mb-2">
-                          Faculty (Hold Ctrl to select multiple)
+                          Faculty
                         </label>
-                        <select
-                          multiple
-                          value={formData.faculty}
-                          onChange={handleFacultyChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition h-32"
-                        >
-                          {faculties.map((faculty) => (
-                            <option key={faculty._id} value={faculty._id}>
-                              {faculty.name}
-                            </option>
-                          ))}
-                        </select>
+                        {/* UI-only: keep faculty checkboxes compact and scrollable when many teachers are available. */}
+                        <div className="grid max-h-40 grid-cols-1 gap-2 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-3 sm:grid-cols-2">
+                          {faculties.length > 0 ? faculties.map((faculty) => (
+                            <label key={faculty._id} className="flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-sm transition hover:bg-[#204972]/[0.04]">
+                              <input
+                                type="checkbox"
+                                checked={formData.faculty.includes(faculty._id)}
+                                onChange={(e) => handleFacultyChange(faculty._id, e.target.checked)}
+                                className="h-4 w-4 rounded border-gray-300 accent-[#204972]"
+                              />
+                              <span className="text-sm font-medium text-gray-700">{faculty.name}</span>
+                            </label>
+                          )) : (
+                            <p className="text-sm text-gray-500">No faculty available</p>
+                          )}
+                        </div>
                       </div>
 
                       <div className="md:col-span-2">
@@ -1414,7 +1476,7 @@ const Course = () => {
                         setShowModal(false);
                         resetForm();
                       }}
-                      className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors form-cancel-button"
                     >
                       Cancel
                     </button>

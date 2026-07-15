@@ -2,18 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus,
-  Search,
-  Edit,
+  Pencil,
   Trash2,
   Eye,
-  ChevronLeft,
-  ChevronRight,
   Loader,
   X
 } from 'lucide-react';
 import axiosInstance from '../../../config/AxiosInstance';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import GlobalTable from '../../common/GlobalTable';
+import TableActionButton from '../../common/TableActionButton';
 
 const BookSubCategory = () => {
   const [subcategories, setSubcategories] = useState([]);
@@ -59,6 +58,7 @@ const BookSubCategory = () => {
   useEffect(() => {
     fetchCategories();
     fetchSubcategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, search]);
 
   // Handle form input change
@@ -187,155 +187,111 @@ const BookSubCategory = () => {
     );
   };
 
+  // UI-only edit: subcategory table actions now use the shared global table symbols.
+  const subcategoryColumns = [
+    {
+      key: 'name',
+      header: 'Name',
+      render: (subcategory) => (
+        <div className="text-sm font-medium text-gray-900">{subcategory.name}</div>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      render: (subcategory) => (
+        <div className="text-sm text-gray-600">{getCategoryName(subcategory.book_category_id)}</div>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (subcategory) => <StatusBadge status={subcategory.status} />,
+    },
+    {
+      key: 'createdAt',
+      header: 'Created At',
+      render: (subcategory) => (
+        <div className="text-sm text-gray-600">
+          {new Date(subcategory.createdAt).toLocaleDateString()}
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (subcategory) => (
+        <div className="flex items-center gap-2">
+          <TableActionButton
+            tone="view"
+            onClick={() => handleView(subcategory)}
+            title="View"
+          >
+            <Eye className="h-4 w-4" />
+          </TableActionButton>
+          <TableActionButton
+            tone="edit"
+            onClick={() => handleEdit(subcategory)}
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+          </TableActionButton>
+          <TableActionButton
+            tone="delete"
+            onClick={() => handleDelete(subcategory._id)}
+            title="Delete"
+          >
+            <Trash2 className="h-4 w-4" />
+          </TableActionButton>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Book Subcategories</h1>
-        </div>
-        <button
-          onClick={handleCreate}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          Add Subcategory
+      {/* UI-only: place the existing Add Subcategory action at the responsive header's right edge. */}
+      <div data-page-icon data-icon-symbol="≡" className="flex flex-col gap-4 rounded-xl bg-gradient-to-r from-[#204972] to-[#87b105] p-6 text-white shadow-lg mb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div><h1 className="text-2xl font-bold">Book Subcategories</h1><p className="mt-1 opacity-90">Organize and manage book subcategories</p></div>
+        <button onClick={handleCreate} className="flex items-center gap-2 rounded-lg bg-[#204972] px-4 py-2 text-white transition-colors hover:bg-[#183654]">
+          <Plus className="h-5 w-5" /> Add Subcategory
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-          <input
-            type="text"
-            placeholder="Search subcategories..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div>
-
-      {/* Subcategories Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created At
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="px-6 py-4 text-center">
-                  <div className="flex justify-center">
-                    <Loader className="h-8 w-8 animate-spin text-blue-600" />
-                  </div>
-                </td>
-              </tr>
-            ) : subcategories.length > 0 ? (
-              subcategories.map((subcategory) => (
-                <tr key={subcategory._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{subcategory.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{getCategoryName(subcategory.book_category_id)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={subcategory.status} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">
-                      {new Date(subcategory.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => handleView(subcategory)}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="View"
-                      >
-                        <Eye className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(subcategory)}
-                        className="text-green-600 hover:text-green-900"
-                        title="Edit"
-                      >
-                        <Edit className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(subcategory._id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                  No subcategories found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-between items-center px-6 py-4 border-t">
-            <button
-              onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className="flex items-center gap-1 px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={page === totalPages}
-              className="flex items-center gap-1 px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
+      {/* UI-only edit: Book subcategories stay on GlobalTable with shared action buttons. */}
+      <GlobalTable
+        title={`All Subcategories (${subcategories.length})`}
+        filters={{
+          searchValue: search,
+          onSearchChange: (value) => {
+            setSearch(value);
+            setPage(1);
+          },
+          searchPlaceholder: "Search subcategories...",
+        }}
+        columns={subcategoryColumns}
+        data={subcategories}
+        loading={loading}
+        emptyText="No subcategories found"
+        loadingText="Loading subcategories..."
+        getRowKey={(subcategory) => subcategory._id}
+        pagination={
+          totalPages > 1
+            ? {
+                currentPage: page,
+                totalPages,
+                onPageChange: setPage,
+              }
+            : undefined
+        }
+      />
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-md p-6">
-            <div className="flex justify-between items-center mb-4">
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          {/* UI-only: Book Subcategory form overlay follows the shared PV Classes theme. */}
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 overflow-hidden">
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
               <h2 className="text-xl font-bold">
                 {editingSubcategory ? 'Edit Subcategory' : 'Create Subcategory'}
               </h2>
@@ -344,7 +300,8 @@ const BookSubCategory = () => {
                   setShowModal(false);
                   resetForm();
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+                aria-label="Close book subcategory form"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -361,7 +318,7 @@ const BookSubCategory = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87b105]"
                     required
                   />
                 </div>
@@ -374,7 +331,7 @@ const BookSubCategory = () => {
                     name="book_category_id"
                     value={formData.book_category_id}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87b105]"
                     required
                   >
                     <option value="">Select Category</option>
@@ -394,7 +351,7 @@ const BookSubCategory = () => {
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87b105]"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -409,14 +366,14 @@ const BookSubCategory = () => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 form-cancel-button"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 bg-[#87b105] text-white rounded-lg hover:bg-[#6f9204] disabled:opacity-50 flex items-center gap-2"
                 >
                   {loading && <Loader className="h-4 w-4 animate-spin" />}
                   {editingSubcategory ? 'Update' : 'Create'}

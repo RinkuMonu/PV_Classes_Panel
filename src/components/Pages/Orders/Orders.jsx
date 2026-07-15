@@ -9,11 +9,17 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../config/AxiosInstance";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import GlobalTable from "../../common/GlobalTable";
+import TableActionButton from "../../common/TableActionButton";
 
 const Orders = () => {
   const [ordersData, setOrdersData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("");
+  const [orderTypeFilter, setOrderTypeFilter] = useState("");
   const limit = 10;
 
   const navigate = useNavigate();
@@ -35,6 +41,7 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   // ✅ Status badge
@@ -90,6 +97,40 @@ const Orders = () => {
     navigate(`/invoice/${orderId}`);
   };
 
+  // UI-only data helpers: normalize the API's single-object/array purchase fields.
+  const toArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
+
+  const getPurchasedItems = (order) => [
+    ...toArray(order.books).map((item) => ({ type: "book", name: item.book?.title })),
+    ...toArray(order.courses).map((item) => ({ type: "course", name: item.course?.title })),
+    ...toArray(order.testSeries).map((item) => ({ type: "testSeries", name: item.test?.title })),
+    ...toArray(order.combo).map((item) => ({ type: "combo", name: item.combo?.title || item.title })),
+  ].filter((item) => item.name);
+
+  const getPurchasedProductNames = (order) =>
+    getPurchasedItems(order).map((item) => item.name).join(", ") || "N/A";
+
+  const getOrderTypes = (order) => [...new Set(getPurchasedItems(order).map((item) => item.type))];
+
+  const filteredOrders = ordersData.filter((order) => {
+    const search = searchTerm.toLowerCase();
+    const matchesSearch = (
+      order._id?.toLowerCase().includes(search) ||
+      order.serialNumber?.toLowerCase().includes(search) ||
+      order.user?.name?.toLowerCase().includes(search) ||
+      order.user?.phone?.toLowerCase().includes(search) ||
+      order.paymentMethod?.toLowerCase().includes(search) ||
+      order.orderStatus?.toLowerCase().includes(search) ||
+      getPurchasedProductNames(order).toLowerCase().includes(search)
+    );
+
+    const matchesStatus = !statusFilter || order.orderStatus === statusFilter;
+    const matchesPayment = !paymentFilter || order.paymentStatus === paymentFilter;
+    const matchesType = !orderTypeFilter || getOrderTypes(order).includes(orderTypeFilter);
+
+    return matchesSearch && matchesStatus && matchesPayment && matchesType;
+  });
+
   // ✅ Pagination page numbers
   const getPageNumbers = () => {
     const pages = [];
@@ -129,8 +170,11 @@ const Orders = () => {
         "Order Serial",
         "Order ID",
         "Customer",
+        "Purchased Product",
+        "Product Type",
         "Phone",
         "Payment Method",
+        "Payment Status",
         "Amount",
         "Status",
       ];
@@ -140,8 +184,11 @@ const Orders = () => {
         order.serialNumber || "N/A",
         order._id || "N/A",
         order.user?.name || "Guest",
+        getPurchasedProductNames(order),
+        getOrderTypes(order).join(", ") || "N/A",
         order.user?.phone || "N/A",
         order.paymentMethod || "N/A",
+        order.paymentStatus || "N/A",
         `₹${parseFloat(order.totalAmount || 0).toLocaleString("en-IN")}`,
         order.orderStatus || "N/A",
       ]);
@@ -161,24 +208,189 @@ const Orders = () => {
     }
   };
 
+  const orderColumns = [
+    {
+      key: "orderId",
+      header: "Order ID",
+      render: (order) => <span className="font-medium text-gray-900">#{order._id}</span>,
+    },
+    {
+      key: "serialNumber",
+      header: "Serial No.",
+      render: (order) => order.serialNumber || "N/A",
+    },
+    {
+      key: "customer",
+      header: "Customer",
+      render: (order) => order.user ? order.user.name : "Guest",
+    },
+    {
+      key: "purchasedProduct",
+      header: "Purchased Product",
+      cellClassName: "min-w-[240px] max-w-sm",
+      render: (order) => (
+        <span className="line-clamp-2" title={getPurchasedProductNames(order)}>
+          {getPurchasedProductNames(order)}
+        </span>
+      ),
+    },
+    {
+      key: "phone",
+      header: "Phone",
+      render: (order) => order.user?.phone || "N/A",
+    },
+    {
+      key: "paymentMethod",
+      header: "Payment Method",
+      render: (order) => order.paymentMethod || "N/A",
+    },
+    {
+      key: "amount",
+      header: "Amount",
+      render: (order) => (
+        <span className="font-medium text-gray-900">
+          ₹{parseFloat(order.totalAmount || 0).toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (order) => getStatusBadge(order.orderStatus),
+    },
+    {
+      key: "updateStatus",
+      header: "Update Status",
+      render: (order) => (
+        <select
+          onChange={(e) => changeStatus(order._id, e.target.value)}
+          defaultValue={order.orderStatus}
+          className="w-32 h-8 text-sm rounded-md border border-gray-300 py-1 px-2 outline-none focus:border-[#87b105] focus:ring-1 focus:ring-[#87b105]"
+        >
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="packed">Packed</option>
+          <option value="shipped">Shipped</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (order) => (
+        <TableActionButton
+          tone="view"
+          title="View invoice"
+          onClick={() => handleViewInvoice(order._id)}
+        >
+          <Eye className="h-5 w-5" />
+        </TableActionButton>
+      ),
+    },
+  ];
+
   return (
     <div className="p-6">
-      {/* Top header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <ShoppingCart className="h-8 w-8 text-blue-600 mr-2" />
-          <h1 className="text-2xl font-bold">Orders</h1>
-        </div>
-
-        <button
-          onClick={downloadOrdersPDF}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          <Download className="h-4 w-4" />
-          Download PDF
-        </button>
+      {/* UI-only: standardized page header; order logic is unchanged. */}
+      <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+        {/* UI-only: direct title icon uses the shared page-header tile styling. */}
+        <h1 className="text-2xl font-bold"><ShoppingCart /> Orders</h1>
+        <p className="mt-1 opacity-90">View and manage customer orders</p>
       </div>
 
+      <GlobalTable
+        title={`Orders (${filteredOrders.length})`}
+        filters={{
+          searchValue: searchTerm,
+          onSearchChange: setSearchTerm,
+          searchPlaceholder: "Search orders or products...",
+          filters: [
+            {
+              key: "orderStatus",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: "", label: "All order statuses" },
+                { value: "completed", label: "Completed / Approved" },
+                { value: "confirmed", label: "Confirmed" },
+                { value: "pending", label: "Pending" },
+                { value: "processing", label: "Processing" },
+                { value: "cancelled", label: "Cancelled" },
+              ],
+            },
+            {
+              key: "paymentStatus",
+              value: paymentFilter,
+              onChange: setPaymentFilter,
+              options: [
+                { value: "", label: "All payment statuses" },
+                { value: "paid", label: "Paid / Approved" },
+                { value: "failed", label: "Failed" },
+              ],
+            },
+            {
+              key: "orderType",
+              value: orderTypeFilter,
+              onChange: setOrderTypeFilter,
+              options: [
+                { value: "", label: "All product types" },
+                { value: "book", label: "Book orders" },
+                { value: "course", label: "Course orders" },
+                { value: "testSeries", label: "Test Series orders" },
+                { value: "combo", label: "Combo orders" },
+              ],
+            },
+          ],
+          resultText: `Page ${page} of ${totalPages}`,
+          exportData: filteredOrders,
+          exportFileName: "orders.csv",
+          exportColumns: [
+            { key: "_id", header: "Order ID" },
+            { key: "serialNumber", header: "Serial No." },
+            { key: "customer", header: "Customer", value: (order) => order.user?.name || "Guest" },
+            { key: "purchasedProduct", header: "Purchased Product", value: getPurchasedProductNames },
+            { key: "productType", header: "Product Type", value: (order) => getOrderTypes(order).join(", ") || "N/A" },
+            { key: "phone", header: "Phone", value: (order) => order.user?.phone || "N/A" },
+            { key: "paymentMethod", header: "Payment Method" },
+            { key: "paymentStatus", header: "Payment Status" },
+            {
+              key: "totalAmount",
+              header: "Amount",
+              value: (order) => parseFloat(order.totalAmount || 0).toLocaleString("en-IN"),
+            },
+            { key: "orderStatus", header: "Status" },
+          ],
+        }}
+        columns={orderColumns}
+        data={filteredOrders}
+        emptyText={searchTerm || statusFilter || paymentFilter || orderTypeFilter ? "No orders match the selected filters" : "No orders found"}
+        getRowKey={(order) => order._id}
+        pagination={{
+          currentPage: page,
+          totalPages,
+          onPageChange: setPage,
+          rightContent: (
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-end">
+              <p className="text-sm text-gray-500">
+                Showing {filteredOrders.length} order{filteredOrders.length === 1 ? "" : "s"} on this page
+              </p>
+              <button
+                onClick={downloadOrdersPDF}
+                className="flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:scale-105 ease-in-out"
+              >
+                <Download className="h-4 w-4" />
+                Download PDF
+              </button>
+            </div>
+          ),
+        }}
+      />
+
+      {/* eslint-disable-next-line no-constant-binary-expression */}
+      {false && (
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -322,6 +534,7 @@ const Orders = () => {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

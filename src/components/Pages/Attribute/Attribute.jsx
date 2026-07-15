@@ -173,9 +173,12 @@ export default function AttributesPage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto ">
-        {/* Header */}
+        {/* UI-only: standardized page header; attribute logic is unchanged. */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-4">Attributes</h1>
+          <div data-page-icon data-icon-symbol="⚙" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+            <h1 className="text-2xl font-bold">Attributes</h1>
+            <p className="mt-1 opacity-90">Create and manage product attributes</p>
+          </div>
 
           <div className="flex justify-between items-center mb-6 p-4 bg-white rounded">
             <div className="flex gap-3">
@@ -231,8 +234,8 @@ export default function AttributesPage() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-4 mb-6 p-4 bg-white rounded">
+        {/* UI-only: filters now match the shared GlobalTable toolbar; filter logic is unchanged. */}
+        <div className="global-table-toolbar">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -274,8 +277,8 @@ export default function AttributesPage() {
           </button>
         </div>
 
-        {/* Table */}
-        <div className="w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg mb-8">
+        {/* UI-only: attribute table now matches GlobalTable; selection and actions are unchanged. */}
+        <div className="global-table-ui w-full mb-8">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
@@ -421,8 +424,8 @@ export default function AttributesPage() {
             </table>
           </div>
 
-          {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
+          {/* UI-only: pagination now matches the shared GlobalTable footer. */}
+          <div className="global-table-pagination">
             <div className="text-sm text-gray-500">
               Showing{" "}
               <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}

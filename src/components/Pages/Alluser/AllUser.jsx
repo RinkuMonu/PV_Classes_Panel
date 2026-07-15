@@ -5,7 +5,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 // import axios from 'axios';
 import axiosInstance from '../../../config/AxiosInstance'; // <-- Import your axios instance
-
+import GlobalTable from '../../common/GlobalTable';
+import TableActionButton from '../../common/TableActionButton';
+import { Download, Eye, UserCheck, UserX, UsersRound, X } from 'lucide-react';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -56,6 +58,8 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers();
+    // Refresh is intentionally controlled by pagination and filter values below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, search, selectedExam]);
 
   const fetchUsers = async () => {
@@ -270,32 +274,10 @@ const Users = () => {
       const res = await axiosInstance.get("/exams");
       setExams(res.data);
     } catch (error) {
-      console.log("Error fetching exams", error);
+      console.error("Error fetching exams", error);
     }
   };
 
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    let start = Math.max(1, page - 2);
-    let end = Math.min(totalPages, page + 2);
-
-    if (page <= 3) {
-      end = Math.min(totalPages, maxVisible);
-    }
-
-    if (page >= totalPages - 2) {
-      start = Math.max(1, totalPages - maxVisible + 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  };
 
   const downloadUsersPDF = () => {
     try {
@@ -357,11 +339,10 @@ const Users = () => {
 
       setSending(true);
 
-      const res = await axiosInstance.post("/users/send-whatsapp", notificationData);
+      await axiosInstance.post("/users/send-whatsapp", notificationData);
 
       toast.success("Notification sent successfully 🚀");
 
-      console.log(res.data);
       setShowNotificationModal(false);
 
       // reset form
@@ -381,205 +362,217 @@ const Users = () => {
     }
   };
 
+  // UI-only: user table columns are now passed into GlobalTable.
+  // API, pagination, PDF download, status update, and modal logic remain unchanged.
+  const userColumns = [
+    {
+      key: "name",
+      header: "Name",
+      width: "210px",
+      headerClassName: "w-[210px] max-w-[210px]",
+      cellClassName: "w-[210px] max-w-[210px]",
+      render: (user) => (
+        <div className="flex min-w-0 items-center">
+          {user.profile_image_url ? (
+            <img
+              src={user.profile_image_url}
+              alt={user.name}
+              className="mr-3 h-10 w-10 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-300">
+              <span className="text-gray-600 font-medium">
+                {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+              </span>
+            </div>
+          )}
+
+          <div className="min-w-0">
+            {/* UI-only: keep the avatar circular while long user names wrap inside the remaining space. */}
+            <div className="break-words text-sm font-medium text-gray-900">
+              {user.name || "No Name"}
+            </div>
+            {user.specialization && (
+              <div className="text-sm text-gray-500">{user.specialization}</div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "serialNumber",
+      header: "Serial No.",
+      width: "110px",
+      headerClassName: "min-w-[110px] whitespace-nowrap",
+      cellClassName: "min-w-[110px] whitespace-nowrap",
+      render: (user) => user.serialNumber || "N/A",
+    },
+    {
+      key: "phone",
+      header: "Phone",
+    },
+    {
+      key: "email",
+      header: "Email",
+      render: (user) => user.email || "N/A",
+    },
+    {
+      key: "role",
+      header: "Role",
+      render: (user) => (
+        <span
+          className={`px-2 py-1 text-xs rounded-full ${
+            user.role === "admin"
+              ? "bg-purple-100 text-purple-800"
+              : user.role === "teacher"
+                ? "bg-blue-100 text-blue-800"
+                : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {user.role}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (user) => (
+        <span
+          className={`px-2 py-1 text-xs rounded-full ${
+            user.status === "active"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {user.status}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (user) => (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <TableActionButton
+            tone="view"
+            onClick={() => handleViewInfo(user)}
+            title="View Info"
+          >
+            <Eye className="h-4 w-4" />
+          </TableActionButton>
+
+          <TableActionButton
+            tone={user.status === "active" ? "delete" : "success"}
+            onClick={() => handleStatusChange(user._id, user.status)}
+            title={user.status === "active" ? "Deactivate" : "Activate"}
+          >
+            {user.status === "active" ? (
+              <UserX className="h-4 w-4" />
+            ) : (
+              <UserCheck className="h-4 w-4" />
+            )}
+          </TableActionButton>
+        </div>
+      ),
+    },
+  ];
+
+  // UI-only: exam filter options are now passed into GlobalTable filters.
+  const userFilterOptions = [
+    {
+      key: "exam",
+      value: selectedExam,
+      onChange: (value) => {
+        setSelectedExam(value);
+        setPage(1);
+      },
+      options: [
+        { value: "", label: "All Exams" },
+        ...exams.map((exam) => ({
+          value: exam._id,
+          label: exam.name,
+        })),
+      ],
+    },
+  ];
+
+  // Changed: CSV export fields are passed into TableFilters, so export stays consistent across tables.
+  const userExportColumns = [
+    { key: "serialNumber", header: "Serial No.", value: (user) => user.serialNumber || "N/A" },
+    { key: "name", header: "Name", value: (user) => user.name || "No Name" },
+    { key: "phone", header: "Phone", value: (user) => user.phone || "N/A" },
+    { key: "email", header: "Email", value: (user) => user.email || "N/A" },
+    { key: "role", header: "Role", value: (user) => user.role || "N/A" },
+    { key: "status", header: "Status", value: (user) => user.status || "N/A" },
+  ];
+
   return (
     <div className="p-6">
 
-      <button
-        onClick={() => setShowNotificationModal(true)}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer mb-4"
-      >
-        📢 Send Notification
-      </button>
-
-      <div className="flex justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold">Users Management</h1>
-
-        <input
-          type="text"
-          placeholder="Search user by name..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64"
-        />
-
-        <select
-          value={selectedExam}
-          onChange={(e) => {
-            setSelectedExam(e.target.value);
-            setPage(1);
-          }}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+      {/* UI-only: standardized page header; existing notification handler is positioned at the right. */}
+      <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          {/* UI-only: use a clear white user symbol consistent with other page headers. */}
+          <h1 className="flex items-center text-2xl font-bold"><UsersRound /> Users Management</h1>
+          <p className="mt-1 opacity-90">View and manage registered users</p>
+        </div>
+        <button
+          onClick={() => setShowNotificationModal(true)}
+          className="self-start sm:self-auto bg-[#204972] hover:bg-[#183654] text-white px-4 py-2 rounded-lg cursor-pointer transition-colors"
         >
-          <option value="">All Exams</option>
-
-          {exams.map((exam) => (
-            <option key={exam._id} value={exam._id}>
-              {exam.name}
-            </option>
-          ))}
-        </select>
+          📢 Send Notification
+        </button>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <div className="bg-white shadow-md rounded-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Serial No.
-                </th>
-
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Phone
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user._id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center ">
-                      {user.profile_image_url ? (
-                        <img
-                          src={user.profile_image_url}
-                          alt={user.name}
-                          className="h-10 w-10 rounded-full object-cover mr-3"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                          <span className="text-gray-600 font-medium">
-                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                          </span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{user.name || 'No Name'}</div>
-                        {user.specialization && (
-                          <div className="text-sm text-gray-500">{user.specialization}</div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.serialNumber || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.phone}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.email || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                      user.role === 'teacher' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => handleViewInfo(user)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                    >
-                      View Info
-                    </button>
-                    {/* <button
-                      onClick={() => handleEdit(user)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                    >
-                      Edit
-                    </button> */}
-                    <button
-                      onClick={() => handleStatusChange(user._id, user.status)}
-                      className={`${user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                        }`}
-                    >
-                      {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="flex justify-between items-center p-4 border-t">
-            <div className="flex justify-center gap-2 items-center flex-wrap">
-
-              {page > 1 && (
-                <>
-                  <button onClick={() => setPage(1)} className="px-3 py-1 bg-gray-200 rounded">
-                    1
-                  </button>
-                  {page > 3 && <span>...</span>}
-                </>
-              )}
-
-              {getPageNumbers().map((p) => (
+      <div className="bg-white shadow-md rounded-md overflow-hidden">
+          {/* UI-only: users table now owns shared filters, export, actions, and pagination. */}
+          <GlobalTable
+            title={`Users (${users.length})`}
+            filters={{
+              searchValue: search,
+              onSearchChange: (value) => {
+                setSearch(value);
+                setPage(1);
+              },
+              searchPlaceholder: "Search user by name...",
+              filters: userFilterOptions,
+              exportData: users,
+              exportColumns: userExportColumns,
+              exportFileName: `users-${new Date().toISOString().split("T")[0]}.csv`,
+            }}
+            columns={userColumns}
+            data={users}
+            loading={loading}
+            loadingText="Loading users..."
+            emptyText="No users found"
+            wrapperClassName="border-0 rounded-none shadow-none"
+            pagination={{
+              currentPage: page,
+              totalPages,
+              onPageChange: setPage,
+              rightContent: (
                 <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`px-3 py-1 rounded ${page === p ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                  onClick={downloadUsersPDF}
+                  className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:scale-105"
                 >
-                  {p}
+                  <Download className="h-4 w-4" />
+                  Download PDF
                 </button>
-              ))}
-
-              {page < totalPages - 2 && <span>...</span>}
-
-              {page < totalPages && (
-                <button
-                  onClick={() => setPage(totalPages)}
-                  className="px-3 py-1 bg-gray-200 rounded"
-                >
-                  {totalPages}
-                </button>
-              )}
-            </div>
-
-            <button
-              onClick={downloadUsersPDF}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              Download PDF
-            </button>
-          </div>
+              ),
+            }}
+          />
         </div>
-      )}
 
       {showInfoModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center overflow-y-auto">
-          <div className="bg-white p-6 rounded-md w-full max-w-2xl my-8 max-h-screen overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">User Information</h2>
+        <div className="fixed inset-0 z-50 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center overflow-y-auto p-4">
+          {/* UI-only: User Information overlay follows the shared PV Classes theme. */}
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-[#204972] to-[#87b105] p-5 text-white">
+              <h2 className="flex items-center text-xl font-bold"><UsersRound className="mr-2" /> User Information</h2>
+              <button type="button" onClick={() => setShowInfoModal(false)} className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white" aria-label="Close user information"><X className="h-5 w-5" /></button>
+            </div>
+
+            <div className="p-6">
 
             <div className="flex items-center mb-6">
               {selectedUser.profile_image_url ? (
@@ -613,6 +606,18 @@ const Users = () => {
                   }`}>
                   {selectedUser.status}
                 </p>
+              </div>
+            </div>
+
+            {/* UI-only: show parent names from the existing user details response. */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">Father&apos;s Name</label>
+                <p className="bg-gray-100 p-2 rounded-md">{selectedUser.fatherName || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">Mother&apos;s Name</label>
+                <p className="bg-gray-100 p-2 rounded-md">{selectedUser.motherName || 'N/A'}</p>
               </div>
             </div>
 
@@ -806,22 +811,25 @@ const Users = () => {
             <div className="flex justify-end">
               <button
                 onClick={() => setShowInfoModal(false)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                className="text-white px-5 py-2 rounded-lg transition form-cancel-button"
               >
                 Close
               </button>
+            </div>
             </div>
           </div>
         </div>
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center overflow-y-auto">
-          <div className="bg-white p-6 rounded-md w-full max-w-2xl my-8 max-h-screen overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">
-              {editingUser ? 'Edit User' : 'Add User'}
-            </h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="fixed inset-0 z-50 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center overflow-y-auto p-4">
+          {/* UI-only: Add/Edit User overlay uses the same shared themed modal header and actions. */}
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-[#204972] to-[#87b105] p-5 text-white">
+              <h2 className="flex items-center text-xl font-bold"><UsersRound className="mr-2" /> {editingUser ? 'Edit User' : 'Add User'}</h2>
+              <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white" aria-label="Close user form"><X className="h-5 w-5" /></button>
+            </div>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
               <div className="col-span-2">
                 <label className="block text-gray-700 mb-2">Name</label>
                 <input
@@ -984,7 +992,7 @@ const Users = () => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="mr-2 px-4 py-2 border border-gray-300 rounded-md"
+                  className="mr-2 px-4 py-2 border border-gray-300 rounded-md form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -1002,7 +1010,7 @@ const Users = () => {
 
       {/*  notification modal */}
       {showNotificationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl p-6">
 
             <h2 className="text-lg font-semibold mb-4">
@@ -1064,15 +1072,16 @@ const Users = () => {
             <div className="flex justify-end mt-4 gap-2">
               <button
                 onClick={() => setShowNotificationModal(false)}
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border rounded form-cancel-button"
               >
                 Cancel
               </button>
 
+              {/* UI-only: match the global action style with the PV Classes theme green. */}
               <button
                 onClick={handleSendNotification}
                 disabled={sending}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="inline-flex h-10 min-w-24 items-center justify-center rounded-lg bg-[#87b105] px-4 py-2 text-sm font-medium text-white transition hover:scale-105 hover:bg-[#6f9204] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {sending ? "Sending..." : "Send"}
               </button>

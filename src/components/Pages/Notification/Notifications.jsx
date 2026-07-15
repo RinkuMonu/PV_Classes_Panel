@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Bell, Trash2 } from "lucide-react";
+import TableActionButton from "../../common/TableActionButton";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -86,7 +88,11 @@ const Notifications = () => {
         theme="light"
       />
       
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Manage Notifications</h2>
+      {/* UI-only: use a semantic bell icon in the Notification page header. */}
+      <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+        <h2 className="text-2xl font-bold"><Bell /> Manage Notifications</h2>
+        <p className="mt-1 opacity-90">Create and manage user notifications</p>
+      </div>
 
       {/* Create Notification Form */}
       <div className="bg-white shadow-lg rounded-xl p-6 mb-8 border border-gray-100">
@@ -179,12 +185,16 @@ const Notifications = () => {
                     Category: {n.category?.name || "Uncategorized"}
                   </span>
                 </div>
-                <button
+                {/* UI-only: shared delete action matches buttons used across website tables. */}
+                <TableActionButton
                   onClick={() => handleDelete(n._id)}
-                  className="ml-4 bg-red-100 text-red-600 hover:bg-red-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                  tone="delete"
+                  className="ml-4 shrink-0"
+                  aria-label="Delete notification"
+                  title="Delete notification"
                 >
-                  Delete
-                </button>
+                  <Trash2 className="h-4 w-4" />
+                </TableActionButton>
               </div>
             ))}
           </div>

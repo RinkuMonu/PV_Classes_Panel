@@ -147,7 +147,8 @@ const AttributesValues = () => {
         </div>
 
         {/* Values Table */}
-        <div className="w-full overflow-hidden border border-gray-200 rounded-lg mb-8 bg-white">
+        {/* UI-only: attribute-values table now matches GlobalTable; value logic is unchanged. */}
+        <div className="global-table-ui w-full mb-8">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -245,7 +246,7 @@ const AttributesValues = () => {
 
         {/* Add Value Modal */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Add New Value</h3>
@@ -275,7 +276,7 @@ const AttributesValues = () => {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -292,7 +293,7 @@ const AttributesValues = () => {
 
         {/* Edit Value Modal */}
         {isEditModalOpen && currentValue && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Edit Value</h3>
@@ -335,7 +336,7 @@ const AttributesValues = () => {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 form-cancel-button"
                 >
                   Cancel
                 </button>

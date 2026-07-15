@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import { toast } from "react-toastify";
+import GlobalTable from "../../common/GlobalTable";
+import TableActionButton from "../../common/TableActionButton";
+import { Eye, Pencil, TicketPercent, Trash2, X } from "lucide-react";
 
 const CouponManager = () => {
   const [coupons, setCoupons] = useState([]);
@@ -16,6 +19,10 @@ const CouponManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [viewingCoupon, setViewingCoupon] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const formRef = useRef(null);
   const [highlight, setHighlight] = useState(false);
@@ -123,11 +130,75 @@ const CouponManager = () => {
     setViewingCoupon(null);
   };
 
+  // UI-only: shared table filtering and pagination use the already-fetched coupon array.
+  const filteredCoupons = coupons.filter((coupon) => {
+    const matchesSearch = `${coupon.code || ""} ${coupon.discountType || ""}`.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? coupon.isActive : !coupon.isActive);
+    return matchesSearch && matchesStatus;
+  });
+  const totalPages = Math.max(Math.ceil(filteredCoupons.length / pageSize), 1);
+  const visibleCoupons = filteredCoupons.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const couponColumns = [
+    {
+      key: "code",
+      header: "Code",
+      render: (coupon) => <div className="text-sm font-medium text-gray-900">{coupon.code}</div>,
+    },
+    {
+      key: "discount",
+      header: "Discount",
+      render: (coupon) => (
+        <div className="text-sm text-gray-900">
+          {coupon.discountType === "percentage" ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}
+        </div>
+      ),
+    },
+    {
+      key: "minOrderAmount",
+      header: "Min Order",
+      render: (coupon) => <div className="text-sm text-gray-900">₹{coupon.minOrderAmount || 0}</div>,
+    },
+    {
+      key: "validity",
+      header: "Validity",
+      render: (coupon) => (
+        <div className="text-sm text-gray-500">
+          {coupon.startDate ? new Date(coupon.startDate).toLocaleDateString() : "No start date"} →
+          {coupon.endDate ? new Date(coupon.endDate).toLocaleDateString() : "No end date"}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (coupon) => (
+        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${coupon.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+          {coupon.isActive ? "Active" : "Inactive"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (coupon) => (
+        // UI-only: coupon actions use the same icon buttons as every GlobalTable.
+        <div className="flex gap-2">
+          <TableActionButton onClick={() => handleView(coupon)} tone="view" title="View"><Eye className="h-4 w-4" /></TableActionButton>
+          <TableActionButton onClick={() => handleEdit(coupon)} tone="edit" title="Edit"><Pencil className="h-4 w-4" /></TableActionButton>
+          <TableActionButton onClick={() => handleDelete(coupon._id)} tone="delete" title="Delete"><Trash2 className="h-4 w-4" /></TableActionButton>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800 bg-gradient-to-r from-green-600 to-purple-600 bg-clip-text text-transparent">
-        Coupon Manager
-      </h2>
+      {/* UI-only: standardized page header; coupon logic is unchanged. */}
+      <div data-page-icon data-icon-symbol="%" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+        <h2 className="text-2xl font-bold">Coupon Manager</h2>
+        <p className="mt-1 opacity-90">Create and manage discount coupons</p>
+      </div>
 
       {/* Coupon Form */}
       <form
@@ -238,7 +309,7 @@ const CouponManager = () => {
 
         <button
           type="submit"
-          className="bg-gradient-to-r from-green-600 to-green-800 text-white px-6 py-3 rounded-md hover:from-green-700 hover:to-green-900 transition-all duration-200"
+          className="bg-[#87b105] text-white px-6 py-3 rounded-md hover:scale-105 ease-in-out transition-all duration-200"
         >
           {editingId ? "Update Coupon" : "Create Coupon"}
         </button>
@@ -258,115 +329,54 @@ const CouponManager = () => {
                 isActive: true,
               });
             }}
-            className="ml-4 bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-200"
+            className="ml-4 bg-red-600 text-white px-6 py-3 rounded-md hover:scale-105 transition-colors duration-200 form-cancel-button"
           >
             Cancel
           </button>
         )}
       </form>
 
-      {/* Coupon List */}
-      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800">
-          All Coupons ({coupons.length})
-        </h3>
-
-        {coupons.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <p className="mt-4">No coupons found. Create your first coupon!</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Order</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validity</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {coupons.map((coupon) => (
-                  <tr key={coupon._id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{coupon.code}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">₹{coupon.minOrderAmount || 0}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {coupon.startDate ? new Date(coupon.startDate).toLocaleDateString() : 'No start date'} →
-                        {coupon.endDate ? new Date(coupon.endDate).toLocaleDateString() : 'No end date'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${coupon.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                        {coupon.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleView(coupon)}
-                          className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md transition-colors duration-200"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => handleEdit(coupon)}
-                          className="text-yellow-600 hover:text-yellow-900 bg-yellow-100 hover:bg-yellow-200 px-3 py-1 rounded-md transition-colors duration-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(coupon._id)}
-                          className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md transition-colors duration-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* UI-only: Coupon list now uses the complete GlobalTable toolbar and footer design. */}
+      <GlobalTable
+        title={`All Coupons (${filteredCoupons.length})`}
+        description="Search, filter, export, and manage discount coupons"
+        columns={couponColumns}
+        data={visibleCoupons}
+        emptyText="No coupons found. Create your first coupon!"
+        getRowKey={(coupon) => coupon._id}
+        filters={{
+          searchValue: search,
+          onSearchChange: (value) => { setSearch(value); setCurrentPage(1); },
+          searchPlaceholder: "Search coupon code or type...",
+          filters: [{ key: "status", value: statusFilter, onChange: (value) => { setStatusFilter(value); setCurrentPage(1); }, options: [{ value: "all", label: "All Status" }, { value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }] }],
+          resultText: `${filteredCoupons.length} coupon${filteredCoupons.length === 1 ? "" : "s"} found`,
+          exportData: filteredCoupons,
+          exportFileName: "coupons.csv",
+          exportColumns: [{ key: "code", header: "Code" }, { key: "discountType", header: "Discount Type" }, { key: "discountValue", header: "Discount Value" }, { key: "minOrderAmount", header: "Minimum Order" }, { key: "isActive", header: "Active", value: (coupon) => coupon.isActive ? "Yes" : "No" }],
+        }}
+        pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
+      />
 
       {/* View Modal */}
       {isViewModalOpen && viewingCoupon && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">Coupon Details</h3>
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          {/* UI-only: Coupon Details overlay follows the shared PV Classes modal theme. */}
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="flex justify-between items-center bg-gradient-to-r from-[#204972] to-[#87b105] p-5 text-white">
+              <h3 className="flex items-center text-xl font-semibold"><TicketPercent className="mr-2" /> Coupon Details</h3>
               <button
                 onClick={closeViewModal}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+                aria-label="Close coupon details"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 p-6">
               <div className="flex justify-between">
                 <span className="font-medium">Code:</span>
-                <span className="font-bold text-green-600">{viewingCoupon.code}</span>
+                <span className="rounded-full bg-[#87b105]/15 px-3 py-1 font-bold text-[#527000]">{viewingCoupon.code}</span>
               </div>
 
               <div className="flex justify-between">
@@ -407,7 +417,7 @@ const CouponManager = () => {
               </div>
             </div>
 
-            <div>
+            <div className="px-6 pb-2">
               <span className="font-medium">Used By:</span>
 
               {viewingCoupon.usedBy && viewingCoupon.usedBy.length > 0 ? (
@@ -424,10 +434,10 @@ const CouponManager = () => {
               )}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-4 flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4">
               <button
                 onClick={closeViewModal}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200"
+                className="rounded-lg px-5 py-2 text-white transition form-cancel-button"
               >
                 Close
               </button>

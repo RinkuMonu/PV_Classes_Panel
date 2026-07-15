@@ -6,11 +6,14 @@ import {
   ChevronDown, 
   LayoutDashboard, 
   UserCog, 
-  LogOut 
+  LogOut,
+  PanelRightOpen,
+  PanelLeftClose
 } from "lucide-react";
 import { Link } from 'react-router-dom'; // or use <a> tags if not using React Router
 
-const Header = ({ toggleSidebar }) => {
+// Changed: Header now also controls desktop sidebar collapse.
+const Header = ({ toggleSidebar, toggleDesktopSidebar, isSidebarCollapsed }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -34,23 +37,44 @@ const Header = ({ toggleSidebar }) => {
   return (
     <header className="flex justify-between items-center mb-6 mt-4 px-4 relative">
       <div className="flex items-center space-x-4">
-        <Menu 
-          size={24} 
-          className="text-gray-700 cursor-pointer hover:text-green-600 transition-colors duration-200" 
+        {/* Existing mobile sidebar button: visible only on small screens. */}
+        <button
+          type="button"
           onClick={toggleSidebar}
-        />
+          className="md:hidden"
+          title="Open sidebar"
+        >
+          <Menu
+            size={24}
+            className="text-gray-700 cursor-pointer hover:text-[#87b105] transition-colors duration-200"
+          />
+        </button>
+
+        {/* Added: desktop-only sidebar collapse button. */}
+        <button
+          type="button"
+          onClick={toggleDesktopSidebar}
+          className="hidden md:flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100"
+          title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isSidebarCollapsed ? (
+            <PanelRightOpen size={18} />
+          ) : (
+            <PanelLeftClose size={18} />
+          )}
+        </button>
       </div>
       <div className="flex items-center space-x-4">
 
         <Link to="/notification">
-        <Bell size={20} className="text-gray-500 hover:text-green-600 cursor-pointer transition-colors duration-200" />
+        <Bell size={20} className="text-gray-500 hover:text-[#87b105] cursor-pointer transition-colors duration-200" />
         </Link>
         <div className="relative" ref={dropdownRef}>
           <div 
             className="flex items-center space-x-1 cursor-pointer"
             onClick={toggleProfile}
           >
-            <User size={24} className="text-gray-700 hover:text-green-600 transition-colors duration-200" />
+            <User size={24} className="text-gray-700 hover:text-[#87b105] transition-colors duration-200" />
             <ChevronDown size={16} className={`text-gray-500 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
           </div>
           

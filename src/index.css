@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* UI-only: consistently identify interactive buttons and action controls site-wide. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a[href],
+input[type="button"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="reset"]:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled {
+  cursor: not-allowed;
+}
+
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -68,3 +86,383 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* UI-only: forms and modal overlays stay scrollable while their visual scrollbars remain hidden. */
+form:is([class*="overflow-y-auto"], [class*="overflow-auto"]),
+form :is([class*="overflow-y-auto"], [class*="overflow-auto"]),
+[class*="fixed"][class*="inset-0"]:is([class*="overflow-y-auto"], [class*="overflow-auto"]),
+[class*="fixed"][class*="inset-0"] :is([class*="overflow-y-auto"], [class*="overflow-auto"]) {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+form:is([class*="overflow-y-auto"], [class*="overflow-auto"])::-webkit-scrollbar,
+form :is([class*="overflow-y-auto"], [class*="overflow-auto"])::-webkit-scrollbar,
+[class*="fixed"][class*="inset-0"]:is([class*="overflow-y-auto"], [class*="overflow-auto"])::-webkit-scrollbar,
+[class*="fixed"][class*="inset-0"] :is([class*="overflow-y-auto"], [class*="overflow-auto"])::-webkit-scrollbar {
+  display: none;
+}
+
+/* UI-only: quick popup motion for the transparent Dashboard welcome overlay. */
+@keyframes welcomeOverlayPopup {
+  0% { opacity: 0; transform: translateY(18px) scale(0.9); }
+  15%, 80% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.96); }
+}
+
+.welcome-overlay-popup {
+  /* UI-only: keep the popup animation synchronized with its five-second display. */
+  animation: welcomeOverlayPopup 5s ease-in-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-overlay-popup { animation: none; }
+}
+
+/* Shared form UI defaults for all pages, including filters outside <form>. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+select,
+textarea {
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.375rem !important;
+  outline: none !important;
+  transition: border-color 150ms ease, box-shadow 150ms ease !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):focus,
+select:focus,
+textarea:focus {
+  border-color: #87b105 !important;
+  box-shadow: 0 0 0 1px #87b105 !important;
+}
+
+/* Shared upload UI background for image/PDF/file inputs across forms. */
+input[type="file"],
+label:has(input[type="file"]) {
+  background-color: #EEF7E0 !important;
+  border-color: #87b105 !important;
+}
+
+form button[type="submit"] {
+  background-color: #87b105 !important;
+  color: #ffffff !important;
+  transition: transform 150ms ease, background-color 150ms ease !important;
+}
+
+form button[type="submit"]:hover {
+  transform: scale(1.05);
+}
+
+/* UI-only: overlay submit actions use theme blue instead of the general green form action. */
+[class*="fixed"][class*="inset-0"] form button[type="submit"],
+[class*="fixed"][class*="inset-y-0"] form button[type="submit"] {
+  background-color: #204972 !important;
+  color: #ffffff !important;
+}
+
+[class*="fixed"][class*="inset-0"] form button[type="submit"]:hover,
+[class*="fixed"][class*="inset-y-0"] form button[type="submit"]:hover {
+  background-color: #183654 !important;
+}
+
+/* UI-only: shared red styling for Cancel and text-based Close overlay actions. */
+.form-cancel-button {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  transition: transform 150ms ease, background-color 150ms ease !important;
+}
+
+.form-cancel-button:hover {
+  transform: scale(1.05);
+}
+
+/* UI-only: one shared PV Classes visual theme for action forms, dialogs, and overlays site-wide. */
+[class*="fixed"][class*="inset-0"] > [class*="bg-white"],
+[class*="fixed"][class*="inset-0"] > [class*="bg-gray-900"] > [class*="bg-white"],
+[class*="fixed"][class*="inset-y-0"] [class*="bg-white"] {
+  border: 1px solid rgb(32 73 114 / 0.12) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 24px 60px rgb(32 73 114 / 0.22) !important;
+}
+
+[class*="fixed"][class*="inset-0"] > [class*="bg-white"] > [class*="border-b"],
+[class*="fixed"][class*="inset-y-0"] [class*="bg-white"] > [class*="border-b"] {
+  border-color: rgb(255 255 255 / 0.18) !important;
+  background: linear-gradient(90deg, #204972, #87b105) !important;
+  color: #ffffff !important;
+}
+
+[class*="fixed"][class*="inset-0"] > [class*="bg-white"] > [class*="border-b"] :is(h1, h2, h3, h4, p),
+[class*="fixed"][class*="inset-y-0"] [class*="bg-white"] > [class*="border-b"] :is(h1, h2, h3, h4, p) {
+  color: #ffffff !important;
+}
+
+[class*="fixed"][class*="inset-0"] :is(input, select, textarea):focus,
+[class*="fixed"][class*="inset-y-0"] :is(input, select, textarea):focus {
+  border-color: #87b105 !important;
+  box-shadow: 0 0 0 3px rgb(135 177 5 / 0.14) !important;
+}
+
+/* UI-only: every non-destructive overlay action uses one consistent theme-blue button. */
+[class*="fixed"][class*="inset-0"] button[class*="bg-green-"],
+[class*="fixed"][class*="inset-0"] button[class*="bg-emerald-"],
+[class*="fixed"][class*="inset-0"] button[class*="bg-[#87b105]"],
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-green-"],
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-emerald-"],
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-[#87b105]"] {
+  background-color: #204972 !important;
+  color: #ffffff !important;
+}
+
+[class*="fixed"][class*="inset-0"] button[class*="bg-blue-"],
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-blue-"] {
+  background-color: #204972 !important;
+  color: #ffffff !important;
+}
+
+[class*="fixed"][class*="inset-0"] button[class*="bg-green-"]:hover,
+[class*="fixed"][class*="inset-0"] button[class*="bg-emerald-"]:hover,
+[class*="fixed"][class*="inset-0"] button[class*="bg-[#87b105]"]:hover,
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-green-"]:hover,
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-emerald-"]:hover,
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-[#87b105]"]:hover {
+  background-color: #183654 !important;
+}
+
+[class*="fixed"][class*="inset-0"] button[class*="bg-blue-"]:hover,
+[class*="fixed"][class*="inset-y-0"] button[class*="bg-blue-"]:hover {
+  background-color: #183654 !important;
+}
+
+/* UI-only: gives legacy/specialized tables the same visual system as GlobalTable. */
+.global-table-ui {
+  overflow: hidden;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+  background: #fff;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+.global-table-ui > div { overflow-x: auto; scrollbar-width: none; }
+.global-table-ui > div::-webkit-scrollbar { display: none; }
+.global-table-ui table, table.global-table-ui { width: 100%; border-collapse: collapse; }
+.global-table-ui thead, table.global-table-ui thead { background: #f9fafb !important; }
+.global-table-ui th, table.global-table-ui th {
+  padding: 0.75rem 1.5rem !important;
+  color: #6b7280 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.global-table-ui tbody, table.global-table-ui tbody { background: #fff; }
+.global-table-ui tbody tr, table.global-table-ui tbody tr { border-top: 1px solid #e5e7eb; transition: background-color 150ms ease; }
+.global-table-ui tbody tr:hover, table.global-table-ui tbody tr:hover { background: #f9fafb; }
+.global-table-ui td, table.global-table-ui td { padding: 1rem 1.5rem !important; color: #1f2937; font-size: 0.875rem; vertical-align: middle; }
+
+/* UI-only: shared filter and pagination shells mirror GlobalTable/TableFilters. */
+.global-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+.global-table-toolbar input, .global-table-toolbar select { min-height: 2.5rem; }
+.global-table-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem !important;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+.global-table-pagination button {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.375rem !important;
+  background: #fff;
+  color: #374151;
+  transition: background-color 150ms ease;
+}
+.global-table-pagination button:hover:not(:disabled) { background: #f3f4f6; }
+.global-table-pagination button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+/* UI-only: restrained Dashboard hero animations with reduced-motion support. */
+@keyframes dashboardHeroEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes dashboardOrbFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.7; }
+  50% { transform: translate3d(-42px, 28px, 0) scale(1.22); opacity: 1; }
+}
+@keyframes dashboardLivePulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(255 255 255 / 0); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 8px rgb(255 255 255 / 0.12); }
+}
+@keyframes dashboardGradientMove {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes dashboardShineSweep {
+  0% { transform: translateX(-120%) rotate(12deg); opacity: 0; }
+  18% { opacity: 1; }
+  55% { opacity: 0.8; }
+  100% { transform: translateX(520%) rotate(12deg); opacity: 0; }
+}
+.dashboard-hero {
+  background-size: 220% 220%;
+  animation: dashboardHeroEnter 600ms ease-out both, dashboardGradientMove 5s ease-in-out 600ms infinite;
+}
+.dashboard-hero-content { animation: dashboardHeroEnter 700ms 120ms ease-out both; }
+.dashboard-orb { border: 1px solid rgb(255 255 255 / 0.16); animation: dashboardOrbFloat 4.5s ease-in-out infinite; will-change: transform; }
+.dashboard-orb-two { animation-delay: -2.25s; animation-direction: reverse; }
+.dashboard-shine { animation: dashboardShineSweep 4.5s 1s ease-in-out infinite; will-change: transform; }
+.dashboard-live { animation: dashboardLivePulse 1.8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero,
+  .dashboard-hero-content,
+  .dashboard-orb,
+  .dashboard-shine,
+  .dashboard-live { animation: none !important; }
+}
+
+/* UI-only: standardize title icons across every blue-to-green page header. */
+[class*="from-[#204972]"][class*="to-[#87b105]"] :is(h1, h2) {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Add a page-specific symbol only to headers that declare their semantic icon. */
+[class*="from-[#204972]"][class*="to-[#87b105]"][data-page-icon] :is(h1, h2):not(:has(svg))::before {
+  content: "";
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: 0.625rem;
+  background-color: rgb(255 255 255 / 0.16);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+/* The semantic value lives on the header wrapper, so map it to the title pseudo-element. */
+[data-icon-symbol="▦"] :is(h1, h2)::before { content: "▦" !important; }
+[data-icon-symbol="♟"] :is(h1, h2)::before { content: "♟" !important; }
+[data-icon-symbol="♙"] :is(h1, h2)::before { content: "♙" !important; }
+[data-icon-symbol="%"] :is(h1, h2)::before { content: "%" !important; }
+[data-icon-symbol="▤"] :is(h1, h2)::before { content: "▤" !important; }
+[data-icon-symbol="?"] :is(h1, h2)::before { content: "?" !important; }
+[data-icon-symbol="✓"] :is(h1, h2)::before { content: "✓" !important; }
+[data-icon-symbol="▥"] :is(h1, h2)::before { content: "▥" !important; }
+[data-icon-symbol="⊞"] :is(h1, h2)::before { content: "⊞" !important; }
+[data-icon-symbol="≡"] :is(h1, h2)::before { content: "≡" !important; }
+[data-icon-symbol="●"] :is(h1, h2)::before { content: "●" !important; }
+[data-icon-symbol="▣"] :is(h1, h2)::before { content: "▣" !important; }
+[data-icon-symbol="◷"] :is(h1, h2)::before { content: "◷" !important; }
+[data-icon-symbol="★"] :is(h1, h2)::before { content: "★" !important; }
+[data-icon-symbol="◇"] :is(h1, h2)::before { content: "◇" !important; }
+[data-icon-symbol="⚙"] :is(h1, h2)::before { content: "⚙" !important; }
+[data-icon-symbol="▧"] :is(h1, h2)::before { content: "▧" !important; }
+
+/* Existing title icons receive the same tile dimensions and appearance. */
+[class*="from-[#204972]"][class*="to-[#87b105]"] :is(h1, h2) > svg {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  margin: 0 !important;
+  padding: 0.4375rem;
+  overflow: visible;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: 0.625rem;
+  background: rgb(255 255 255 / 0.16);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+/* UI-only: keep every rounded page-header action compact and wrapped on phone screens. */
+@media (max-width: 639px) {
+  [class*="from-[#204972]"][class*="to-[#87b105]"][class*="rounded"][class*="mb-6"] {
+    padding: 1rem !important;
+    overflow: hidden;
+  }
+
+  [class*="from-[#204972]"][class*="to-[#87b105]"][class*="rounded"][class*="mb-6"] > :is(div, section, nav)[class*="flex"] {
+    width: 100%;
+    min-width: 0;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  [class*="from-[#204972]"][class*="to-[#87b105]"][class*="rounded"][class*="mb-6"] :is(h1, h2) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  [class*="from-[#204972]"][class*="to-[#87b105]"][class*="rounded"][class*="mb-6"] :is(div, nav):has(> button),
+  [class*="from-[#204972]"][class*="to-[#87b105]"][class*="rounded"][class*="mb-6"] :is(div, nav):has(> a) {
+    display: flex !important;
+    width: auto !important;
+    max-width: 100%;
+    flex-flow: row wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  [class*="from-[#204972]"][class*="to-[#87b105]"][class*="rounded"][class*="mb-6"] :is(button, a) {
+    width: auto !important;
+    max-width: 100%;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: flex-start;
+    white-space: nowrap;
+  }
+}
+
+/* UI-only: prevent the Book Category eye-action popup from creating needless vertical scroll. */
+.book-category-details-popup {
+  width: min(26rem, calc(100vw - 2rem)) !important;
+  max-height: calc(100vh - 2rem) !important;
+  padding: 1rem !important;
+  border-radius: 1rem !important;
+}
+
+.book-category-details-popup .swal2-title {
+  padding: 0.25rem 1rem 0.5rem !important;
+  font-size: 1.25rem !important;
+}
+
+.book-category-details-content {
+  margin: 0.5rem 0 0 !important;
+  padding: 0 !important;
+}
+
+.book-category-details-popup .swal2-actions {
+  margin: 0.75rem auto 0 !important;
+}

@@ -142,7 +142,7 @@ const AddCategoryModal = ({ onClose, onAdd }) => {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${isVisible ? "opacity-50" : "opacity-0"
+        className={`fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-40 transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"
           }`}
         onClick={handleClose}
       ></div>
@@ -335,7 +335,7 @@ const AddCategoryModal = ({ onClose, onAdd }) => {
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600  shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600  shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 form-cancel-button"
                   >
                     Cancel
                   </button>

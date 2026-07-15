@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
-import { FaEdit, FaEye, FaTrash, FaPlus, FaTimes, FaImage, FaTag, FaFolder, FaCalendar, FaUser,  FaInfoCircle, FaAlignLeft, FaFileAlt  } from "react-icons/fa";
+import { FaPlus, FaTimes, FaImage, FaTag, FaFolder, FaCalendar, FaUser,  FaInfoCircle, FaAlignLeft, FaFileAlt  } from "react-icons/fa";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import TableActionButton from "../../common/TableActionButton";
 
 const CurrentAffairsAdmin = () => {
   const [categories, setCategories] = useState([]);
   const [currentAffairs, setCurrentAffairs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const formRef = useRef(null);
 
@@ -209,6 +212,18 @@ const CurrentAffairsAdmin = () => {
     setShowCurrentAffairForm(false);
   };
 
+  const filteredCurrentAffairs = currentAffairs.filter((affair) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      affair.title?.toLowerCase().includes(search) ||
+      affair.excerpt?.toLowerCase().includes(search) ||
+      affair.content?.toLowerCase().includes(search) ||
+      affair.status?.toLowerCase().includes(search) ||
+      affair.category?.name?.toLowerCase().includes(search) ||
+      affair.tags?.some((tag) => tag.toLowerCase().includes(search))
+    );
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <ToastContainer
@@ -225,14 +240,17 @@ const CurrentAffairsAdmin = () => {
       />
 
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-green-800">Current Affairs Management</h1>
+        {/* UI-only: standardized page header; handlers and rendering logic are unchanged. */}
+        <div data-page-icon data-icon-symbol="◷" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Current Affairs Management</h1>
+            <p className="mt-1 opacity-90">Create and manage current affairs content</p>
+          </div>
           <div className="flex space-x-4">
             {!showCategoryForm && (
               <button
                 onClick={() => setShowCategoryForm(true)}
-                className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-2 rounded-lg transition-colors"
               >
                 <FaPlus className="mr-2" /> Add Category
               </button>
@@ -240,7 +258,7 @@ const CurrentAffairsAdmin = () => {
             {!showCurrentAffairForm && (
               <button
                 onClick={() => setShowCurrentAffairForm(true)}
-                className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-2 rounded-lg transition-colors"
               >
                 <FaPlus className="mr-2" /> Add Current Affair
               </button>
@@ -471,7 +489,7 @@ const CurrentAffairsAdmin = () => {
                 <button
                   type="button"
                   onClick={resetCurrentAffairForm}
-                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -482,14 +500,25 @@ const CurrentAffairsAdmin = () => {
 
         {/* Current Affairs List */}
         <div className="bg-white rounded-xl shadow-md p-6 border border-green-100">
-          <h2 className="text-xl font-semibold text-green-800 mb-6">Current Affairs List</h2>
+          <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-xl font-bold text-black">Current Affairs List</h2>
+            <div className="relative w-full md:max-w-sm">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search current affairs..."
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm outline-none transition focus:border-[#87b105] focus:ring-1 focus:ring-[#87b105]"
+              />
+            </div>
+          </div>
 
-          {currentAffairs.length > 0 ? (
+          {filteredCurrentAffairs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentAffairs.map((affair) => (
-                <div key={affair._id} className="border border-green-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+              {filteredCurrentAffairs.map((affair) => (
+                <div key={affair._id} className="flex h-full flex-col overflow-hidden rounded-lg border border-green-200 bg-white transition-shadow hover:shadow-md">
                   {affair.imageUrl && (
-                    <div className="h-48 bg-gray-200 overflow-hidden">
+                    <div className="h-48 flex-shrink-0 bg-gray-200 overflow-hidden">
                       <img
                         src={affair.imageUrl}
                         alt={affair.title}
@@ -497,7 +526,7 @@ const CurrentAffairsAdmin = () => {
                       />
                     </div>
                   )}
-                  <div className="p-4">
+                  <div className="flex flex-1 flex-col p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${affair.status === 'published'
                         ? 'bg-green-100 text-green-800'
@@ -512,7 +541,7 @@ const CurrentAffairsAdmin = () => {
                       )}
                     </div>
 
-                    <h3 className="font-semibold text-green-800 mb-2 line-clamp-1">{affair.title}</h3>
+                    <h3 className="font-semibold text-black mb-2 line-clamp-1">{affair.title}</h3>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">{affair.excerpt || affair.content}</p>
 
                     {affair.tags && affair.tags.length > 0 && (
@@ -525,28 +554,28 @@ const CurrentAffairsAdmin = () => {
                       </div>
                     )}
 
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
+                    <div className="mt-auto flex justify-end gap-2 pt-4">
+                      <TableActionButton
+                        tone="edit"
                         onClick={() => handleEdit(affair)}
                         title="Edit"
                       >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-100 transition-colors"
+                        <Pencil className="h-4 w-4" />
+                      </TableActionButton>
+                      <TableActionButton
+                        tone="view"
                         onClick={() => handleView(affair)}
                         title="View"
                       >
-                        <FaEye />
-                      </button>
-                      <button
-                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
+                        <Eye className="h-4 w-4" />
+                      </TableActionButton>
+                      <TableActionButton
+                        tone="delete"
                         onClick={() => handleDelete(affair._id)}
                         title="Delete"
                       >
-                        <FaTrash />
-                      </button>
+                        <Trash2 className="h-4 w-4" />
+                      </TableActionButton>
                     </div>
                   </div>
                 </div>
@@ -558,7 +587,9 @@ const CurrentAffairsAdmin = () => {
                 <FaImage className="text-green-500 text-3xl" />
               </div>
               <h3 className="text-lg font-medium text-gray-700 mb-2">No current affairs yet</h3>
-              <p className="text-gray-500 mb-4">Get started by creating your first current affair</p>
+              <p className="text-gray-500 mb-4">
+                {searchTerm ? "No current affairs match your search" : "Get started by creating your first current affair"}
+              </p>
               <button
                 onClick={() => setShowCurrentAffairForm(true)}
                 className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
@@ -572,13 +603,15 @@ const CurrentAffairsAdmin = () => {
 
       {/* View Modal */}
       {showModal && selectedAffair && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold text-green-800">Current Affair Details</h2>
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          {/* UI-only: Current Affair details now uses the shared PV Classes overlay theme. */}
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b border-white/20 sticky top-0 z-10 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
+              <h2 className="flex items-center text-2xl font-bold"><FaFileAlt className="mr-3" /> Current Affair Details</h2>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+                aria-label="Close current affair details"
               >
                 <FaTimes size={24} />
               </button>
@@ -596,8 +629,8 @@ const CurrentAffairsAdmin = () => {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
+                <div className="bg-[#204972]/[0.04] border border-[#204972]/10 p-4 rounded-xl">
+                  <h3 className="text-lg font-semibold text-[#204972] mb-4 flex items-center">
                     <FaInfoCircle className="mr-2" /> Basic Information
                   </h3>
                   <div className="space-y-3">
@@ -621,8 +654,8 @@ const CurrentAffairsAdmin = () => {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
+                <div className="bg-[#87b105]/[0.06] border border-[#87b105]/20 p-4 rounded-xl">
+                  <h3 className="text-lg font-semibold text-[#527000] mb-4 flex items-center">
                     <FaFolder className="mr-2" /> Category & Tags
                   </h3>
                   <div className="space-y-3">
@@ -635,7 +668,7 @@ const CurrentAffairsAdmin = () => {
                       <div className="flex flex-wrap gap-1 mt-1">
                         {selectedAffair.tags && selectedAffair.tags.length > 0 ? (
                           selectedAffair.tags.map((tag, index) => (
-                            <span key={index} className="inline-flex items-center text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+                            <span key={index} className="inline-flex items-center text-xs bg-[#204972]/10 text-[#204972] px-2 py-1 rounded-full">
                               <FaTag className="mr-1 text-xs" /> {tag}
                             </span>
                           ))
@@ -649,19 +682,19 @@ const CurrentAffairsAdmin = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-green-800 mb-2 flex items-center">
+                <h3 className="text-lg font-semibold text-[#204972] mb-2 flex items-center">
                   <FaAlignLeft className="mr-2" /> Excerpt
                 </h3>
-                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-700 bg-[#204972]/[0.04] border border-[#204972]/10 p-4 rounded-xl">
                   {selectedAffair.excerpt || "No excerpt provided"}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-green-800 mb-2 flex items-center">
+                <h3 className="text-lg font-semibold text-[#527000] mb-2 flex items-center">
                   <FaFileAlt className="mr-2" /> Content
                 </h3>
-                <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">
+                <div className="bg-[#87b105]/[0.06] border border-[#87b105]/20 p-4 rounded-xl whitespace-pre-wrap">
                   {selectedAffair.content}
                 </div>
               </div>
@@ -674,10 +707,10 @@ const CurrentAffairsAdmin = () => {
               )}
             </div>
 
-            <div className="flex justify-end p-6 border-t border-gray-200 sticky bottom-0 bg-white">
+            <div className="flex justify-end p-5 border-t border-gray-200 sticky bottom-0 bg-slate-50">
               <button
                 onClick={closeModal}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                className="text-white px-6 py-2 rounded-lg font-medium transition-colors form-cancel-button"
               >
                 Close
               </button>

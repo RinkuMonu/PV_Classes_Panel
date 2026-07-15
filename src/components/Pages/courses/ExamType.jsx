@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaGraduationCap } from 'react-icons/fa';
 import axiosInstance from '../../../config/AxiosInstance';
+import TableActionButton from '../../common/TableActionButton';
 
 
 const ExamType = () => {
@@ -126,20 +127,18 @@ const ExamType = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        {/* UI-only: standardized page header; exam-type logic is unchanged. */}
+        <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center">
-            <div className="bg-green-100 p-3 rounded-full mr-4">
-              <FaGraduationCap className="text-green-600 text-2xl" />
-            </div>
             <div>
-              <h1 className="text-3xl font-bold text-green-800">Exam Types</h1>
-              <p className="text-gray-600">Manage different types of exams</p>
+              {/* UI-only: direct title icon uses the shared page-header tile styling. */}
+              <h1 className="text-2xl font-bold"><FaGraduationCap /> Exam Types</h1>
+              <p className="mt-1 opacity-90">Manage different types of exams</p>
             </div>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-colors shadow-md"
+            className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-3 rounded-lg transition-colors shadow-md"
           >
             <FaPlus className="mr-2" /> Add Exam Type
           </button>
@@ -157,92 +156,34 @@ const ExamType = () => {
           <>
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-[#204972]">
                 <h3 className="text-lg font-semibold text-gray-700">Total Exam Types</h3>
-                <p className="text-3xl font-bold text-green-700 mt-2">{examTypes.length}</p>
+              <p className="text-3xl font-bold text-[#87b105] mt-2">{examTypes.length}</p>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-[#204972]">
                 <h3 className="text-lg font-semibold text-gray-700">Active Exams</h3>
-                <p className="text-3xl font-bold text-blue-700 mt-2">
+                <p className="text-3xl font-bold text-[#87b105] mt-2">
                   {examTypes.filter(e => e.status === 'active').length}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500">
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-[#204972]">
                 <h3 className="text-lg font-semibold text-gray-700">Categories</h3>
-                <p className="text-3xl font-bold text-purple-700 mt-2">{categories.length}</p>
+                <p className="text-3xl font-bold text-[#87b105] mt-2">{categories.length}</p>
               </div>
             </div>
 
-            {/* Exam Types List */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="border-b border-gray-200 px-6 py-4 bg-green-50">
-                <h2 className="text-xl font-semibold text-green-800">All Exam Types</h2>
-              </div>
-
-              {examTypes.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {examTypes.map((examType) => (
-                    <div key={examType._id} className="p-6 hover:bg-green-50 transition-colors">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <h3 className="text-lg font-semibold text-green-800">{examType.name}</h3>
-                            <span className={`ml-3 px-2 py-1 text-xs rounded-full ${examType.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                              {examType.status}
-                            </span>
-                          </div>
-                          <p className="text-gray-600 mt-2">{examType.description}</p>
-                          <div className="mt-3 flex items-center">
-                            <span className="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                              {examType.category?.name}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex space-x-3">
-                          <button
-                            onClick={() => handleEdit(examType)}
-                            className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
-                            title="Edit"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(examType._id)}
-                            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
-                            title="Delete"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                    <FaGraduationCap className="text-green-500 text-3xl" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No exam types yet</h3>
-                  <p className="text-gray-500 mb-4">Get started by creating your first exam type</p>
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <FaPlus className="mr-2" /> Create Exam Type
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* UI-only: restore the original Exam Types list-card presentation. */}
+            <div className="overflow-hidden rounded-xl bg-white shadow-md"><div className="border-b border-gray-200 bg-[#204972]/[0.05] px-6 py-4"><h2 className="text-xl font-semibold text-[#204972]">All Exam Types</h2></div>{examTypes.length > 0 ? <div className="divide-y divide-gray-100">{examTypes.map((examType) => { const status = examType.status || (examType.isActive === false ? 'inactive' : 'active'); return <div key={examType._id} className="p-6 transition-colors hover:bg-[#204972]/[0.03]"><div className="flex items-start justify-between gap-4"><div className="flex-1"><div className="flex items-center"><h3 className="text-lg font-semibold text-[#204972]">{examType.name}</h3><span className={`ml-3 rounded-full px-2 py-1 text-xs ${status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{status}</span></div><p className="mt-2 text-gray-600">{examType.description}</p><span className="mt-3 inline-block rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">{examType.category?.name}</span></div><div className="flex gap-3"><TableActionButton onClick={() => handleEdit(examType)} tone="edit" title="Edit exam type"><FaEdit /></TableActionButton><TableActionButton onClick={() => handleDelete(examType._id)} tone="delete" title="Delete exam type"><FaTrash /></TableActionButton></div></div></div>; })}</div> : <div className="py-12 text-center"><FaGraduationCap className="mx-auto mb-4 text-3xl text-[#204972]" /><h3 className="text-lg font-medium text-gray-700">No exam types yet</h3></div>}</div>
           </>
         )}
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-opacity-50 flex items-center shadow-2xl justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+          <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center shadow-2xl justify-center p-4 z-50">
+            {/* UI-only: keep the Exam Type overlay border consistently rounded and clipped. */}
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
               <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h2 className="text-xl font-semibold text-green-800">
+                <h2 className="text-xl font-semibold text-black">
                   {editingId ? 'Edit Exam Type' : 'Add Exam Type'}
                 </h2>
                 <button
@@ -262,7 +203,7 @@ const ExamType = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition"
                     required
                     placeholder="Enter exam type name"
                   />
@@ -272,8 +213,8 @@ const ExamType = () => {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                    rows="3"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition"
+                    required                    rows="3"
                     placeholder="Enter description (optional)"
                   />
                 </div>
@@ -282,7 +223,7 @@ const ExamType = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition"
                     required
                   >
                     <option value="">Select Category</option>
@@ -298,8 +239,8 @@ const ExamType = () => {
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                  >
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition"
+                    required                  >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
@@ -311,13 +252,13 @@ const ExamType = () => {
                       setShowModal(false);
                       resetForm();
                     }}
-                    className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                    className="px-5 py-2 rounded-lg text-white bg-red-600 hover:scale-105 ease-in-out transition-colors form-cancel-button"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition-colors"
+                    className="bg-[#204972] hover:bg-[#183654] hover:scale-105 ease-in-out text-white px-5 py-2 rounded-lg transition-colors"
                   >
                     {editingId ? 'Update' : 'Create'}
                   </button>

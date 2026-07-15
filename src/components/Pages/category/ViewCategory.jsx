@@ -149,7 +149,6 @@ export default function ViewCategory() {
     const fetchCategory = async () => {
       try {
         const response = await axiosInstance.get(`/categories/${id}`);
-        console.log("Category response:", response.data);
 
         // Set the entire category data
         setCategory(response.data);
@@ -346,7 +345,8 @@ export default function ViewCategory() {
           </div>
         </div>
 
-        <div className="w-full overflow-hidden border border-gray-200 rounded-lg mb-8">
+        {/* UI-only: subcategory table now matches GlobalTable; existing actions are unchanged. */}
+        <div className="global-table-ui w-full mb-8">
           <div className="w-full overflow-x-auto">
             <table className="w-full whitespace-nowrap">
               <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-100">
@@ -451,7 +451,8 @@ export default function ViewCategory() {
             </table>
           </div>
 
-          <div className="px-4 py-3 border-t border-gray-200 bg-white text-gray-500">
+          {/* UI-only: pagination now matches the shared GlobalTable footer. */}
+          <div className="global-table-pagination text-gray-500">
             <div className="flex flex-col justify-between text-xs sm:flex-row">
               <span className="flex items-center font-semibold tracking-wide uppercase">
                 Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, subCategories.length)} of {subCategories.length}
@@ -505,7 +506,7 @@ export default function ViewCategory() {
 
       {/* Add Subcategory Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-black/30 bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-gray-900/20 backdrop-blur-sm">
           <div className="relative w-auto max-w-md mx-auto my-6">
             <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
               <div className="flex items-start justify-between p-5 border-b border-solid border-gray-200 rounded-t">
@@ -575,7 +576,7 @@ export default function ViewCategory() {
               </div>
               <div className="flex items-center justify-end p-6 border-t border-solid border-gray-200 rounded-b">
                 <button
-                  className="text-gray-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                  className="text-gray-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 form-cancel-button"
                   type="button"
                   onClick={() => setShowAddModal(false)}
                 >
@@ -596,7 +597,7 @@ export default function ViewCategory() {
 
       {/* Edit Subcategory Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-black/30 bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-gray-900/20 backdrop-blur-sm">
           <div className="relative w-auto max-w-md mx-auto my-6">
             <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
               <div className="flex items-start justify-between p-5 border-b border-solid border-gray-200 rounded-t">
@@ -666,7 +667,7 @@ export default function ViewCategory() {
               </div>
               <div className="flex items-center justify-end p-6 border-t border-solid border-gray-200 rounded-b">
                 <button
-                  className="text-gray-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                  className="text-gray-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 form-cancel-button"
                   type="button"
                   onClick={() => setShowEditModal(false)}
                 >

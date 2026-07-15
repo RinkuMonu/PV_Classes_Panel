@@ -1,17 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import {
-  FaEdit,
-  FaTrash,
-  FaEye,
   FaPlus,
   FaTimes,
   FaQuestionCircle,
 } from "react-icons/fa";
+import { Eye, FileQuestionMark, Pencil, Trash2 } from "lucide-react";
 
 // ✅ Import Toast
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import TableActionButton from "../../common/TableActionButton";
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
@@ -157,13 +156,20 @@ const FAQ = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <ToastContainer position="top-right" />
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-green-800">FAQ Management</h1>
+        {/* UI-only: standardized page header; handlers and rendering logic are unchanged. */}
+        {/* UI-only: the direct FileQuestionMark icon replaces the old generated question mark. */}
+        <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+          <div>
+            {/* UI-only: match the FAQ page header icon with its sidebar entry. */}
+            <h1 className="flex items-center text-2xl font-bold">
+              <FileQuestionMark className="mr-2 h-7 w-7" /> FAQ Management
+            </h1>
+            <p className="mt-1 opacity-90">Manage frequently asked questions</p>
+          </div>
           {!isFormVisible && !editingFaq && (
             <button
               onClick={() => setIsFormVisible(true)}
-              className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center bg-[#204972] hover:bg-[#183654] text-white px-4 py-2 rounded-lg transition-colors"
             >
               <FaPlus className="mr-2" /> Add New FAQ
             </button>
@@ -231,7 +237,7 @@ const FAQ = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium transition-colors form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -242,7 +248,7 @@ const FAQ = () => {
 
         {/* FAQ List */}
         <div className="bg-white rounded-xl shadow-md p-6 border border-green-100">
-          <h2 className="text-xl font-semibold text-green-800 mb-6">FAQ List</h2>
+          <h2 className="text-xl font-semibold text-[#204972]-800 mb-6">FAQ List</h2>
 
           {faqs.length > 0 ? (
             <div className="space-y-4">
@@ -251,35 +257,35 @@ const FAQ = () => {
                   key={faq._id}
                   className="border border-green-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                 >
-                  <div className="bg-green-50 p-4 flex justify-between items-start">
+                  <div className="bg-[#446382] p-4 flex justify-between items-start">
                     <div className="flex items-start">
-                      <FaQuestionCircle className="text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <h3 className="font-semibold text-green-800">
+                      <FaQuestionCircle className="text-white mt-1 mr-3 flex-shrink-0" />
+                      <h3 className="font-semibold text-white">
                         {faq.question}
                       </h3>
                     </div>
-                    <div className="flex space-x-2">
-                      <button
-                        className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
+                    <div className="flex gap-2">
+                      <TableActionButton
+                        tone="view"
                         onClick={() => handleView(faq._id)}
                         title="View"
                       >
-                        <FaEye />
-                      </button>
-                      <button
-                        className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-100 transition-colors"
+                        <Eye className="h-4 w-4" />
+                      </TableActionButton>
+                      <TableActionButton
+                        tone="edit"
                         onClick={() => handleEdit(faq)}
                         title="Edit"
                       >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
+                        <Pencil className="h-4 w-4" />
+                      </TableActionButton>
+                      <TableActionButton
+                        tone="delete"
                         onClick={() => handleDelete(faq._id)}
                         title="Delete"
                       >
-                        <FaTrash />
-                      </button>
+                        <Trash2 className="h-4 w-4" />
+                      </TableActionButton>
                     </div>
                   </div>
                   <div className="p-4 pl-12">
@@ -311,33 +317,35 @@ const FAQ = () => {
 
         {/* View Modal */}
         {viewModalOpen && selectedFaq && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
-              <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-                <h3 className="text-lg font-bold">FAQ Details</h3>
+          <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            {/* UI-only: FAQ details overlay now matches the shared PV Classes modal theme. */}
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+              <div className="bg-gradient-to-r from-[#204972] to-[#87b105] text-white p-5 flex justify-between items-center">
+                <h3 className="flex items-center text-lg font-bold"><FaQuestionCircle className="mr-2" /> FAQ Details</h3>
                 <button
                   onClick={() => setViewModalOpen(false)}
-                  className="text-white hover:text-green-200"
+                  className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+                  aria-label="Close FAQ details"
                 >
                   <FaTimes size={20} />
                 </button>
               </div>
               <div className="p-6">
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                <div className="mb-4 rounded-xl border border-[#204972]/10 bg-[#204972]/[0.04] p-4">
+                  <h4 className="text-sm font-semibold text-[#204972] mb-1">
                     Question
                   </h4>
                   <p className="text-gray-800">{selectedFaq.question}</p>
                 </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                <div className="rounded-xl border border-[#87b105]/20 bg-[#87b105]/[0.06] p-4">
+                  <h4 className="text-sm font-semibold text-[#527000] mb-1">
                     Answer
                   </h4>
                   <p className="text-gray-800">{selectedFaq.answer}</p>
                 </div>
                 <button
                   onClick={() => setViewModalOpen(false)}
-                  className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors"
+                  className="mt-6 w-full text-white py-2.5 rounded-lg font-medium transition-colors form-cancel-button"
                 >
                   Close
                 </button>
