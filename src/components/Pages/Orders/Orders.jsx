@@ -45,7 +45,7 @@ const Orders = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const filteredOrders = ordersData.filter((order) => {
+  const orderStatusFiltered = ordersData.filter((order) => {
   switch (orderFilter) {
     case "completed":
       return order.orderStatus?.toLowerCase() === "completed";
@@ -130,7 +130,7 @@ const Orders = () => {
 
   const getOrderTypes = (order) => [...new Set(getPurchasedItems(order).map((item) => item.type))];
 
-  const filteredOrders = ordersData.filter((order) => {
+  const filteredOrders = orderStatusFiltered.filter((order) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch = (
       order._id?.toLowerCase().includes(search) ||
