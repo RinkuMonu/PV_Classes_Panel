@@ -13,14 +13,15 @@ export default function SettingsPage() {
   return (
     <main className="h-full overflow-y-auto">
       <div className="mx-auto grid px-2 sm:container">
-        <div className="flex justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-            Settings
-          </h1>
-
-          <div className="fixed  right-4 z-50 mr-8">
+        {/* UI-only: standardized page header; settings state and controls are unchanged. */}
+        <div data-page-icon data-icon-symbol="⚙" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Settings</h1>
+            <p className="mt-1 opacity-90">Configure application preferences</p>
+          </div>
+          <div>
             <button
-              className="inline-flex h-10 items-center justify-center  border border-transparent bg-emerald-500 px-6 py-2 align-bottom text-sm font-medium leading-5 text-white transition-colors duration-150 hover:bg-emerald-600 focus:outline-none active:bg-emerald-600"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-transparent bg-[#204972] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#183654] focus:outline-none"
               type="submit"
             >
               Update

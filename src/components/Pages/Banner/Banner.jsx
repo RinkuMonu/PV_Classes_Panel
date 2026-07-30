@@ -2,11 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import GlobalTable from "../../common/GlobalTable";
+import TableActionButton from "../../common/TableActionButton";
 
 const BannerManager = () => {
     const [banners, setBanners] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedBanner, setSelectedBanner] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
     const [formData, setFormData] = useState({
         bannerName: "",
         description: "",
@@ -207,6 +212,106 @@ const BannerManager = () => {
         fetchBanners();
     }, []);
 
+    const filteredBanners = banners.filter((banner) => {
+        const search = searchTerm.toLowerCase();
+        return (
+            banner.bannerName?.toLowerCase().includes(search) ||
+            banner.description?.toLowerCase().includes(search) ||
+            banner.deviceType?.toLowerCase().includes(search) ||
+            banner.position?.toLowerCase().includes(search)
+        );
+    });
+
+    const totalPages = Math.max(Math.ceil(filteredBanners.length / pageSize), 1);
+    const paginatedBanners = filteredBanners.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const firstVisibleBanner = filteredBanners.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const lastVisibleBanner = Math.min(currentPage * pageSize, filteredBanners.length);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
+
+    const bannerColumns = [
+        {
+            key: "index",
+            header: "S.No.",
+            render: (_banner, index) => firstVisibleBanner + index,
+        },
+        {
+            key: "bannerName",
+            header: "Name",
+            render: (banner) => <div className="font-medium text-gray-900">{banner.bannerName}</div>,
+        },
+        {
+            key: "deviceType",
+            header: "Device",
+            render: (banner) => (
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${banner.deviceType === 'mobile'
+                    ? 'bg-blue-100 text-blue-800'
+                    : banner.deviceType === 'desktop'
+                        ? 'bg-purple-100 text-purple-800'
+                        : 'bg-indigo-100 text-indigo-800'
+                    }`}>
+                    {banner.deviceType}
+                </span>
+            ),
+        },
+        {
+            key: "position",
+            header: "Position",
+            render: (banner) => (
+                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                    {banner.position}
+                </span>
+            ),
+        },
+        {
+            key: "image",
+            header: "Image",
+            render: (banner) => (
+                banner.full_image ? (
+                    <img
+                        src={banner.full_image}
+                        alt={banner.bannerName}
+                        className="h-12 w-auto rounded-lg object-cover shadow-sm"
+                    />
+                ) : (
+                    <span className="text-gray-400">No Image</span>
+                )
+            ),
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            render: (banner) => (
+                <div className="flex items-center gap-2">
+                    <TableActionButton
+                        tone="edit"
+                        title="Edit banner"
+                        onClick={() => fetchBannerById(banner._id)}
+                    >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                    </TableActionButton>
+                    <TableActionButton
+                        tone="delete"
+                        title="Delete banner"
+                        onClick={() => handleDelete(banner._id)}
+                    >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 11v6M14 11v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
+                        </svg>
+                    </TableActionButton>
+                </div>
+            ),
+        },
+    ];
+
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <ToastContainer
@@ -222,12 +327,16 @@ const BannerManager = () => {
                 theme="light"
             />
 
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Banner Manager</h1>
+            {/* UI-only: standardized page header; banner logic is unchanged. */}
+            <div data-page-icon data-icon-symbol="▣" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                <div>
+                    <h1 className="text-2xl font-bold">Banner Manager</h1>
+                    <p className="mt-1 opacity-90">Create and manage promotional banners</p>
+                </div>
                 {selectedBanner && (
                     <button
                         onClick={handleCancelEdit}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors form-cancel-button"
                     >
                         Cancel Edit
                     </button>
@@ -364,88 +473,43 @@ const BannerManager = () => {
 
             {/* Banner List */}
             <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-200">
-                    Banner List
-                </h2>
-
-                {loading ? (
-                    <div className="flex justify-center items-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-                    </div>
-                ) : banners.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p className="mt-4 text-gray-600 text-lg">No banners available</p>
-                        <p className="text-gray-500">Create your first banner using the form above</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto rounded-lg">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {banners.map((banner, idx) => (
-                                    <tr key={banner._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{idx + 1}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{banner.bannerName}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${banner.deviceType === 'mobile'
-                                                ? 'bg-blue-100 text-blue-800'
-                                                : banner.deviceType === 'desktop'
-                                                    ? 'bg-purple-100 text-purple-800'
-                                                    : 'bg-indigo-100 text-indigo-800'
-                                                }`}>
-                                                {banner.deviceType}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                                                {banner.position}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {banner.full_image ? (
-                                                <img
-                                                    src={banner.full_image}
-                                                    alt={banner.bannerName}
-                                                    className="h-12 w-auto rounded-lg object-cover shadow-sm"
-                                                />
-                                            ) : (
-                                                <span className="text-gray-400">No Image</span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={() => fetchBannerById(banner._id)}
-                                                    className="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-md text-sm transition-colors"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(banner._id)}
-                                                    className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md text-sm transition-colors"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                <GlobalTable
+                    title={`Banner List (${filteredBanners.length})`}
+                    filters={{
+                        searchValue: searchTerm,
+                        onSearchChange: (value) => {
+                            setSearchTerm(value);
+                            setCurrentPage(1);
+                        },
+                        searchPlaceholder: "Search banners...",
+                        resultText: `${filteredBanners.length} banner${filteredBanners.length === 1 ? "" : "s"} found`,
+                        exportData: filteredBanners,
+                        exportFileName: "banners.csv",
+                        exportColumns: [
+                            { key: "bannerName", header: "Name" },
+                            { key: "description", header: "Description" },
+                            { key: "deviceType", header: "Device" },
+                            { key: "position", header: "Position" },
+                            { key: "full_image", header: "Image URL" },
+                        ],
+                    }}
+                    columns={bannerColumns}
+                    data={paginatedBanners}
+                    loading={loading}
+                    emptyText={searchTerm ? "No banners match your search" : "No banners available"}
+                    loadingText="Loading banners..."
+                    getRowKey={(banner) => banner._id}
+                    pagination={{
+                        currentPage,
+                        totalPages,
+                        onPageChange: setCurrentPage,
+                        rightContent: (
+                            <p className="text-sm text-gray-500">
+                                Showing {firstVisibleBanner}-{lastVisibleBanner} of {filteredBanners.length}
+                            </p>
+                        ),
+                    }}
+                />
             </div>
         </div>
     );

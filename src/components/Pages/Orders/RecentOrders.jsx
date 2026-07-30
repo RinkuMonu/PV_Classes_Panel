@@ -16,7 +16,8 @@ export default function RecentOrders({ recentData }) {
         </div>
 
         {/* Orders Table */}
-        <div className="w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg mb-8">
+        {/* UI-only: recent-orders table now matches GlobalTable; order logic is unchanged. */}
+        <div className="global-table-ui w-full mb-8">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">

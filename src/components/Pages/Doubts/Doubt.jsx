@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
-import { FaCheckCircle, FaTimesCircle, FaEye, FaPaperPlane, FaSpinner } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import GlobalTable from "../../common/GlobalTable";
 
 const DoubtsTable = () => {
     const [doubts, setDoubts] = useState([]);
@@ -10,7 +11,10 @@ const DoubtsTable = () => {
     const [solutions, setSolutions] = useState({});
     const [selectedDoubt, setSelectedDoubt] = useState(null);
     const [activeSolutionId, setActiveSolutionId] = useState(null);
-    const [detailViewLoading, setDetailViewLoading] = useState(false);
+    const [, setDetailViewLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
 
     // Fetch all doubts
     const fetchDoubts = async () => {
@@ -79,6 +83,104 @@ const DoubtsTable = () => {
         fetchDoubts();
     }, []);
 
+    // UI-only: filter and paginate the already fetched doubts for the shared table.
+    const filteredDoubts = doubts.filter((doubt) => {
+        const search = searchTerm.toLowerCase();
+        return (
+            doubt.userName?.toLowerCase().includes(search) ||
+            doubt.title?.toLowerCase().includes(search) ||
+            doubt.status?.toLowerCase().includes(search)
+        );
+    });
+
+    const totalPages = Math.max(Math.ceil(filteredDoubts.length / pageSize), 1);
+    const paginatedDoubts = filteredDoubts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const firstVisibleDoubt = filteredDoubts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const lastVisibleDoubt = Math.min(currentPage * pageSize, filteredDoubts.length);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
+
+    // UI-only: column config connects Doubts to the global table component.
+    const doubtColumns = [
+        {
+            key: "index",
+            // UI-only: use the standard serial-number heading in the Doubt List.
+            header: "S.No.",
+            render: (_doubt, index) => firstVisibleDoubt + index,
+        },
+        {
+            key: "user",
+            header: "User",
+            render: (doubt) => <span className="font-medium text-gray-900">{doubt.userName || "N/A"}</span>,
+        },
+        {
+            key: "question",
+            header: "Question",
+            cellClassName: "max-w-xs truncate",
+            render: (doubt) => doubt.title || "N/A",
+        },
+        {
+            key: "status",
+            header: "Status",
+            render: (doubt) => (
+                doubt.status === "resolved" ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <FaCheckCircle className="mr-1" /> Resolved
+                    </span>
+                ) : (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <FaTimesCircle className="mr-1" /> Pending
+                    </span>
+                )
+            ),
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            render: (doubt) => {
+                const doubtId = doubt.id || doubt._id;
+
+                return (
+                    <div className="flex min-w-[360px] items-center gap-2">
+                        {doubt.status !== "resolved" && (
+                            <div className="flex flex-1 items-center gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Enter solution..."
+                                    value={solutions[doubtId] || ""}
+                                    onChange={(e) =>
+                                        setSolutions((prev) => ({
+                                            ...prev,
+                                            [doubtId]: e.target.value,
+                                        }))
+                                    }
+                                    className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:border-[#87b105] focus:ring-1 focus:ring-[#87b105]"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleSolve(doubtId)}
+                                    disabled={activeSolutionId === doubtId}
+                                    className="inline-flex items-center gap-1 rounded-md bg-[#87b105] px-3 py-2 text-xs font-medium text-white transition hover:scale-105 disabled:opacity-75"
+                                >
+                                    {activeSolutionId === doubtId ? (
+                                        <FaSpinner className="animate-spin" />
+                                    ) : (
+                                        <FaPaperPlane />
+                                    )}
+                                    Resolve
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            },
+        },
+    ];
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <ToastContainer
@@ -95,110 +197,51 @@ const DoubtsTable = () => {
             />
             
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-green-800 mb-2">Doubts Management</h1>
-                    <p className="text-gray-600">View and resolve student doubts</p>
+                {/* UI-only: standardized page header; data and actions are unchanged. */}
+                <div data-page-icon data-icon-symbol="?" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+                    <h1 className="text-2xl font-bold">Doubts Management</h1>
+                    <p className="mt-1 opacity-90">View and resolve student doubts</p>
                 </div>
 
-                {/* Doubts Table */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden border border-green-100">
-                    <div className="bg-green-50 px-6 py-4 border-b border-green-200">
-                        <h2 className="text-xl font-semibold text-green-800">Doubts List</h2>
-                    </div>
-
-                    {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="bg-green-50">
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">#</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">User</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Question</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Status</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {doubts.map((doubt, idx) => (
-                                        <tr key={doubt.id} className="hover:bg-green-50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{idx + 1}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{doubt.userName}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{doubt.title}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {doubt.status === "resolved" ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        <FaCheckCircle className="mr-1" /> Resolved
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        <FaTimesCircle className="mr-1" /> Pending
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex items-center space-x-2">
-                                                    {/* <button
-                                                        onClick={() => fetchDoubtById(doubt.id)}
-                                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                                                    >
-                                                        <FaEye className="mr-1" /> View
-                                                    </button> */}
-
-                                                    {doubt.status !== "resolved" && (
-                                                        <div className="flex-1 flex items-center">
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Enter solution..."
-                                                                value={solutions[doubt.id] || ""}
-                                                                onChange={(e) =>
-                                                                    setSolutions((prev) => ({
-                                                                        ...prev,
-                                                                        [doubt.id]: e.target.value,
-                                                                    }))
-                                                                }
-                                                                className="flex-1 min-w-0 block w-full px-3 py-1.5 rounded-md border border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                                                            />
-                                                            <button
-                                                                onClick={() => handleSolve(doubt.id)}
-                                                                disabled={activeSolutionId === doubt.id}
-                                                                className="ml-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-75 transition-colors"
-                                                            >
-                                                                {activeSolutionId === doubt.id ? (
-                                                                    <FaSpinner className="animate-spin mr-1" />
-                                                                ) : (
-                                                                    <FaPaperPlane className="mr-1" />
-                                                                )}
-                                                                Resolve
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
-                    {doubts.length === 0 && !loading && (
-                        <div className="text-center py-12">
-                            <div className="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                                <FaCheckCircle className="text-green-500 text-3xl" />
-                            </div>
-                            <h3 className="text-lg font-medium text-gray-700 mb-2">No doubts found</h3>
-                            <p className="text-gray-500">All student doubts have been resolved</p>
-                        </div>
-                    )}
-                </div>
+                {/* UI-only: shared table, filters, export, and pagination for doubts. */}
+                <GlobalTable
+                    title={`Doubts List (${filteredDoubts.length})`}
+                    filters={{
+                        searchValue: searchTerm,
+                        onSearchChange: (value) => {
+                            setSearchTerm(value);
+                            setCurrentPage(1);
+                        },
+                        searchPlaceholder: "Search doubts...",
+                        resultText: `${filteredDoubts.length} doubt${filteredDoubts.length === 1 ? "" : "s"} found`,
+                        exportData: filteredDoubts,
+                        exportFileName: "doubts.csv",
+                        exportColumns: [
+                            { key: "userName", header: "User" },
+                            { key: "title", header: "Question" },
+                            { key: "status", header: "Status" },
+                        ],
+                    }}
+                    columns={doubtColumns}
+                    data={paginatedDoubts}
+                    loading={loading}
+                    loadingText="Loading doubts..."
+                    emptyText={searchTerm ? "No doubts match your search" : "No doubts found"}
+                    getRowKey={(doubt) => doubt.id || doubt._id}
+                    pagination={{
+                        currentPage,
+                        totalPages,
+                        onPageChange: setCurrentPage,
+                        rightContent: (
+                            <p className="text-sm text-gray-500">
+                                Showing {firstVisibleDoubt}-{lastVisibleDoubt} of {filteredDoubts.length}
+                            </p>
+                        ),
+                    }}
+                />
 
                 {/* Doubt details section */}
-                {selectedDoubt && (
+                {/* {selectedDoubt && (
                     <div className="mt-8 bg-white rounded-xl shadow-md overflow-hidden border border-green-100">
                         <div className="bg-green-50 px-6 py-4 border-b border-green-200">
                             <h2 className="text-xl font-semibold text-green-800">Doubt Details</h2>
@@ -276,7 +319,7 @@ const DoubtsTable = () => {
                             </div>
                         )}
                     </div>
-                )}
+                )} */}
             </div>
         </div>
     );

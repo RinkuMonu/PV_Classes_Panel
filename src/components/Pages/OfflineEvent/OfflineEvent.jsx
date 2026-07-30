@@ -8,7 +8,6 @@ import {
   MapPin,
   Plus,
   RefreshCw,
-  Search,
   Send,
   Users,
   X,
@@ -26,6 +25,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../config/AxiosInstance";
+import GlobalTable from "../../common/GlobalTable";
+import TableFilters from "../../common/TableFilters";
+import TableActionButton from "../../common/TableActionButton";
+import { FormOverlay } from "../../common/Form";
 
 const OfflineTestStudents = () => {
   const [students, setStudents] = useState([]);
@@ -63,7 +66,7 @@ const OfflineTestStudents = () => {
   // Student details modal
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [loadingStudent, setLoadingStudent] = useState(false);
+  const [loadingStudent] = useState(false);
 
 
   // Stats
@@ -95,6 +98,8 @@ const OfflineTestStudents = () => {
   useEffect(() => {
     fetchStudents();
 
+    // Load the student list once when this page mounts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -256,29 +261,6 @@ const OfflineTestStudents = () => {
   // Pagination
   const paginatedStudents = filteredStudents.slice((page - 1) * limit, page * limit);
 
-  // Get page numbers for pagination
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    let start = Math.max(1, page - 2);
-    let end = Math.min(totalPages, page + 2);
-
-    if (page <= 3) {
-      end = Math.min(totalPages, maxVisible);
-    }
-
-    if (page >= totalPages - 2) {
-      start = Math.max(1, totalPages - maxVisible + 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  };
-
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "Not scheduled";
@@ -326,27 +308,137 @@ const OfflineTestStudents = () => {
     }
   };
 
+  // Changed: table columns are now defined once and passed into the global table UI.
+  // Backend data, filtering logic, pagination logic, and action handlers remain unchanged.
+  const offlineEventColumns = [
+    {
+      key: "studentDetails",
+      header: "Student Details",
+      render: (student) => (
+        <div className="flex items-start">
+          <div className="ml-3">
+            <div className="text-sm font-medium text-gray-900">{student.name}</div>
+            <div className="text-sm text-gray-500">
+              {student.fatherName && `Father: ${student.fatherName}`}
+            </div>
+            <div className="text-xs text-gray-400">
+              Roll: {student.rollNumber || "N/A"}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "contact",
+      header: "Contact",
+      render: (student) => (
+        <div>
+          <div className="text-sm text-gray-900 flex items-center">
+            <Mail className="h-3 w-3 mr-1 text-gray-400" />
+            {student.email || "N/A"}
+          </div>
+          <div className="text-sm text-gray-900 flex items-center mt-1">
+            <Phone className="h-3 w-3 mr-1 text-gray-400" />
+            {student.mobile}
+          </div>
+          <div className="text-sm text-gray-500 flex items-center mt-1">
+            <LocationIcon className="h-3 w-3 mr-1 text-gray-400" />
+            {student.city}, {student.state}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "group",
+      header: "Group",
+      render: (student) =>
+        student.groupNumber ? (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap">
+            <Tag className="h-3 w-3 mr-1" />
+            Group {student.groupNumber}
+          </span>
+        ) : (
+          <span className="text-sm text-gray-500">Not assigned</span>
+        ),
+    },
+    {
+      key: "schedule",
+      header: "Schedule",
+      render: (student) =>
+        student.scheduleDate ? (
+          <div>
+            <div className="text-sm text-gray-900 flex items-center">
+              <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+              {formatDate(student.scheduleDate)}
+            </div>
+            {student.location && (
+              <div className="text-sm text-gray-500 flex items-center mt-1">
+                <MapPin className="h-3 w-3 mr-1 text-gray-400" />
+                {student.location.length > 20
+                  ? student.location.substring(0, 20) + "..."
+                  : student.location}
+              </div>
+            )}
+          </div>
+        ) : (
+          <span className="text-sm text-gray-500">Not scheduled</span>
+        ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (student) => getStatusBadge(student),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (student) => (
+        <div className="flex items-center space-x-3">
+          <TableActionButton
+            tone="view"
+            onClick={() => handleViewStudent(student)}
+            title="View Details"
+          >
+            <Eye className="h-5 w-5" />
+          </TableActionButton>
+          {student.notificationSent && (
+            <CheckCircle className="h-5 w-5 text-green-600" title="Notification Sent" />
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  // Changed: filter options are now passed into the shared filter UI.
+  const groupFilterOptions = [
+    { value: "all", label: "All Groups" },
+    { value: "ungrouped", label: "Ungrouped Students" },
+    { value: "scheduled", label: "Scheduled" },
+    { value: "notified", label: "Notified" },
+    ...groups.map((group) => ({ value: String(group), label: `Group ${group}` })),
+  ];
+
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+      {/* UI-only: standardized page header; offline-event logic is unchanged. */}
+      <div className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center">
-          <Users className="h-8 w-8 text-green-600 mr-2" />
-          <h1 className="text-2xl font-bold text-gray-800">Offline Interview</h1>
+          {/* UI-only: direct title icon uses the shared page-header tile styling. */}
+          <div><h1 className="text-2xl font-bold"><Users /> Offline Interview</h1><p className="mt-1 opacity-90">Manage interviews, groups, and schedules</p></div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
+          {/* <button
             onClick={exportToCSV}
             className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             <Download className="h-4 w-4" />
             Export CSV
-          </button>
+          </button> */}
 
           <button
             onClick={() => setShowGroupModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#204972] hover:bg-[#183654] text-white rounded-lg  transition-colors"
           >
             <Plus className="h-4 w-4" />
             Create Groups
@@ -354,7 +446,7 @@ const OfflineTestStudents = () => {
 
           <button
             onClick={() => setShowScheduleModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#204972] hover:bg-[#183654] text-white rounded-lg  transition-colors"
           >
             <Calendar className="h-4 w-4" />
             Schedule
@@ -362,7 +454,7 @@ const OfflineTestStudents = () => {
 
           <button
             onClick={() => setShowNotificationModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#204972] hover:bg-[#183654] text-white rounded-lg hover: transition-colors"
           >
             <Send className="h-4 w-4" />
             Send Notification
@@ -373,252 +465,76 @@ const OfflineTestStudents = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-600">
+        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-[#204972]">
           <p className="text-sm text-gray-600">Total Students</p>
           <p className="text-2xl font-bold text-gray-800">{stats.totalStudents}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
+        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-[#204972]">
           <p className="text-sm text-gray-600">Grouped</p>
           <p className="text-2xl font-bold text-gray-800">{stats.groupedStudents}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-600">
+        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-[#204972]">
           <p className="text-sm text-gray-600">Ungrouped</p>
           <p className="text-2xl font-bold text-gray-800">{stats.ungroupedStudents}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-purple-600">
+        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-[#204972]">
           <p className="text-sm text-gray-600">Scheduled</p>
           <p className="text-2xl font-bold text-gray-800">{stats.scheduledStudents}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-orange-600">
+        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-[#204972]">
           <p className="text-sm text-gray-600">Notified</p>
           <p className="text-2xl font-bold text-gray-800">{stats.notifiedStudents}</p>
         </div>
       </div>
 
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-[250px]">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by name, email, mobile, roll number..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <select
-            value={selectedGroup}
-            onChange={(e) => setSelectedGroup(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[180px]"
-          >
-            <option value="all">All Groups</option>
-            <option value="ungrouped">Ungrouped Students</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="notified">Notified</option>
-            {groups.map(group => (
-              <option key={group} value={group}>Group {group}</option>
-            ))}
-          </select>
-
-          <div className="text-sm text-gray-600">
-            Showing {paginatedStudents.length} of {filteredStudents.length} students
-          </div>
-        </div>
+      {/* Changed: filters now use the shared TableFilters component. Existing search/group state is unchanged. */}
+      <div className="mb-6">
+        <TableFilters
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search by name, email, mobile, roll number..."
+          filters={[
+            {
+              key: "group",
+              value: selectedGroup,
+              onChange: setSelectedGroup,
+              options: groupFilterOptions,
+            },
+          ]}
+          resultText={`Showing ${paginatedStudents.length} of ${filteredStudents.length} students`}
+          onExport={exportToCSV}
+        />
       </div>
 
-      {/* Students Table */}
+      {/* Changed: student table now uses GlobalTable. Pagination below is still the original logic. */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Group
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Schedule
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center">
-                    <div className="flex justify-center items-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      <span className="ml-2 text-gray-600">Loading students...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : paginatedStudents.length > 0 ? (
-                paginatedStudents.map((student) => (
-                  <tr key={student._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-start">
-
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {student.fatherName && `Father: ${student.fatherName}`}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            Roll: {student.rollNumber || 'N/A'}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 flex items-center">
-                        <Mail className="h-3 w-3 mr-1 text-gray-400" />
-                        {student.email || 'N/A'}
-                      </div>
-                      <div className="text-sm text-gray-900 flex items-center mt-1">
-                        <Phone className="h-3 w-3 mr-1 text-gray-400" />
-                        {student.mobile}
-                      </div>
-                      <div className="text-sm text-gray-500 flex items-center mt-1">
-                        <LocationIcon className="h-3 w-3 mr-1 text-gray-400" />
-                        {student.city}, {student.state}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      {student.groupNumber ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 textwrap-nowrap">
-                          <Tag className="h-3 w-3 mr-1" />
-                          Group {student.groupNumber}
-                        </span>
-                      ) : (
-                        <span className="text-sm text-gray-500">Not assigned</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      {student.scheduleDate ? (
-                        <div>
-                          <div className="text-sm text-gray-900 flex items-center">
-                            <Calendar className="h-3 w-3 mr-1 text-gray-400" />
-                            {formatDate(student.scheduleDate)}
-                          </div>
-                          {student.location && (
-                            <div className="text-sm text-gray-500 flex items-center mt-1">
-                              <MapPin className="h-3 w-3 mr-1 text-gray-400" />
-                              {student.location.length > 20
-                                ? student.location.substring(0, 20) + '...'
-                                : student.location}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-500">Not scheduled</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(student)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => handleViewStudent(student)}
-                          className="text-blue-600 hover:text-blue-900 transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="h-5 w-5" />
-                        </button>
-                        {student.notificationSent && (
-                          <CheckCircle className="h-5 w-5 text-green-600" title="Notification Sent" />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-sm text-gray-500">
-                    No students found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {filteredStudents.length > 0 && (
-          <div className="flex flex-wrap justify-center items-center gap-2 py-4 border-t border-gray-200">
-            <button
-              onClick={() => setPage(1)}
-              disabled={page === 1}
-              className={`px-3 py-1 rounded ${page === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'}`}
-            >
-              First
-            </button>
-
-            {page > 1 && (
-              <button
-                onClick={() => setPage(page - 1)}
-                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Previous
-              </button>
-            )}
-
-            {getPageNumbers().map((p) => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`px-3 py-1 rounded ${page === p ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-                  }`}
-              >
-                {p}
-              </button>
-            ))}
-
-            {page < totalPages && (
-              <button
-                onClick={() => setPage(page + 1)}
-                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Next
-              </button>
-            )}
-
-            <button
-              onClick={() => setPage(totalPages)}
-              disabled={page === totalPages}
-              className={`px-3 py-1 rounded ${page === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'}`}
-            >
-              Last
-            </button>
-          </div>
-        )}
+        <GlobalTable
+          columns={offlineEventColumns}
+          data={paginatedStudents}
+          loading={loading}
+          loadingText="Loading students..."
+          emptyText="No students found"
+          wrapperClassName="border-0 rounded-none shadow-none"
+          pagination={{
+            currentPage: page,
+            totalPages,
+            onPageChange: setPage,
+          }}
+        />
       </div>
 
       {/* Create Groups Modal */}
       {showGroupModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
+        <FormOverlay>
+          {/* UI-only: clip Offline Event gradient headers to the modal's rounded top corners. */}
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md overflow-hidden">
+            {/* UI-only: Offline Event action overlays share the PV Classes gradient header. */}
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
               <h2 className="text-xl font-bold">Create Student Groups</h2>
               <button
                 onClick={() => setShowGroupModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 hover:bg-white/15 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -634,7 +550,7 @@ const OfflineTestStudents = () => {
                   value={groupSize}
                   onChange={(e) => setGroupSize(parseInt(e.target.value))}
                   min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#87b105]"
                 />
               </div>
 
@@ -645,14 +561,14 @@ const OfflineTestStudents = () => {
                 <select
                   value={groupType}
                   onChange={(e) => setGroupType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#87b105]"
                 >
                   <option value="test">Test</option>
                   {/* <option value="interview">Interview</option> */}
                 </select>
               </div>
 
-              <div className="text-sm bg-blue-50 text-blue-700 p-3 rounded-lg">
+              <div className="text-sm text-blue-700 p-3 rounded-lg">
                 <Users className="h-4 w-4 inline mr-1" />
                 Ungrouped students: {stats.ungroupedStudents}
               </div>
@@ -661,30 +577,30 @@ const OfflineTestStudents = () => {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowGroupModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border-none bg-red-600 text-white rounded-lg hover:scale-105 ease-in-out form-cancel-button"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateGroups}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 bg-[#87b105] text-white rounded-lg hover:scale-105 ease-in-out"
               >
                 Create Groups
               </button>
             </div>
           </div>
-        </div>
+        </FormOverlay>
       )}
 
       {/* Schedule Modal */}
       {showScheduleModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
+        <FormOverlay>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
               <h2 className="text-xl font-bold">Schedule Test</h2>
               <button
                 onClick={() => setShowScheduleModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 hover:bg-white/15 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -698,7 +614,7 @@ const OfflineTestStudents = () => {
                 <select
                   value={scheduleData.groupNumber}
                   onChange={(e) => setScheduleData({ ...scheduleData, groupNumber: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87b105]"
                 >
                   <option value="">Select Group</option>
                   {groups.map(group => (
@@ -716,7 +632,7 @@ const OfflineTestStudents = () => {
                   value={scheduleData.scheduleDate}
                   onChange={(e) => setScheduleData({ ...scheduleData, scheduleDate: e.target.value })}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#87b105]"
                 />
               </div>
 
@@ -729,7 +645,7 @@ const OfflineTestStudents = () => {
                   value={scheduleData.location}
                   onChange={(e) => setScheduleData({ ...scheduleData, location: e.target.value })}
                   placeholder="Enter test location"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#87b105]"
                 />
               </div>
             </div>
@@ -737,30 +653,30 @@ const OfflineTestStudents = () => {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowScheduleModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 bord-none bg-red-600 text-white rounded-lg hover:scale-105 ease-in-out form-cancel-button"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSchedule}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                className="px-4 py-2 bg-[#87b105] text-white rounded-lg hover:scale-105 ease-in-out"
               >
                 Schedule
               </button>
             </div>
           </div>
-        </div>
+        </FormOverlay>
       )}
 
       {/* Send Notification Modal */}
       {showNotificationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
+        <FormOverlay>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
               <h2 className="text-xl font-bold">Send Notification</h2>
               <button
                 onClick={() => setShowNotificationModal(false)}
-                className="text-gray-500 hover:text-gray-700 "
+                className="rounded-full p-2 text-white/80 hover:bg-white/15 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -774,7 +690,7 @@ const OfflineTestStudents = () => {
                 <select
                   value={notificationData.groupNumber}
                   onChange={(e) => setNotificationData({ ...notificationData, groupNumber: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#87b105]"
                 >
                   <option value="">Select Group</option>
                   {groups.map(group => (
@@ -790,7 +706,7 @@ const OfflineTestStudents = () => {
                 <select
                   value={notificationData.type}
                   onChange={(e) => setNotificationData({ ...notificationData, type: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#87b105]"
                 >
                   {/* <option value="test">Test</option> */}
                   <option value="interview">Interview</option>
@@ -806,28 +722,28 @@ const OfflineTestStudents = () => {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowNotificationModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border-none text-white bg-red-600 rounded-lg hover:scale-105 ease-in-out form-cancel-button"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendNotification}
-                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                className="px-4 py-2 bg-[#87b105] text-white rounded-lg hover:scale-105 ease-in-out"
               >
                 Send Notifications
               </button>
             </div>
           </div>
-        </div>
+        </FormOverlay>
       )}
 
       {/* Student Details Modal */}
       {showStudentModal && selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white pb-2 border-b">
+        <FormOverlay>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 sticky -top-6 z-10 bg-gradient-to-r from-[#204972] to-[#87b105] text-white border-b border-white/20">
               <h2 className="text-xl font-bold flex items-center">
-                <User className="h-5 w-5 mr-2 text-blue-600" />
+                <User className="h-5 w-5 mr-2 text-white" />
                 Student Details
               </h2>
               <button
@@ -835,7 +751,7 @@ const OfflineTestStudents = () => {
                   setShowStudentModal(false);
                   setSelectedStudent(null);
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 hover:bg-white/15 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -998,7 +914,7 @@ const OfflineTestStudents = () => {
               </div>
             )}
           </div>
-        </div>
+        </FormOverlay>
       )}
     </div>
   );

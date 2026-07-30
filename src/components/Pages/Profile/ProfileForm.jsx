@@ -1,102 +1,67 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Camera, Save, UserRound, X } from "lucide-react";
 import Swal from "sweetalert2";
 import axiosInstance from "../../../config/AxiosInstance";
 
 const ProfileForm = ({
-  initialData = {
-    name: "",
-    email: "",
-    phone: "",
-    role: "",
-  },
-  // roleOptions = [
-  //   { value: "Super Admin", label: "Super Admin" },
-  //   { value: "Admin", label: "Admin" },
-  // ],
+  initialData = { name: "", email: "", phone: "", role: "" },
   submitButtonText = "Update Profile",
 }) => {
   const [formData, setFormData] = useState(initialData);
-  const [profileImage, setProfileImage] = useState(null); // for showing image
-  const [selectedFile, setSelectedFile] = useState(null); // new uploaded file
+  const [profileImage, setProfileImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const token = localStorage.getItem("token");
 
-  // 🔹 Fetch Profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await axiosInstance.get(`/users/getUser`);
         const user = response.data.data;
-
         setFormData({
           name: user?.name || "",
           email: user?.email || "",
           phone: user?.phone || "",
           role: user?.role || "",
         });
-
-        // ✅ show backend image
-        if (user?.profile_image_url) {
-          setProfileImage(user.profile_image_url);
-        }
+        if (user?.profile_image_url) setProfileImage(user.profile_image_url);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       }
     };
 
-    if (token) {
-      fetchProfile();
-    }
+    if (token) fetchProfile();
   }, [token]);
 
-  // 🔹 Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🔹 Handle file change
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImage(URL.createObjectURL(file)); // preview immediately
+      setProfileImage(URL.createObjectURL(file));
       setSelectedFile(file);
     }
   };
 
-  // 🔹 Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("phone", formData.phone);
       formDataToSend.append("role", formData.role);
-
-      if (selectedFile) {
-        formDataToSend.append("profile_image", selectedFile);
-      }
+      if (selectedFile) formDataToSend.append("profile_image", selectedFile);
 
       const response = await axiosInstance.put(`/users/updateUser`, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-      // ✅ after update, refresh backend image
       if (response.data?.data?.profile_image_url) {
         setProfileImage(response.data.data.profile_image_url);
       }
-
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Profile updated successfully!",
-      });
+      Swal.fire({ icon: "success", title: "Success", text: "Profile updated successfully!" });
     } catch (error) {
       console.error("Error updating profile:", error.response?.data || error.message);
       alert("Failed to update profile.");
@@ -107,150 +72,68 @@ const ProfileForm = ({
     { label: "Name", name: "name", type: "text", placeholder: "Your Name" },
     { label: "Email", name: "email", type: "email", placeholder: "Email" },
     { label: "Contact Number", name: "phone", type: "tel", placeholder: "Contact Number" },
-    // { label: "Your Role", name: "role", type: "select", options: roleOptions },
   ];
 
   return (
-    <main className="h-full overflow-y-auto">
-      <div className="sm:container grid lg:px-6 sm:px-4 px-2 mx-auto">
-        <div className="tab tab-enter">
-          <div className="container p-6 mx-auto bg-white dark:bg-gray-800 dark:text-gray-200 rounded-lg">
-            <form onSubmit={handleSubmit}>
-              <div className="p-6 flex-grow scrollbar-hide w-full max-h-full">
-                {/* Profile Picture Section */}
-                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-                    Profile Picture
-                  </label>
-                  <div className="col-span-8 sm:col-span-4">
-                    <div className="w-full text-center">
-                      <label className="border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 pt-5 pb-6 block">
-                        <input
-                          accept="image/*,.jpeg,.jpg,.png,.webp"
-                          type="file"
-                          className="hidden"
-                          onChange={handleImageChange}
-                        />
-                        <span className="mx-auto flex justify-center">
-                          <svg
-                            stroke="currentColor"
-                            fill="none"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-3xl text-emerald-500"
-                            height="1em"
-                            width="1em"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <polyline points="16 16 12 12 8 16"></polyline>
-                            <line x1="12" y1="12" x2="12" y2="21"></line>
-                            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-                            <polyline points="16 16 12 12 8 16"></polyline>
-                          </svg>
-                        </span>
-                        <p className="text-sm mt-2">
-                          Drag your images here or click to browse
-                        </p>
-                        <em className="text-xs text-gray-400">
-                          (Only *.jpeg, *.webp and *.png images will be accepted)
-                        </em>
-                      </label>
-                      {/* ✅ Show current or uploaded profile image */}
-                      {profileImage && (
-                        <aside className="flex flex-row flex-wrap mt-4">
-                          <div className="relative">
-                            <img
-                              className="inline-flex border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 object-cover"
-                              src={profileImage}
-                              alt="profile preview"
-                            />
-                            <button
-                              type="button"
-                              className="absolute top-0 right-0 text-red-500 focus:outline-none"
-                              onClick={() => {
-                                setProfileImage(null);
-                                setSelectedFile(null);
-                              }}
-                            >
-                              <svg
-                                stroke="currentColor"
-                                fill="none"
-                                strokeWidth="2"
-                                viewBox="0 0 24 24"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                height="1em"
-                                width="1em"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                              </svg>
-                            </button>
-                          </div>
-                        </aside>
-                      )}
-                    </div>
-                  </div>
+    <main className="min-h-full bg-slate-50 p-4 sm:p-6">
+      <div className="mx-auto max-w-6xl">
+        {/* UI-only: profile page presentation now follows the shared PV Classes theme. */}
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-[#204972] to-[#87b105] p-6 text-white shadow-lg">
+          <h1 className="flex items-center text-2xl font-bold"><UserRound className="mr-3" /> Edit Profile</h1>
+          <p className="mt-2 text-sm text-white/85">Keep your administrator information and profile picture up to date.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="grid lg:grid-cols-[320px_1fr]">
+            <section className="border-b border-slate-200 bg-gradient-to-b from-[#204972]/[0.06] to-[#87b105]/[0.08] p-6 lg:border-b-0 lg:border-r">
+              <h2 className="text-lg font-bold text-[#204972]">Profile picture</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">Use a clear JPG, PNG, or WebP image.</p>
+
+              <div className="mt-6 flex flex-col items-center">
+                <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#204972]/10 shadow-lg">
+                  {profileImage ? <img className="h-full w-full object-cover" src={profileImage} alt="Profile preview" /> : <UserRound className="h-14 w-14 text-[#204972]/55" />}
+                  {profileImage && (
+                    <button type="button" aria-label="Remove profile image" className="absolute right-1 top-1 rounded-full bg-white p-1.5 text-red-500 shadow-md hover:bg-red-50" onClick={() => { setProfileImage(null); setSelectedFile(null); }}>
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
 
-                {/* Dynamic Form Fields */}
+                <label className="mt-6 flex w-full cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-[#204972]/25 bg-white px-4 py-5 text-center transition hover:border-[#87b105] hover:bg-[#87b105]/[0.04]">
+                  <input accept="image/*,.jpeg,.jpg,.png,.webp" type="file" className="hidden" onChange={handleImageChange} />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#204972]/10 text-[#204972]"><Camera className="h-5 w-5" /></span>
+                  <span className="mt-3 text-sm font-semibold text-[#204972]">Choose profile image</span>
+                  <span className="mt-1 text-xs text-slate-400">JPEG, PNG or WebP</span>
+                </label>
+              </div>
+            </section>
+
+            <section className="p-6 sm:p-8">
+              <h2 className="text-xl font-bold text-slate-800">Personal information</h2>
+              <p className="mt-1 text-sm text-slate-500">Update the details associated with your account.</p>
+
+              <div className="mt-7 grid gap-5 md:grid-cols-2">
                 {formFields.map((field) => (
-                  <div
-                    key={field.name}
-                    className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6"
-                  >
-                    <label className="block text-gray-800 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-                      {field.label}
-                    </label>
-                    <div className="col-span-8 sm:col-span-4">
-                      {field.type === "select" ? (
-                        <select
-                          className="block w-full h-12 border bg-gray-100 px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none dark:focus:border-gray-500 dark:bg-gray-700 leading-5"
-                          name={field.name}
-                          value={formData[field.name]}
-                          onChange={handleChange}
-                        >
-                          {field.options.map((option) => (
-                            <option
-                              key={option.value}
-                              value={option.value}
-                              hidden={option.hidden || false}
-                            >
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          className="block w-full border px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md bg-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:bg-gray-700 mr-2 h-12 p-2"
-                          type={field.type}
-                          name={field.name}
-                          placeholder={field.placeholder}
-                          value={formData[field.name]}
-                          onChange={handleChange}
-                        />
-                      )}
-                    </div>
+                  <div key={field.name} className={field.name === "name" ? "md:col-span-2" : ""}>
+                    <label htmlFor={`profile-${field.name}`} className="mb-2 block text-sm font-semibold text-slate-700">{field.label}</label>
+                    <input id={`profile-${field.name}`} className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#87b105] focus:bg-white focus:ring-4 focus:ring-[#87b105]/10" type={field.type} name={field.name} placeholder={field.placeholder} value={formData[field.name]} onChange={handleChange} />
                   </div>
                 ))}
               </div>
 
-              {/* Submit Button */}
-              <div className="flex flex-row-reverse pr-6 pb-6">
-                <button
-                  className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-emerald-500 border border-transparent active:bg-emerald-600 hover:bg-emerald-600 h-12 px-6"
-                  type="submit"
-                >
-                  {submitButtonText}
-                </button>
+              <div className="mt-8 rounded-xl border border-[#204972]/10 bg-[#204972]/[0.04] p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#204972]/70">Account role</p>
+                <p className="mt-1 font-semibold capitalize text-[#204972]">{formData.role || "Administrator"}</p>
               </div>
-            </form>
+            </section>
           </div>
-        </div>
+
+          <div className="flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4 sm:px-8">
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#204972] px-6 text-sm font-semibold text-white shadow-md transition hover:bg-[#183654]" type="submit">
+              <Save className="h-4 w-4" /> {submitButtonText}
+            </button>
+          </div>
+        </form>
       </div>
     </main>
   );

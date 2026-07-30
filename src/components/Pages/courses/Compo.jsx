@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import toast, { Toaster } from "react-hot-toast";
+import { FormMultiCheckbox } from "../../common/Form";
+import GlobalTable from "../../common/GlobalTable";
+import TableActionButton from "../../common/TableActionButton";
+import { Pencil, Trash2 } from "lucide-react";
 
 function Compo() {
   const [combos, setCombos] = useState([]);
@@ -56,7 +60,6 @@ function Compo() {
   const fetchTestSeries = async () => {
     try {
       const response = await axiosInstance.get("/test-series");
-      console.log("Test Series API Response:", response.data);
       
       // Handle the nested response structure
       let testSeriesData = [];
@@ -91,20 +94,21 @@ function Compo() {
   try {
     const response = await axiosInstance.get("/notes");
 
-    const groupedData = response.data;
+    const notesPayload = response.data?.data ?? response.data;
 
-    // Convert grouped object into flat array
-    const flatNotes = [];
+    // API-safety: flatten array, grouped, and nested note responses without assuming every group is an array.
+    const collectNotes = (value) => {
+      if (Array.isArray(value)) return value.flatMap(collectNotes);
+      if (!value || typeof value !== "object") return [];
+      if (value._id && (value.title || value.name)) return [value];
+      return Object.values(value).flatMap(collectNotes);
+    };
 
-    Object.keys(groupedData).forEach((course) => {
-      Object.keys(groupedData[course]).forEach((group) => {
-        groupedData[course][group].forEach((note) => {
-          flatNotes.push(note);
-        });
-      });
-    });
+    const uniqueNotes = Array.from(
+      new Map(collectNotes(notesPayload).map((note) => [note._id, note])).values()
+    );
 
-    setNotes(flatNotes);
+    setNotes(uniqueNotes);
 
   } catch (error) {
     console.error("Error fetching notes:", error);
@@ -114,7 +118,6 @@ function Compo() {
   const fetchPyqs = async () => {
     try {
       const response = await axiosInstance.get("/pyq");
-      console.log("PYQs API Response:", response.data);
       
       // PYQs response is an array of objects with an "exam" property
       let pyqsData = Array.isArray(response.data) ? response.data : [];
@@ -135,13 +138,25 @@ function Compo() {
     }));
   };
 
-  const handleArrayChange = (e, field) => {
-    const options = Array.from(e.target.selectedOptions, (option) => option.value);
-    setFormData((prev) => ({
+  // const handleArrayChange = (e, field) => {
+  //   const options = Array.from(e.target.selectedOptions, (option) => option.value);
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [field]: options,
+  //   }));
+  // };
+  const handleCheckboxChange = (id, field) => {
+  setFormData((prev) => {
+    const selectedValues = prev[field];
+
+    return {
       ...prev,
-      [field]: options,
-    }));
-  };
+      [field]: selectedValues.includes(id)
+        ? selectedValues.filter((value) => value !== id)
+        : [...selectedValues, id],
+    };
+  });
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -229,6 +244,51 @@ function Compo() {
     }));
   };
 
+  const comboColumns = [
+    {
+      key: "title",
+      header: "Title",
+      render: (combo) => (
+        <>
+          <div className="text-sm font-medium text-gray-900">{combo.title}</div>
+          <div className="text-sm text-gray-500">{combo.slug}</div>
+        </>
+      ),
+    },
+    {
+      key: "price",
+      header: "Price",
+      render: (combo) => <div className="text-sm text-gray-900">₹{combo.price}</div>,
+    },
+    {
+      key: "discountPercent",
+      header: "Discount",
+      render: (combo) => (
+        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          {combo.discountPercent}% off
+        </span>
+      ),
+    },
+    {
+      key: "validity",
+      header: "Validity",
+      render: (combo) => `${combo.validity} days`,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (combo) => (
+        // UI-only: combo actions now use the shared website table buttons.
+        <div className="flex gap-2">
+          <TableActionButton onClick={() => handleEdit(combo)} tone="edit" title="Edit"><Pencil className="h-4 w-4" /></TableActionButton>
+          <TableActionButton onClick={() => handleDelete(combo._id)} tone="delete" title="Delete"><Trash2 className="h-4 w-4" /></TableActionButton>
+        </div>
+      ),
+    },
+  ];
+
+
+  
   return (
     <div className="container mx-auto p-6">
       <Toaster 
@@ -256,9 +316,11 @@ function Compo() {
         }}
       />
       
-      <h1 className="text-3xl font-bold mb-8 text-gray-800 bg-gradient-to-r from-green-600 to-purple-600 bg-clip-text text-transparent">
-        Combo Management
-      </h1>
+      {/* UI-only: standardized page header; combo logic is unchanged. */}
+      <div data-page-icon data-icon-symbol="⊞" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+        <h1 className="text-2xl font-bold">Combo Management</h1>
+        <p className="mt-1 opacity-90">Create and manage course combinations</p>
+      </div>
 
       {/* Create/Edit Form */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
@@ -276,7 +338,7 @@ function Compo() {
                 name="title"
                 value={formData.title}
                 onChange={handleTitleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
                 required
                 placeholder="Enter combo title"
               />
@@ -289,7 +351,7 @@ function Compo() {
                 name="slug"
                 value={formData.slug}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
                 required
                 placeholder="auto-generated-slug"
               />
@@ -302,7 +364,7 @@ function Compo() {
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
                 required
                 placeholder="0.00"
                 min="0"
@@ -317,7 +379,7 @@ function Compo() {
                 name="discountPercent"
                 value={formData.discountPercent}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
                 required
                 placeholder="0"
                 min="0"
@@ -332,7 +394,7 @@ function Compo() {
                 name="validity"
                 value={formData.validity}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
                 required
                 placeholder="365"
                 min="1"
@@ -345,7 +407,7 @@ function Compo() {
                 name="course"
                 value={formData.course}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
               >
                 <option value="">Select Course</option>
                 {courses.map(course => (
@@ -364,13 +426,13 @@ function Compo() {
               value={formData.description}
               onChange={handleInputChange}
               rows="4"
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] outline-none transition "
               required
               placeholder="Describe the combo package..."
             />
           </div>
 
-          {/* Multi-select dropdowns */}
+          {/* Multi-select dropdowns
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
@@ -424,7 +486,7 @@ function Compo() {
                   pyqs.map(pyq => (
                     <option key={pyq._id} value={pyq._id}>
                       {pyq.exam} {/* Use the exam property for display */}
-                    </option>
+                    {/* </option>
                   ))
                 ) : (
                   <option disabled>No PYQs available</option>
@@ -432,14 +494,45 @@ function Compo() {
               </select>
               <p className="text-xs text-gray-500 mt-2">Hold Ctrl/Cmd to select multiple</p>
               <p className="text-xs text-blue-600 mt-1">{formData.pyqs.length} selected</p>
-            </div>
+            </div> */}
+          {/* // </div> */}
+          {/* Shared multi-checkbox fields keep fetched options consistent across forms. */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormMultiCheckbox
+              label="Notes"
+              options={notes}
+              selectedValues={formData.notes}
+              onToggle={(id) => handleCheckboxChange(id, "notes")}
+              getOptionValue={(note) => note._id}
+              getOptionLabel={(note) => note.title}
+            />
+
+            <FormMultiCheckbox
+              label="Test Series"
+              options={testSeries}
+              selectedValues={formData.testSeries}
+              onToggle={(id) => handleCheckboxChange(id, "testSeries")}
+              getOptionValue={(series) => series._id}
+              getOptionLabel={(series) => series.title}
+              emptyText="No test series available"
+            />
+
+            <FormMultiCheckbox
+              label="PYQs"
+              options={pyqs}
+              selectedValues={formData.pyqs}
+              onToggle={(id) => handleCheckboxChange(id, "pyqs")}
+              getOptionValue={(pyq) => pyq._id}
+              getOptionLabel={(pyq) => pyq.exam}
+              emptyText="No PYQs available"
+            />
           </div>
 
           <div className="flex gap-4 pt-4 border-t border-gray-200">
             <button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-green-600 to-green-800 text-white px-6 py-3 rounded-md hover:from-blue-700 hover:to-blue-900 disabled:opacity-50 transition-all duration-200 flex items-center"
+              className="bg-[#87b105] hover:scale-105 ease-in-out text-white px-6 py-3 rounded-md hover:from-blue-700 hover:to-blue-900 disabled:opacity-50 transition-all duration-200 flex items-center"
             >
               {loading ? (
                 <>
@@ -458,7 +551,7 @@ function Compo() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-200"
+                className="bg-red-600 text-white px-6 py-3 rounded-md hover:scale-105 ease-in-out transition-colors duration-200 form-cancel-button"
               >
                 Cancel
               </button>
@@ -469,70 +562,13 @@ function Compo() {
 
       {/* Combos List */}
       <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
-          <span className="mr-2">📦</span>
-          All Combos ({combos.length})
-        </h2>
-
-        {combos.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-16" />
-            </svg>
-            <p className="mt-4">No combos found. Create your first combo!</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validity</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {combos.map(combo => (
-                  <tr key={combo._id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{combo.title}</div>
-                      <div className="text-sm text-gray-500">{combo.slug}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">₹{combo.price}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        {combo.discountPercent}% off
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {combo.validity} days
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(combo)}
-                          className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md transition-colors duration-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(combo._id)}
-                          className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md transition-colors duration-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <GlobalTable
+          title={`All Combos (${combos.length})`}
+          columns={comboColumns}
+          data={combos}
+          emptyText="No combos found. Create your first combo!"
+          getRowKey={(combo) => combo._id}
+        />
       </div>
     </div>
   );

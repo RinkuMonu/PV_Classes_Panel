@@ -12,6 +12,7 @@ import {
   Calendar,
   User,
   HelpCircle,
+  FileQuestionMark,
   Bell,
   CreditCard,
   ChevronDown,
@@ -69,7 +70,8 @@ const Sidebar = ({ isCollapsed }) => {
     { name: "Users", Icon: Users, path: "/alluser" },
     { name: "Test Series", Icon: FileText, path: "/test-series" },
     { name: "Current Affairs", Icon: ClipboardList, path: "/affairs" },
-    { name: "Home Page FAQ", Icon: HelpCircle, path: "/faq" },
+    // UI-only: a document plus question mark clearly represents the FAQ page.
+    { name: "Home Page FAQ", Icon: FileQuestionMark, path: "/faq" },
     { name: "Doubts", Icon: HelpCircle, path: "/doubt" },
     { name: "Notification", Icon: Bell, path: "/notification" },
     { name: "Orders", Icon: ShoppingCart, path: "/orders" },
@@ -96,15 +98,17 @@ const Sidebar = ({ isCollapsed }) => {
 
   return (
     <div className="h-full flex flex-col bg-white border-r border-gray-200">
-      <div className="p-6 flex items-center justify-center">
+      {/* Changed: logo area becomes compact when sidebar is collapsed. */}
+      <div className={`${isCollapsed ? "p-6 md:p-3" : "p-6"} flex items-center justify-center transition-all duration-300`}>
         <img
-          src="Images/pv-logo.png"   // should be inside the public/ folder
+          src="/Images/pv-logo.png"   // public asset path must start from the site root
           alt="PV Classes Logo"
-          className="h-20 w-auto"   // height 10 (40px), width auto to keep aspect ratio
+          className={`${isCollapsed ? "h-20 md:h-10" : "h-20"} w-auto transition-all duration-300`}   // height 10 (40px), width auto to keep aspect ratio
         />
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-2 overflow-y-auto overflow-x-hidden">
+      {/* <nav className="flex-1 space-y-1 px-3 py-2 overflow-y-auto overflow-x-hidden"> */}
+      <nav className="flex-1 space-y-1 px-3 py-2 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {menuItems.map(({ Icon, name, path }) => (
           <div key={name}>
 
@@ -112,30 +116,30 @@ const Sidebar = ({ isCollapsed }) => {
             {name === "Courses" ? (
               <>
                 <div
-                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${isCoursesActive()
-                    ? "bg-green-50 text-green-600 border-r-2 border-green-600"
-                    : "text-gray-700 hover:text-green-600"
+                  title={isCollapsed ? name : ""}
+                  className={`flex items-center rounded-lg hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${isCollapsed ? "justify-between p-3 md:justify-center" : "justify-between p-3"} ${isCoursesActive()
+                    ? "bg-green-50 text-[#87b105] border-r-2 border-green-600"
+                    : "text-gray-700 hover:text-[#87b105]"
                     }`}
                   onClick={toggleCourses}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon size={18} />
-                    <span className={`${isCollapsed ? "opacity-0 w-0" : "opacity-100"}`}>
+                  {/* Changed: center icon and hide label in collapsed mode. */}
+                  <div className={`flex items-center ${isCollapsed ? "space-x-3 md:justify-center md:space-x-0" : "space-x-3"}`}>
+                    <Icon size={18} className="shrink-0" />
+                    <span className={isCollapsed ? "md:hidden" : ""}>
                       {name}
                     </span>
                   </div>
 
-                  {!isCollapsed && (
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${isCoursesOpen ? "rotate-180" : ""
-                        }`}
-                    />
-                  )}
+                  <ChevronDown
+                    size={16}
+                    className={`transition-transform ${isCollapsed ? "md:hidden" : ""} ${isCoursesOpen ? "rotate-180" : ""
+                      }`}
+                  />
                 </div>
 
                 <div
-                  className={`overflow-hidden transition-all ${isCoursesOpen && !isCollapsed ? "max-h-96" : "max-h-0"
+                  className={`overflow-hidden transition-all ${isCoursesOpen ? (isCollapsed ? "max-h-96 md:max-h-0" : "max-h-96") : "max-h-0"
                     }`}
                 >
                   <div className="ml-7 mt-1 space-y-1 text-sm">
@@ -144,8 +148,8 @@ const Sidebar = ({ isCollapsed }) => {
                         key={name}
                         to={path}
                         className={`block py-2 px-3 rounded-md ${isActive(path)
-                          ? "text-green-600 bg-green-50"
-                          : "text-gray-600 hover:text-green-600"
+                          ? "text-[#87b105] bg-green-50"
+                          : "text-gray-600 hover:text-[#87b105]"
                           }`}
                       >
                         {name}
@@ -159,30 +163,30 @@ const Sidebar = ({ isCollapsed }) => {
               /* 📚 BOOKS DROPDOWN */
               <>
                 <div
-                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${isBooksActive()
-                    ? "bg-green-50 text-green-600 border-r-2 border-green-600"
-                    : "text-gray-700 hover:text-green-600"
+                  title={isCollapsed ? name : ""}
+                  className={`flex items-center rounded-lg hover:bg-gray-100 cursor-pointer transition-colors duration-200 ${isCollapsed ? "justify-between p-3 md:justify-center" : "justify-between p-3"} ${isBooksActive()
+                    ? "bg-green-50 text-[#87b105] border-r-2 border-green-600"
+                    : "text-gray-700 hover:text-[#87b105]"
                     }`}
                   onClick={toggleBooks}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon size={18} />
-                    <span className={`${isCollapsed ? "opacity-0 w-0" : "opacity-100"}`}>
+                  {/* Changed: center icon and hide label in collapsed mode. */}
+                  <div className={`flex items-center ${isCollapsed ? "space-x-3 md:justify-center md:space-x-0" : "space-x-3"}`}>
+                    <Icon size={18} className="shrink-0" />
+                    <span className={isCollapsed ? "md:hidden" : ""}>
                       {name}
                     </span>
                   </div>
 
-                  {!isCollapsed && (
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${isBooksOpen ? "rotate-180" : ""
-                        }`}
-                    />
-                  )}
+                  <ChevronDown
+                    size={16}
+                    className={`transition-transform ${isCollapsed ? "md:hidden" : ""} ${isBooksOpen ? "rotate-180" : ""
+                      }`}
+                  />
                 </div>
 
                 <div
-                  className={`overflow-hidden transition-all ${isBooksOpen && !isCollapsed ? "max-h-96" : "max-h-0"
+                  className={`overflow-hidden transition-all ${isBooksOpen ? (isCollapsed ? "max-h-96 md:max-h-0" : "max-h-96") : "max-h-0"
                     }`}
                 >
                   <div className="ml-7 mt-1 space-y-1 text-sm">
@@ -191,8 +195,8 @@ const Sidebar = ({ isCollapsed }) => {
                         key={name}
                         to={path}
                         className={`block py-2 px-3 rounded-md ${isActive(path)
-                          ? "text-green-600 bg-green-50"
-                          : "text-gray-600 hover:text-green-600"
+                          ? "text-[#87b105] bg-green-50"
+                          : "text-gray-600 hover:text-[#87b105]"
                           }`}
                       >
                         {name}
@@ -206,13 +210,15 @@ const Sidebar = ({ isCollapsed }) => {
               /* NORMAL MENU ITEM */
               <Link
                 to={path}
-                className={`flex items-center p-3 rounded-lg ${isActive(path)
-                  ? "bg-green-50 text-green-600 border-r-2 border-green-600"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-green-600"
+                title={isCollapsed ? name : ""}
+                className={`flex items-center rounded-lg transition-colors duration-200 ${isCollapsed ? "p-3 md:justify-center" : "p-3"} ${isActive(path)
+                  ? "bg-green-50 text-[#87b105] border-r-2 border-green-600"
+                  : "text-gray-700 hover:bg-gray-100 hover:text-[#87b105]"
                   }`}
               >
-                <Icon size={18} />
-                <span className={`ml-3 ${isCollapsed ? "opacity-0 w-0" : "opacity-100"}`}>
+                {/* Changed: normal menu items become icon-only when collapsed. */}
+                <Icon size={18} className="shrink-0" />
+                <span className={`${isCollapsed ? "md:hidden" : ""} ml-3`}>
                   {name}
                 </span>
               </Link>

@@ -3,11 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Plus,
   Search,
-  Edit,
+  Pencil,
   Trash2,
   Eye,
-  ChevronLeft,
-  ChevronRight,
   Image as ImageIcon,
   X,
   Upload,
@@ -19,6 +17,8 @@ import {
 import axiosInstance from '../../../config/AxiosInstance';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import GlobalTable from '../../common/GlobalTable';
+import TableActionButton from '../../common/TableActionButton';
 
 const Books = () => {
   const [books, setBooks] = useState([]);
@@ -85,7 +85,6 @@ const Books = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/books?page=${page}&limit=${limit}&search=${search}`);
-      console.log("books response ::", response.data);
 
       const groupedData = response.data.data || {};
 
@@ -105,6 +104,7 @@ const Books = () => {
   useEffect(() => {
     fetchCategories();
     fetchBooks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, search]);
 
   // Handle category change
@@ -319,14 +319,13 @@ const Books = () => {
         }
       });
 
-      let response;
       if (editingBook) {
-        response = await axiosInstance.put(`/books/${editingBook._id}`, submitData, {
+        await axiosInstance.put(`/books/${editingBook._id}`, submitData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         toast.success('Book updated successfully');
       } else {
-        response = await axiosInstance.post('/books', submitData, {
+        await axiosInstance.post('/books', submitData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         toast.success('Book created successfully');
@@ -379,16 +378,107 @@ const Books = () => {
     );
   };
 
+  // UI-only edit: GlobalTable columns keep the same book data and action handlers.
+  const bookColumns = [
+    {
+      key: 'image',
+      header: 'Image',
+      render: (book) =>
+        book.full_image && book.full_image.length > 0 ? (
+          <img
+            src={book.full_image[0]}
+            alt={book.title}
+            className="h-12 w-12 rounded-lg object-cover"
+          />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
+            <ImageIcon className="h-6 w-6 text-gray-400" />
+          </div>
+        ),
+    },
+    {
+      key: 'title',
+      header: 'Title',
+      render: (book) => (
+        <div>
+          <div className="font-medium text-gray-900">{book.title}</div>
+          {book.tag && book.tag.length > 0 && (
+            <div className="mt-1 flex items-center gap-1">
+              <Tag className="h-3 w-3 text-gray-400" />
+              <span className="text-xs text-gray-500">{book.tag.join(', ')}</span>
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      render: (book) => book.category?.name || 'N/A',
+    },
+    {
+      key: 'price',
+      header: 'Price',
+      render: (book) => <span className="font-medium text-gray-900">Rs. {book.price}</span>,
+    },
+    {
+      key: 'discount',
+      header: 'Discount',
+      render: (book) => (
+        <span className="font-semibold text-green-600">Rs. {book.discount_price}</span>
+      ),
+    },
+    {
+      key: 'stock',
+      header: 'Stock',
+      render: (book) => book.stock,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (book) => <StatusBadge status={book.status} />,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (book) => (
+        <div className="flex items-center gap-2">
+          <TableActionButton
+            tone="view"
+            onClick={() => handleView(book)}
+            title="View"
+          >
+            <Eye className="h-4 w-4" />
+          </TableActionButton>
+          <TableActionButton
+            tone="edit"
+            onClick={() => handleEdit(book)}
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+          </TableActionButton>
+          <TableActionButton
+            tone="delete"
+            onClick={() => handleDelete(book._id)}
+            title="Delete"
+          >
+            <Trash2 className="h-4 w-4" />
+          </TableActionButton>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      {/* UI-only: standardized page header; book logic is unchanged. */}
+      <div data-page-icon data-icon-symbol="▥" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Books Management</h1>
+          <div><h1 className="text-2xl font-bold">Books Management</h1><p className="mt-1 opacity-90">Create and manage your book catalog</p></div>
         </div>
         <button
           onClick={handleCreate}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-[#204972] hover:bg-[#183654] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
           <Plus className="h-5 w-5" />
           Add Book
@@ -412,7 +502,34 @@ const Books = () => {
         </div>
       </div>
 
-      {/* Books Table */}
+      {/* UI-only edit: books now use the shared GlobalTable layout and action symbols. */}
+      <GlobalTable
+        title={`Books (${books.length})`}
+        columns={bookColumns}
+        data={books}
+        loading={loading}
+        loadingText="Loading books..."
+        emptyText="No books found"
+        getRowKey={(book) => book._id}
+        pagination={
+          totalPages > 1
+            ? {
+                currentPage: page,
+                totalPages,
+                onPageChange: setPage,
+                rightContent: (
+                  <p className="text-sm text-gray-500">
+                    Showing {books.length} book{books.length === 1 ? '' : 's'} on this page
+                  </p>
+                ),
+              }
+            : undefined
+        }
+      />
+
+      {/* UI-only edit: old custom table kept disabled for easy reference, no logic changed. */}
+      {/* eslint-disable-next-line no-constant-binary-expression */}
+      {false && (
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -556,16 +673,18 @@ const Books = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* View Book Modal */}
       {showViewModal && selectedBook && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg w-full max-w-3xl my-8 p-6">
-            <div className="flex justify-between items-center mb-4">
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 overflow-y-auto">
+          {/* UI-only: Book view and form overlays use the shared PV Classes modal theme. */}
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl my-8 p-6 overflow-hidden">
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
               <h2 className="text-xl font-bold">Book Details</h2>
               <button
                 onClick={closeViewModal}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 hover:bg-white/15 hover:text-white"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -701,7 +820,7 @@ const Books = () => {
             <div className="flex justify-end mt-6">
               <button
                 onClick={closeViewModal}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-5 py-2 text-white rounded-lg transition form-cancel-button"
               >
                 Close
               </button>
@@ -712,9 +831,9 @@ const Books = () => {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg w-full max-w-2xl my-8 p-6">
-            <div className="flex justify-between items-center mb-4">
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 p-6 overflow-hidden">
+            <div className="flex justify-between items-center -m-6 mb-6 p-5 bg-gradient-to-r from-[#204972] to-[#87b105] text-white">
               <h2 className="text-xl font-bold">
                 {editingBook ? 'Edit Book' : 'Create Book'}
               </h2>
@@ -723,7 +842,7 @@ const Books = () => {
                   setShowModal(false);
                   resetForm();
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-full p-2 text-white/80 hover:bg-white/15 hover:text-white"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -1103,7 +1222,7 @@ const Books = () => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 form-cancel-button"
                 >
                   Cancel
                 </button>

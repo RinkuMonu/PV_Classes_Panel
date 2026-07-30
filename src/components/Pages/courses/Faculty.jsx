@@ -7,6 +7,9 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import GlobalTable from "../../common/GlobalTable";
+import TableActionButton from "../../common/TableActionButton";
+import { Video, Trash2 } from "lucide-react";
 
 function FacultyManagement() {
   const [facultyList, setFacultyList] = useState([]);
@@ -102,9 +105,96 @@ function FacultyManagement() {
     }
   };
 
+  const facultyColumns = [
+    {
+      key: "index",
+      // UI-only: use the website's standard serial-number column label.
+      header: "S.No.",
+      render: (_faculty, index) => index + 1,
+    },
+    {
+      key: "photo",
+      header: "Photo",
+      render: (faculty) => (
+        faculty.photo ? (
+          <img
+            src={`${import.meta.env.VITE_API_SERVER_URL}${faculty.photo}`}
+            alt={faculty.name}
+            className="w-12 h-12 object-cover rounded-full shadow-sm"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+            <svg
+              className="w-6 h-6 text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                clipRule="evenodd"
+              ></path>
+            </svg>
+          </div>
+        )
+      ),
+    },
+    {
+      key: "name",
+      header: "Name",
+      cellClassName: "font-medium text-gray-900",
+    },
+    {
+      key: "experience",
+      header: "Experience",
+    },
+    {
+      key: "specialization",
+      header: "Specialization",
+    },
+    {
+      key: "demoVideo",
+      header: "Demo Video",
+      render: (faculty) => (
+        faculty.demoVideo ? (
+          // UI-only: the demo link uses the shared icon button instead of text.
+          <TableActionButton
+            tone="view"
+            title="Watch demo video"
+            onClick={() => window.open(faculty.demoVideo, "_blank", "noopener,noreferrer")}
+          >
+            {/* UI-only: use a video symbol for the faculty demo-video action. */}
+            <Video className="h-4 w-4" />
+          </TableActionButton>
+        ) : (
+          "-"
+        )
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (faculty) => (
+        // UI-only: faculty actions now use the shared website table button.
+        <TableActionButton
+          onClick={() => handleDelete(faculty._id)}
+          tone="delete"
+          title="Delete"
+        >
+          <Trash2 className="h-4 w-4" />
+        </TableActionButton>
+      ),
+    },
+  ];
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Faculty Management</h2>
+      {/* UI-only: standardized page header; faculty logic is unchanged. */}
+      <div data-page-icon data-icon-symbol="♙" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+        <h2 className="text-2xl font-bold">Faculty Management</h2>
+        <p className="mt-1 opacity-90">Create and manage faculty profiles</p>
+      </div>
 
       {/* Faculty Create Form */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -119,7 +209,7 @@ function FacultyManagement() {
                 placeholder="Enter faculty name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] transition"
                 required
               />
             </div>
@@ -132,7 +222,7 @@ function FacultyManagement() {
                 placeholder="e.g., 5 years"
                 value={formData.experience}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] transition"
               />
             </div>
 
@@ -144,7 +234,7 @@ function FacultyManagement() {
                 placeholder="Area of expertise"
                 value={formData.specialization}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] transition"
               />
             </div>
 
@@ -156,14 +246,14 @@ function FacultyManagement() {
                 placeholder="https://youtube.com/..."
                 value={formData.demoVideo}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#87b105] focus:border-[#87b105] transition"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
               <div className="flex items-center">
-                <label className="flex flex-col items-center px-4 py-3 bg-white text-green-600 rounded-lg border border-gray-300 cursor-pointer hover:bg-green-50 transition">
+                <label className="flex flex-col items-center px-4 py-3 bg-white text-[#87b105] rounded-lg border border-gray-300 cursor-pointer hover:bg-green-50 transition">
                   <svg
                     className="w-6 h-6"
                     fill="currentColor"
@@ -193,7 +283,7 @@ function FacultyManagement() {
 
           <button
             type="submit"
-            className="mt-6 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
+            className="mt-6 px-6 py-2 bg-[#87b105] hover:scale-105 ease-in-out text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
           >
             Add Faculty
           </button>
@@ -201,131 +291,15 @@ function FacultyManagement() {
       </div>
 
       {/* Faculty Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-700">Faculty List</h3>
-        </div>
-
-        {loading ? (
-          <div className="p-8 flex justify-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-500"></div>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    #
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Photo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Experience
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Specialization
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Demo Video
-                  </th>
-                  <th className="px-6 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {facultyList.length > 0 ? (
-                  facultyList.map((faculty, index) => (
-                    <tr key={faculty._id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {faculty.photo ? (
-                          <img
-                            // src={`https://api.pvclasses.in${faculty.photo}`}
-                            src={`${import.meta.env.VITE_API_SERVER_URL}${faculty.photo}`}
-                            alt={faculty.name}
-                            className="w-12 h-12 object-cover rounded-full shadow-sm"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                            <svg
-                              className="w-6 h-6 text-gray-400"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                clipRule="evenodd"
-                              ></path>
-                            </svg>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {faculty.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {faculty.experience}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {faculty.specialization}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
-                        {faculty.demoVideo ? (
-                          <a
-                            href={faculty.demoVideo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline"
-                          >
-                            Watch
-                          </a>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        <button
-                          onClick={() => handleDelete(faculty._id)}
-                          className="px-3 py-1 text-white bg-red-600 rounded hover:bg-red-700 transition"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="px-6 py-8 text-center text-sm text-gray-500">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <p className="mt-4">No faculty members found</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <GlobalTable
+        title={`Faculty List (${facultyList.length})`}
+        columns={facultyColumns}
+        data={facultyList}
+        loading={loading}
+        emptyText="No faculty members found"
+        loadingText="Loading faculty..."
+        getRowKey={(faculty) => faculty._id}
+      />
     </div>
   );
 }

@@ -206,7 +206,7 @@ export default function ProductDetails() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (!Product) {
-    return <div className="container mx-auto px-4 py-8 text-center text-xl">Product not found</div>;
+    return <div className="container mx-auto px-4 py-4 text-center text-xl">Product not found</div>;
   }
 
   // Handle save edited product
@@ -219,7 +219,6 @@ export default function ProductDetails() {
   const handleSaveProduct = async (updatedData) => {
     try {
       const response = await axiosInstance.put(`/products/${id}`, updatedData);
-      console.log("Product updated:", response.data);
 
       setProduct(response.data); // Update UI with new data
       setShowEditModal(false);   // Close modal
@@ -299,7 +298,8 @@ export default function ProductDetails() {
         <>
           <h2 className="text-2xl font-bold mb-6">Product Variant List</h2>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm overflow-x-auto">
+          {/* UI-only: product-variant table now matches GlobalTable; variant data is unchanged. */}
+          <div className="global-table-ui overflow-x-auto">
             <table className="min-w-full">
               <thead>
                 <tr>
@@ -341,7 +341,8 @@ export default function ProductDetails() {
               </tbody>
             </table>
             {totalPages > 1 && (
-              <div className="flex justify-between items-center mt-6">
+              // UI-only: pagination now matches the shared GlobalTable footer.
+              <div className="global-table-pagination mt-6">
                 <div className="text-sm text-gray-600">
                   {`SHOWING ${indexOfFirstItem + 1}-${Math.min(indexOfLastItem, productVariants.length)} OF ${productVariants.length}`}
                 </div>

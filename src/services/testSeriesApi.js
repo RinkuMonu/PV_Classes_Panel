@@ -11,7 +11,7 @@ axios.defaults.baseURL = API_BASE_URL;
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    console.log("Interceptor token:", token);
+    // Security: never expose the authentication token in browser console output.
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

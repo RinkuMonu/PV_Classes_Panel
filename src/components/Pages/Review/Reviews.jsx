@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../../config/AxiosInstance';
+import GlobalTable from '../../common/GlobalTable';
+import TableActionButton from '../../common/TableActionButton';
+import { MessageSquareText, X } from 'lucide-react';
 
 function Review() {
   const [reviews, setReviews] = useState([]);
@@ -11,6 +14,8 @@ function Review() {
   const [selectedReview, setSelectedReview] = useState(null);
   const [viewDialog, setViewDialog] = useState(false);
   const [filter, setFilter] = useState('all'); // all, pending, approved
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
 
 const fetchReviews = useCallback(async () => {
@@ -27,6 +32,7 @@ const fetchReviews = useCallback(async () => {
     }
 
     setReviews(filteredReviews);
+    setCurrentPage(1);
   } catch (error) {
     setError('Failed to fetch reviews');
     console.error('Error fetching reviews:', error);
@@ -101,9 +107,101 @@ useEffect(() => {
     ));
   };
 
+  const totalPages = Math.max(Math.ceil(reviews.length / pageSize), 1);
+  const paginatedReviews = reviews.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const firstVisibleReview = reviews.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const lastVisibleReview = Math.min(currentPage * pageSize, reviews.length);
+
+  const reviewColumns = [
+    {
+      key: 'user',
+      header: 'User',
+      render: (review) => (
+        <div className="text-sm font-medium text-gray-900">{review.user?.name || 'Unknown User'}</div>
+      ),
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      render: (review) => (
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${review.reviewType === 'course' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
+          {getReviewTypeText(review.reviewType)}
+        </span>
+      ),
+    },
+    {
+      key: 'target',
+      header: 'Target',
+      render: (review) => getReviewTarget(review),
+    },
+    {
+      key: 'rating',
+      header: 'Rating',
+      render: (review) => (
+        <div className="flex items-center">
+          {renderStars(review.rating)}
+          <span className="ml-1 text-sm text-gray-600">({review.rating})</span>
+        </div>
+      ),
+    },
+    {
+      key: 'comment',
+      header: 'Comment',
+      render: (review) => (
+        review.comment ? (
+          <TableActionButton
+            tone="view"
+            title="View comment"
+            onClick={() => handleViewClick(review)}
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </TableActionButton>
+        ) : (
+          'No comment'
+        )
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (review) => (
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${review.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+          {review.approved ? 'Approved' : 'Pending'}
+        </span>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      render: (review) => new Date(review.createdAt).toLocaleDateString(),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (review) => (
+        <div className="flex items-center gap-2">
+          {!review.approved && (
+            <TableActionButton
+              tone="success"
+              title="Approve review"
+              onClick={() => handleApproveClick(review)}
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </TableActionButton>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
@@ -112,8 +210,12 @@ useEffect(() => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Reviews Management</h1>
+    <div className="container mx-auto px-4 py-4">
+      {/* UI-only: standardized page header; review logic is unchanged. */}
+      <div data-page-icon data-icon-symbol="★" className="bg-gradient-to-r from-[#204972] to-[#87b105] rounded-xl shadow-lg mb-6 p-6 text-white">
+        <h1 className="text-2xl font-bold">Reviews Management</h1>
+        <p className="mt-1 opacity-90">Manage and analyze user reviews</p>
+      </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
@@ -181,145 +283,60 @@ useEffect(() => {
           )}
         </div> */}
       </div>
-
-      {/* Filter Controls */}
-      <div className="mb-6">
-        <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-2">
-          Filter Reviews
-        </label>
-        <select
-          id="filter"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="block w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="all">All Reviews</option>
-          <option value="pending">Pending Approval</option>
-          <option value="approved">Approved</option>
-        </select>
-      </div>
-
       {/* Reviews Table */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Target
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rating
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Comment
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {reviews.length > 0 ? (
-                reviews.map((review) => (
-                  <tr key={review._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{review.user?.name || 'Unknown User'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${review.reviewType === 'course' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
-                        {getReviewTypeText(review.reviewType)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {getReviewTarget(review)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {renderStars(review.rating)}
-                        <span className="ml-1 text-sm text-gray-600">({review.rating})</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {review.comment ? (
-                        <button
-                          onClick={() => handleViewClick(review)}
-                          className="text-blue-600 hover:text-blue-800 flex items-center"
-                        >
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          View
-                        </button>
-                      ) : (
-                        'No comment'
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${review.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {review.approved ? 'Approved' : 'Pending'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex flex-col space-y-2">
-                        {!review.approved && (
-                          <button
-                            onClick={() => handleApproveClick(review)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm flex items-center"
-                          >
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Approve
-                          </button>
-                        )}
-                        {/* {review.comment && (
-                          <button
-                            onClick={() => handleViewClick(review)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm flex items-center"
-                          >
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            View
-                          </button>
-                        )} */}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                    {filter === 'all' ? 'No reviews found' : `No ${filter} reviews found`}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <GlobalTable
+        title={`Reviews (${reviews.length})`}
+        filters={{
+          filters: [
+            {
+              key: "review-status",
+              value: filter,
+              onChange: (value) => {
+                setFilter(value);
+                setCurrentPage(1);
+              },
+              options: [
+                { value: "all", label: "All Reviews" },
+                { value: "pending", label: "Pending Approval" },
+                { value: "approved", label: "Approved" },
+              ],
+            },
+          ],
+          exportData: reviews,
+          exportFileName: "reviews.csv",
+          exportColumns: [
+            { key: "user", header: "User", value: (review) => review.user?.name || "Unknown User" },
+            { key: "type", header: "Type", value: (review) => getReviewTypeText(review.reviewType) },
+            { key: "target", header: "Target", value: (review) => getReviewTarget(review) },
+            { key: "rating", header: "Rating", value: (review) => review.rating },
+            { key: "comment", header: "Comment", value: (review) => review.comment || "" },
+            { key: "status", header: "Status", value: (review) => (review.approved ? "Approved" : "Pending") },
+            {
+              key: "date",
+              header: "Date",
+              value: (review) => review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
+            },
+          ],
+        }}
+        columns={reviewColumns}
+        data={paginatedReviews}
+        emptyText={filter === "all" ? "No reviews found" : `No ${filter} reviews found`}
+        getRowKey={(review) => review._id}
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: setCurrentPage,
+          rightContent: (
+            <p className="text-sm text-gray-500">
+              Showing {firstVisibleReview}-{lastVisibleReview} of {reviews.length}
+            </p>
+          ),
+        }}
+      />
 
       {/* Approve Confirmation Dialog */}
       {approveDialog && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Approve Review</h3>
@@ -338,7 +355,7 @@ useEffect(() => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setApproveDialog(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 form-cancel-button"
                 >
                   Cancel
                 </button>
@@ -356,10 +373,16 @@ useEffect(() => {
 
       {/* View Comment Dialog */}
       {viewDialog && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          {/* UI-only: Review Comment overlay uses the shared themed modal presentation. */}
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
+            <div className="flex items-center justify-between bg-gradient-to-r from-[#204972] to-[#87b105] p-5 text-white">
+              <h3 className="flex items-center text-xl font-semibold"><MessageSquareText className="mr-2" /> Review Comment</h3>
+              <button onClick={() => setViewDialog(false)} className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white" aria-label="Close review comment">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Review Comment</h3>
               {selectedReview && (
                 <div>
                   <div className="mb-4">
@@ -372,7 +395,7 @@ useEffect(() => {
                       <span className="ml-1 text-sm text-gray-600">({selectedReview.rating})</span>
                     </div>
                   </div>
-                  <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                  <div className="border border-[#204972]/10 rounded-xl p-4 bg-gradient-to-br from-[#204972]/[0.04] to-[#87b105]/[0.07]">
                     <p className="text-gray-700">{selectedReview.comment}</p>
                   </div>
                 </div>
@@ -380,7 +403,7 @@ useEffect(() => {
               <div className="flex justify-end mt-6">
                 <button
                   onClick={() => setViewDialog(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-5 py-2 text-white rounded-lg transition form-cancel-button"
                 >
                   Close
                 </button>
