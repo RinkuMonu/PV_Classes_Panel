@@ -12,6 +12,7 @@ import autoTable from "jspdf-autotable";
 import GlobalTable from "../../common/GlobalTable";
 import TableActionButton from "../../common/TableActionButton";
 
+
 const Orders = () => {
   const [ordersData, setOrdersData] = useState([]);
   const [page, setPage] = useState(1);
