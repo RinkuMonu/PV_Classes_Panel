@@ -22,7 +22,10 @@ const Orders = () => {
   const [orderFilter, setOrderFilter] = useState("all");
 
   const limit = 10;
-
+const [searchTerm, setSearchTerm] = useState("");
+const [statusFilter, setStatusFilter] = useState("");
+const [paymentFilter, setPaymentFilter] = useState("");
+const [orderTypeFilter, setOrderTypeFilter] = useState("");
   const navigate = useNavigate();
 
   // ✅ Fetch paginated orders

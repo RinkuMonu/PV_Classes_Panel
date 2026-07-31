@@ -64,17 +64,15 @@ const numberToWords = (value) => {
     let words = "";
 
     if (number >= 100) {
-      words += `${
-        ones[Math.floor(number / 100)]
-      } Hundred `;
+      words += `${ones[Math.floor(number / 100)]
+        } Hundred `;
 
       number %= 100;
     }
 
     if (number >= 20) {
-      words += `${
-        tens[Math.floor(number / 10)]
-      } ${ones[number % 10]}`;
+      words += `${tens[Math.floor(number / 10)]
+        } ${ones[number % 10]}`;
     } else {
       words += ones[number];
     }
@@ -188,7 +186,7 @@ const Invoice = () => {
 
         setPageError(
           error.response?.data?.message ||
-            "Unable to load invoice details."
+          "Unable to load invoice details."
         );
       } finally {
         setLoading(false);
@@ -534,17 +532,17 @@ const Invoice = () => {
     typeof appliedCoupon === "string"
       ? appliedCoupon
       : appliedCoupon?.code ||
-        appliedCoupon?.couponCode ||
-        "Applied Offer";
+      appliedCoupon?.couponCode ||
+      "Applied Offer";
 
   const hasAppliedCoupon = Boolean(appliedCoupon);
   const couponDiscount = Math.max(
     Number(
       order.discountAmount ??
-        order.couponDiscount ??
-        order.couponDiscountAmount ??
-        appliedCoupon?.discountAmount ??
-        (calculatedTotal - total)
+      order.couponDiscount ??
+      order.couponDiscountAmount ??
+      appliedCoupon?.discountAmount ??
+      (calculatedTotal - total)
     ) || 0,
     0
   );
@@ -563,38 +561,47 @@ const Invoice = () => {
     year: "numeric",
   });
 
-  const student = order.user || {};
+const student = order?.user ?? {};
 
-  const fatherName =
-    student.fatherName ||
-    order.fatherName ||
-    "—";
+const studentName =
+  student?.name ??
+  order?.studentName ??
+  "Guest";
 
-  const motherName =
-    student.motherName ||
-    order.motherName ||
-    "—";
+const fatherName =
+  student?.fatherName ??
+  order?.fatherName ??
+  "—";
 
-  const studentName =
-    student.name ||
-    order.studentName ||
-    "Guest";
+const motherName =
+  student?.motherName ??
+  order?.motherName ??
+  "—";
 
-  const studentPhone =
-    student.phone ||
-    student.mobile ||
-    order.phone ||
-    "—";
+const studentPhone =
+  student?.phone ??
+  student?.mobile ??
+  order?.phone ??
+  "—";
 
-  const studentEmail =
-    student.email ||
-    order.email ||
-    "—";
+const studentEmail =
+  student?.email ??
+  order?.email ??
+  "—";
 
-  const studentAddress =
-    student.address ||
-    order.address ||
-    "";
+const shippingAddress =
+  order?.books?.find(book => book?.shippingAddress)
+    ?.shippingAddress ?? {};
+
+const studentAddress =
+  student?.address ??
+  order?.address ??
+  shippingAddress?.address ??
+  "";
+
+const studentCity = shippingAddress?.city ?? "";
+const studentState = shippingAddress?.state ?? "";
+const studentPincode = shippingAddress?.pincode ?? "";
 
   /* -----------------------------------------------------
      Render invoice
@@ -631,11 +638,10 @@ const Invoice = () => {
             type="button"
             onClick={downloadInvoice}
             disabled={isDownloading}
-            className={`flex items-center rounded-lg bg-[#204972] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#183654] ${
-              isDownloading
+            className={`flex items-center rounded-lg bg-[#204972] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#183654] ${isDownloading
                 ? "cursor-not-allowed opacity-60"
                 : ""
-            }`}
+              }`}
           >
             <Download className="mr-2 h-4 w-4" />
 
@@ -741,12 +747,22 @@ const Invoice = () => {
               {studentEmail}
             </p>
 
-            {studentAddress && (
-              <p className="breakable-text">
-                <strong>Address:</strong>{" "}
-                {studentAddress}
-              </p>
-            )}
+            {(studentAddress ||
+              studentCity ||
+              studentState ||
+              studentPincode) && (
+                <p className="breakable-text">
+                  <strong>Address:</strong>{" "}
+                  {[
+                    studentAddress,
+                    studentCity,
+                    studentState,
+                    studentPincode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+              )}
           </div>
 
           <div className="order-information">
