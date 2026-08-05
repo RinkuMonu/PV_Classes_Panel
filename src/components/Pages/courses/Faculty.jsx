@@ -1,15 +1,10 @@
-
-
-
-// src/components/Admin/Faculty/FacultyManagement.jsx
-
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../config/AxiosInstance";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import GlobalTable from "../../common/GlobalTable";
 import TableActionButton from "../../common/TableActionButton";
-import { Video, Trash2 } from "lucide-react";
+import { Video, Trash2, Pencil } from "lucide-react";
 
 function FacultyManagement() {
   const [facultyList, setFacultyList] = useState([]);
@@ -21,6 +16,9 @@ function FacultyManagement() {
     photo: null,
     demoVideo: "",
   });
+  const [isEditing, setIsEditing] = useState(false);
+const [editingId, setEditingId] = useState(null);
+
 
   // Fetch all faculty
   const fetchFaculty = async () => {
@@ -70,26 +68,64 @@ function FacultyManagement() {
       data.append("demoVideo", formData.demoVideo);
     }
 
-    try {
-      await axiosInstance.post("/faculty", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      toast.success("Faculty created successfully");
-      setFormData({
-        name: "",
-        experience: "",
-        specialization: "",
-        photo: null,
-        demoVideo: "",
-      });
-      fetchFaculty();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to create faculty");
-    }
-  };
+try {
+  if (isEditing) {
+    await axiosInstance.put(`/faculty/${editingId}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    toast.success("Faculty updated successfully");
+  } else {
+    await axiosInstance.post("/faculty", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    toast.success("Faculty created successfully");
+  }
+
+  setFormData({
+    name: "",
+    experience: "",
+    specialization: "",
+    photo: null,
+    demoVideo: "",
+  });
+
+  setIsEditing(false);
+  setEditingId(null);
+
+  fetchFaculty();
+} catch (err) {
+  console.error(err);
+
+  toast.error(
+    isEditing
+      ? "Failed to update faculty"
+      : "Failed to create faculty"
+  );
+}
+
+  const handleEdit = (faculty) => {
+  setIsEditing(true);
+  setEditingId(faculty._id);
+
+  setFormData({
+    name: faculty.name || "",
+    experience: faculty.experience || "",
+    specialization: faculty.specialization || "",
+    demoVideo: faculty.demoVideo || "",
+    photo: null,
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
 
   // Delete faculty
   const handleDelete = async (id) => {
@@ -176,15 +212,26 @@ function FacultyManagement() {
       key: "actions",
       header: "Actions",
       render: (faculty) => (
-        // UI-only: faculty actions now use the shared website table button.
-        <TableActionButton
-          onClick={() => handleDelete(faculty._id)}
-          tone="delete"
-          title="Delete"
-        >
-          <Trash2 className="h-4 w-4" />
-        </TableActionButton>
-      ),
+  <div className="flex items-center gap-2">
+
+    <TableActionButton
+      onClick={() => handleEdit(faculty)}
+      tone="edit"
+      title="Edit"
+    >
+      <Pencil className="h-4 w-4" />
+    </TableActionButton>
+
+    <TableActionButton
+      onClick={() => handleDelete(faculty._id)}
+      tone="delete"
+      title="Delete"
+    >
+      <Trash2 className="h-4 w-4" />
+    </TableActionButton>
+
+  </div>
+),
     },
   ];
 
@@ -285,8 +332,9 @@ function FacultyManagement() {
             type="submit"
             className="mt-6 px-6 py-2 bg-[#87b105] hover:scale-105 ease-in-out text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
           >
-            Add Faculty
+            {isEditing ? "Update Faculty" : "Add Faculty"}
           </button>
+
         </form>
       </div>
 
@@ -302,6 +350,7 @@ function FacultyManagement() {
       />
     </div>
   );
+}
 }
 
 export default FacultyManagement;
